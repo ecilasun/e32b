@@ -11,7 +11,7 @@ module topmodule(
 	output wire spi_mosi,
 	input wire spi_miso,
 	output wire spi_sck,
-	input wire spi_cd, // Chip detect is unused for now (tie to h/w interrupt)
+	input wire spi_cd,
 	output wire sd_poweron_n, // Always grounded to keep SDCard powered
 	// DVI
 	/*output wire [3:0] DVI_R,
@@ -54,6 +54,7 @@ FPGADeviceWires wires(
 	.spi_mosi(spi_mosi),
 	.spi_miso(spi_miso),
 	.spi_sck(spi_sck),
+	.spi_cd(spi_cd),
     // DDR3
     .ddr3_reset_n(ddr3_reset_n),
     .ddr3_cke(ddr3_cke),

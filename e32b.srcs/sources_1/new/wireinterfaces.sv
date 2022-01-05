@@ -5,6 +5,7 @@ interface FPGADeviceWires (
 		output spi_mosi,
 		input spi_miso,
 		output spi_sck,
+		input spi_cd,
 		// DDR3
 		output ddr3_reset_n,
 		output [0:0] ddr3_cke,
@@ -28,6 +29,7 @@ interface FPGADeviceWires (
 		output spi_mosi,
 		input spi_miso,
 		output spi_sck,
+		input spi_cd,
 		output ddr3_reset_n,
 		output ddr3_cke,
 		output ddr3_ck_p, 

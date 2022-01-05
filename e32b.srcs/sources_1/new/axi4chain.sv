@@ -97,6 +97,7 @@ wire validraddr_none = ~(validraddr_sram | validraddr_uart | validraddr_spi | va
 // Interrupt setup
 // ------------------------------------------------------------------------------------
 
+// TODO: Add wires.spi_cd != oldcd as an interrupt trigger here, preferably debounced
 assign irq = {3'b000, ~uartrcvempty};
 
 // ------------------------------------------------------------------------------------
