@@ -76,10 +76,10 @@ axi4spi SPIMaster(
 // GPU
 // ------------------------------------------------------------------------------------
 
-// GPU @40000000-...
-// FB0: 80000000
-// FB1: 80020000
-// PAL: 80040000
+// GPU @40000000-4FFFFFFF
+// FB0: 40000000
+// FB1: 40020000
+// PAL: 40040000
 wire validwaddr_gpu = 4'h4 == axi4if.AWADDR[31:28];
 wire validraddr_gpu = 4'h4 == axi4if.ARADDR[31:28];
 axi4 gpuif(axi4if.ACLK, axi4if.ARESETn);
@@ -112,7 +112,7 @@ axi4dummy NULLDEVICE(
 // Write router
 // ------------------------------------------------------------------------------------
 
-wire [31:0] waddr = {4'h0,axi4if.AWADDR[27:0]};
+wire [31:0] waddr = axi4if.AWADDR;
 
 always_comb begin
 	uartif.AWADDR = validwaddr_uart ? waddr : 32'dz;
@@ -206,7 +206,7 @@ end
 // Read router
 // ------------------------------------------------------------------------------------
 
-wire [31:0] raddr = {4'h0,axi4if.ARADDR[27:0]};
+wire [31:0] raddr = axi4if.ARADDR;
 
 always_comb begin
 
