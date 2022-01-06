@@ -369,12 +369,12 @@ always @(posedge axi4if.ACLK) begin
 				CSRReg[`CSR_MEPC] <= adjacentPC;
 				CSRReg[`CSR_MTVAL] <= {28'd0, irq}; // Interrupting hardware selector
 				CSRReg[`CSR_MCAUSE] <= 32'h8000000B; // [31]=1'b1(interrupt), 11->h/w
-			end else if (illegalinstruction) begin // msi, exception
+			end else if (illegalinstruction | ecall) begin // msi, exception
 				// Using non-vectored interrupt handlers (last 2 bits are 2'b00)
 				CSRReg[`CSR_MIP][3] <= 1'b1;
 				CSRReg[`CSR_MEPC] <= adjacentPC;
 				CSRReg[`CSR_MTVAL] <= instruction;
-				CSRReg[`CSR_MCAUSE] <= 32'h00000002; // [31]=1'b0(exception), 2->illegal instruction
+				CSRReg[`CSR_MCAUSE] <= ecall ? 32'h0000000b : 32'h00000002; // [31]=1'b0(exception), 0xb->ecall, 0x2->illegal instruction
 			end else if (timerinterrupt) begin // mti, timer interrupt
 				CSRReg[`CSR_MIP][7] <= 1'b1;
 				CSRReg[`CSR_MEPC] <= adjacentPC;
@@ -383,7 +383,7 @@ always @(posedge axi4if.ACLK) begin
 			end
 
 			// Point at the current instruction address based on IRQ status
-			if (hwinterrupt | illegalinstruction | timerinterrupt) begin
+			if (hwinterrupt | illegalinstruction | timerinterrupt | ecall) begin
 				PC <= mtvec;
 				axi4if.ARADDR <= mtvec;
 			end else begin
@@ -808,9 +808,9 @@ always @(posedge axi4if.ACLK) begin
 					CSRReg[`CSR_MIP][3] <= 1'b0;
 				else if(mip[0])
 					CSRReg[`CSR_MIP][7] <= 1'b0;
-			end else if (ecall) begin
-				// TODO:
-			end else if (ebreak) begin
+			end else /*if (ecall) begin
+				// NOOP here
+			end else*/ if (ebreak) begin
 				// Keep PC on same address, we'll be repeating this instuction
 				// until software overwrites it with something else
 				//PC <= PC;
