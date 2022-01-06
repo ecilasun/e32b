@@ -36,7 +36,8 @@ logic [3:0] videowe = 4'h0;
 logic [31:0] videodin = 32'd0;
 logic [14:0] videowaddr = 15'd0;
 
-//wire paletteReadAddressA, paletteReadAddressB;
+wire [7:0] paletteReadAddressA;
+wire [7:0] paletteReadAddressB;
 
 wire [11:0] actual_y = video_y-12'd16;
 wire [3:0] video_tile_x = video_x[9:6];		// x10 horizontal tiles of width 32
@@ -55,7 +56,7 @@ videounit VideoUnitA (
 		.we(videowe),
 		.din(videodin),
 		.lanemask(15'd0), // TODO: enable to allow simultaneous writes
-		.paletteindexout(paletteReadAddress/*A*/) );
+		.paletteindexout(paletteReadAddressA) );
 
 /*videounit VideoUnitB (
 		.gpuclock(clocks.gpubaseclock),
@@ -67,11 +68,9 @@ videounit VideoUnitA (
 		.we(videowe),
 		.din(videodin),
 		.lanemask(15'd0),
-		.paletteindexout(paletteReadAddressB) );
+		.paletteindexout(paletteReadAddressB) );*/
 
-assign inDisplayWindow = videopagesel ? inDisplayWindowA : inDisplayWindowB;
-assign dataEnable = videopagesel ? dataEnableA : dataEnableB;
-assign paletteReadAddress = videopagesel ? paletteReadAddressA : paletteReadAddressB;*/
+assign paletteReadAddress = paletteReadAddressA;//videopagesel ? paletteReadAddressA : paletteReadAddressB;
 
 // ----------------------------------------------------------------------------
 // Video output unit
@@ -154,7 +153,7 @@ logic [31:0] writeaddress = 32'd0;
 logic [7:0] din = 8'h00;
 logic [3:0] we = 4'h0;
 logic re = 1'b0;
-wire [31:0] dout = 32'hFFFFFFFF;
+wire [31:0] dout = 32'h0;
 
 always @(posedge axi4if.ACLK) begin
 	// Write address
@@ -184,7 +183,8 @@ always @(posedge axi4if.ACLK) begin
 				// TODO: Detect which video page or command stream we're writing to via address
 				//00000-1FFFF: page 0
 				//20000-3FFFF: page 1 (i.e. writeaddress[15]==pageselect)
-				//40000-401FF: color palette
+				//40000-401FF: color palette (writeaddress[18]==1)
+				//videopagesel <= writeaddress[15]; // Write page = 0: page0, 1: page1
 				if (writeaddress[18]==1'b1) begin
 					paletteWriteAddress = writeaddress[9:2]; // Palette index, multiples of word addresses
 					palettewe = 1'b1;
@@ -232,7 +232,7 @@ always @(posedge axi4if.ACLK) begin
 				end
 			end
 			2'b01: begin
-				axi4if.ARREADY <= 1'b0; // Can take this down after arvalid/ready handshake
+				axi4if.ARREADY <= 1'b0;
 				// Master ready to accept?
 				if (axi4if.RREADY /*& dataActuallyRead*/) begin
 					// Actually read
