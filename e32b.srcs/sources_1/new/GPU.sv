@@ -38,14 +38,13 @@ logic [14:0] videowaddr = 15'd0;
 
 //wire paletteReadAddressA, paletteReadAddressB;
 
-wire dataEnable;
-wire inDisplayWindow;
-
 wire [11:0] actual_y = video_y-12'd16;
 wire [3:0] video_tile_x = video_x[9:6];		// x10 horizontal tiles of width 32
 wire [3:0] video_tile_y = actual_y[9:6];	// x7 vertical tiles of width 32 (/64 instead of 32 since pixels are x2 in size)
 wire [4:0] tile_pixel_x = video_x[5:1];
 wire [4:0] tile_pixel_y = actual_y[5:1];
+
+wire inDisplayWindow = (video_x<640) && (video_y<480);
 
 videounit VideoUnitA (
 		.clocks(clocks),
@@ -56,9 +55,7 @@ videounit VideoUnitA (
 		.we(videowe),
 		.din(videodin),
 		.lanemask(15'd0), // TODO: enable to allow simultaneous writes
-		.paletteindexout(paletteReadAddress/*A*/),
-		.dataEnable(dataEnable/*A*/),
-		.inDisplayWindow(inDisplayWindow/*A*/) );
+		.paletteindexout(paletteReadAddress/*A*/) );
 
 /*videounit VideoUnitB (
 		.gpuclock(clocks.gpubaseclock),
@@ -70,9 +67,7 @@ videounit VideoUnitA (
 		.we(videowe),
 		.din(videodin),
 		.lanemask(15'd0),
-		.paletteindexout(paletteReadAddressB),
-		.dataEnable(dataEnableB),
-		.inDisplayWindow(inDisplayWindowB) );
+		.paletteindexout(paletteReadAddressB) );
 
 assign inDisplayWindow = videopagesel ? inDisplayWindowA : inDisplayWindowB;
 assign dataEnable = videopagesel ? dataEnableA : dataEnableB;
@@ -82,29 +77,37 @@ assign paletteReadAddress = videopagesel ? paletteReadAddressA : paletteReadAddr
 // Video output unit
 // ----------------------------------------------------------------------------
 
-//wire vsync_we;
+wire hSync, vSync;
+wire vsync_we;
 wire [31:0] vsynccounter;
 
-// TODO: find a better way to range-compress this
-wire [3:0] VIDEO_B = palettedout[7:4];
-wire [3:0] VIDEO_R = palettedout[15:12];
-wire [3:0] VIDEO_G = palettedout[23:20];
+wire [7:0] VIDEO_B = palettedout[7:0];
+wire [7:0] VIDEO_R = palettedout[15:8];
+wire [7:0] VIDEO_G = palettedout[23:16];
 
-assign gpudata.DVI_R = inDisplayWindow ? (dataEnable ? VIDEO_R : 4'b0010) : 4'h0;
-assign gpudata.DVI_G = inDisplayWindow ? (dataEnable ? VIDEO_G : 4'b0010) : 4'h0;
-assign gpudata.DVI_B = inDisplayWindow ? (dataEnable ? VIDEO_B : 4'b0010) : 4'h0;
-assign gpudata.DVI_CLK = clocks.videoclock;
-assign gpudata.DVI_DE = dataEnable;
-
-videosignalgen VideoScanOutUnit(
+videosignalgen VideoSignalGenerator(
+	.clk_i(clocks.videoclock),
 	.rst_i(~axi4if.ARESETn),
-	.clk_i(clocks.videoclock),		// Video clock input for 640x480 image
-	.hsync_o(gpudata.DVI_HS),		// DVI horizontal sync
-	.vsync_o(gpudata.DVI_VS),		// DVI vertical sync
-	.counter_x(video_x),			// Video X position (in actual pixel units)
-	.counter_y(video_y),			// Video Y position
-	.vsynctrigger_o(vsync_we),		// High when we're OK to queue a VSYNC in FIFO
-	.vsynccounter(vsynccounter) );	// Each vsync has a unique marker so that we can wait for them by name
+	.hsync_o(hSync),
+	.vsync_o(vSync),
+	.counter_x(video_x),
+	.counter_y(video_y),
+	.vsynctrigger_o(vsync_we),
+	.vsynccounter(vsynccounter) );
+
+HDMIOut VideoScanOutUnit(
+	.pixclk(clocks.videoclock),		// 25MHz pixel clock
+	.pixclk10(clocks.videoclock10),	// 250Mhz 10:1 TDMS shif clock
+	.red(VIDEO_R),
+	.green(VIDEO_G),
+	.blue(VIDEO_B),
+	.inDrawArea(inDisplayWindow),
+	.hSync(hSync),
+	.vSync(vSync),
+	.TMDSp(gpudata.TMDSp),
+	.TMDSn(gpudata.TMDSn),
+	.TMDSp_clock(gpudata.TMDSCLKp),
+	.TMDSn_clock(gpudata.TMDSCLKn) );
 
 // ----------------------------------------------------------------------------
 // Domain crossing vsync fifo

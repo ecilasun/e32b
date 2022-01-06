@@ -56,6 +56,7 @@ interface FPGADeviceClocks (
 		input spibaseclock,
 		input gpubaseclock,
 		input videoclock,
+		input videoclock10,
 		input clk_sys_i,
 		input clk_ref_i );
 
@@ -67,28 +68,23 @@ interface FPGADeviceClocks (
 		input spibaseclock,
 		input gpubaseclock,
 		input videoclock,
+		input videoclock10,
 		input clk_sys_i,
 		input clk_ref_i );
 
 endinterface
 
 interface GPUDataOutput(
-	// DVI
-	output [3:0] DVI_R,
-	output [3:0] DVI_G,
-	output [3:0] DVI_B,
-	output DVI_HS,
-	output DVI_VS,
-	output DVI_DE,
-	output DVI_CLK );
+	// HDMI
+	output [2:0] TMDSp,
+	output [2:0] TMDSn,
+	output TMDSCLKp,
+	output TMDSCLKn );
 
 	modport DEFAULT (
-		output DVI_R,
-		output DVI_G,
-		output DVI_B,
-		output DVI_HS,
-		output DVI_VS,
-		output DVI_DE,
-		output DVI_CLK );
+		output TMDSp,
+		output TMDSn,
+		output TMDSCLKp,
+		output TMDSCLKn );
 
 endinterface

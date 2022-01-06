@@ -13,14 +13,11 @@ module topmodule(
 	output wire spi_sck,
 	input wire spi_cd,
 	output wire sd_poweron_n, // Always grounded to keep SDCard powered
-	// DVI
-	/*output wire [3:0] DVI_R,
-	output wire [3:0] DVI_G,
-	output wire [3:0] DVI_B,
-	output wire DVI_HS,
-	output wire DVI_VS,
-	output wire DVI_DE,
-	output wire DVI_CLK,*/
+	// HDMI
+	output wire [2:0] hdmi_tx_p,
+	output wire [2:0] hdmi_tx_n,
+	output wire hdmi_tx_clk_p,
+	output wire hdmi_tx_clk_n,
     // DDR3
     output wire ddr3_reset_n,
     output wire [0:0] ddr3_cke,
@@ -71,22 +68,11 @@ FPGADeviceWires wires(
     .ddr3_dqs_n(ddr3_dqs_n),
     .ddr3_dq(ddr3_dq) );
 
-// Sink
-wire [3:0] DVI_R;
-wire [3:0] DVI_G;
-wire [3:0] DVI_B;
-wire DVI_HS;
-wire DVI_VS;
-wire DVI_DE;
-wire DVI_CLK;
 GPUDataOutput gpudata(
-	.DVI_R(DVI_R),
-	.DVI_G(DVI_G),
-	.DVI_B(DVI_B),
-	.DVI_HS(DVI_HS),
-	.DVI_VS(DVI_VS),
-	.DVI_DE(DVI_DE),
-	.DVI_CLK(DVI_CLK) );
+	.TMDSp(hdmi_tx_p),
+	.TMDSn(hdmi_tx_n),
+	.TMDSCLKp(hdmi_tx_clk_p ),
+	.TMDSCLKn(hdmi_tx_clk_n) );
 
 // ----------------------------------------------------------------------------
 // Clock and reset generator
@@ -94,7 +80,7 @@ GPUDataOutput gpudata(
 
 wire wallclock, cpuclock, uartbaseclock, spibaseclock;
 wire clk_sys_i, clk_ref_i;
-wire gpubaseclock, videoclock;
+wire gpubaseclock, videoclock, videoclock10;
 wire devicereset, calib_done;
 
 clockandresetgen ClockAndResetGenerator(
@@ -105,6 +91,7 @@ clockandresetgen ClockAndResetGenerator(
 	.spibaseclock(spibaseclock),
 	.gpubaseclock(gpubaseclock),
 	.videoclock(videoclock),
+	.videoclock10(videoclock10),
 	.clk_sys_i(clk_sys_i),
 	.clk_ref_i(clk_ref_i),
 	.devicereset(devicereset) );
@@ -117,6 +104,7 @@ FPGADeviceClocks clocks(
 	.spibaseclock(spibaseclock),
 	.gpubaseclock(gpubaseclock),
 	.videoclock(videoclock),
+	.videoclock10(videoclock10),
 	.clk_sys_i(clk_sys_i),
 	.clk_ref_i(clk_ref_i) );
 
