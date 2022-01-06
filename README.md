@@ -1,6 +1,6 @@
-# E32
+# E32B
 
-E32 is a small scale 32 bit RISC-V SoC implementation which contains:
+E32B is a small scale 32 bit RISC-V SoC implementation which contains:
 - A single RV32IMFZicsr HART (integer math, floating point math, CSR registers)
 - An internal UART fixed at 115200 bauds
 - An SPI Master to act as SDCard interface
@@ -9,8 +9,11 @@ E32 is a small scale 32 bit RISC-V SoC implementation which contains:
 - AXI4-Lite bus for the connected peripherals
 - External hardware interrupts on UART input
 - Simple crossbar / address decoder to route traffic between peripherals and the CPU
+- HDMI output using the on-board HDMI port
+- DDR3 memory mapped to top of address space
+- A very simple graphics module with memory mapped palette and a single frame buffer
 
-The project is built using an Arty A7-100T board but should fit onto smaller versions.
+The project is built using a Nexsys Video board from Digilent, but should fit onto other boards as well.
 
 The CPU takes several stages per instruction. The longest of these are the LOAD/WFI and STORE instructions, which have one or more additional wait/control stages.
 
@@ -43,7 +46,7 @@ The SoC uses the built-in USB/UART pins to communicate with the outside world. T
 
 # SPI Master device
 
-There's an SPI master attached onto the bus at address 0x90000000. This device is controlled by software to read SDCard data attached to the JC PMOD header on the Arty A7-100T board. Since it's software controlled, the SPI device can be utilized in other ways if needed, and no hardcoded SDCard specific optimizations / modifications are made to the device. The SPI master device is based on MTI licensed code found at https://github.com/nandland/spi-master
+There's an SPI master attached onto the bus at address 0x90000000. This device is controlled by software to read SDCard data attached to the built in SDCard slot on the under side of the Nexsys Video board. Since it's software controlled, the SPI device can be utilized in other ways if needed, and no hardcoded SDCard specific optimizations / modifications are made to the device. The SPI master device is based on MTI licensed code found at https://github.com/nandland/spi-master
 
 Each write to this address _must_ be accompanied by a tightly coupled read to ensure correct operation. This means one needs to use SPI access as a pair operation, as shown in the following example:
 
@@ -65,7 +68,7 @@ response = SPITxRx(outbyte);
 
 # CSR registers
 
-E32 currently has a minimal set of CSR registers supported to do basic exception / interrupt / timer handling, and only machine level versions.
+E32B currently has a minimal set of CSR registers supported to do basic exception / interrupt / timer handling, and only machine level versions.
 The 15 CSR registers currently in the design (all read/write access for now) are:
 
 ```
@@ -85,6 +88,3 @@ TIMECMPLO / TIMECMPHI : Time compare value against wall clock timer (custom CSR 
 # TODO
 
 - Expose FPGA pins connected to the GPIO / PMOD / LED / BUTTON peripherals as memory mapped devices
-- Add a proper AXI4-Lite crossbar to support more than one HART
-- Add back the simple GPU design
-- Add the DDR3 AXI4 device at bus address 0x00000000 and wrap it as AXI4-Lite
