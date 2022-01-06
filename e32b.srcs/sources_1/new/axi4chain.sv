@@ -13,9 +13,10 @@ module axi4chain(
 // Main system memory
 // ------------------------------------------------------------------------------------
 
-// DDR3 (256Mbytes, main system memory) @00000000-0FFFFFFF
-wire validwaddr_ddr3 = 4'h0 == axi4if.AWADDR[31:28];
-wire validraddr_ddr3 = 4'h0 == axi4if.ARADDR[31:28];
+// DDR3 lower 256Mbytes, sys-mem @00000000-0FFFFFFF
+// DDR3 upper 256Mbytes, hi-mem  @80000000-8FFFFFFF
+wire validwaddr_ddr3 = (4'h0 == axi4if.AWADDR[31:28]) | (4'h8 == axi4if.AWADDR[31:28]);
+wire validraddr_ddr3 = (4'h0 == axi4if.ARADDR[31:28]) | (4'h8 == axi4if.ARADDR[31:28]);
 axi4 ddr3if(axi4if.ACLK, axi4if.ARESETn);
 axi4ddr3 DDR3(
 	.axi4if(ddr3if),
