@@ -132,7 +132,7 @@ axi4chain AXIChain(
 // Reset vector points at B-RAM which contains the startup code
 // ----------------------------------------------------------------------------
 
-axi4cpu #(.RESETVECTOR(32'h10000000)) HART0(
+axi4cpu #(.RESETVECTOR(32'h80000000)) HART0(
 	.axi4if(axi4chain),
 	.clocks(clocks),
 	.wires(wires),

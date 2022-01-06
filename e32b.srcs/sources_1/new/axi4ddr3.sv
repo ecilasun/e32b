@@ -29,7 +29,7 @@ mig_7series_0 DDR3Instance (
     .ddr3_odt                       (wires.ddr3_odt),
 
     // Application interface ports
-    .ui_clk                         (ui_clk),          // Seems like we get a 100MHz clock with 200MHz sys clock
+    .ui_clk                         (ui_clk),          // Seems like we get a 100MHz clock here, same as clk_sys_i
     .ui_clk_sync_rst                (ui_clk_sync_rst),
     .init_calib_complete            (calib_done),
     .device_temp					(), // Unused
@@ -46,7 +46,7 @@ mig_7series_0 DDR3Instance (
 
     // Slave Interface Write Address Ports
     .s_axi_awid                     (4'h0),
-    .s_axi_awaddr                   (axi4if.AWADDR[27:0]),
+    .s_axi_awaddr                   (axi4if.AWADDR[28:0]),
     .s_axi_awlen                    (8'h00),  // 1 transfer
     .s_axi_awsize                   (3'b010), // 4 bytes
     .s_axi_awburst                  (2'b00),  // FIXED
@@ -72,7 +72,7 @@ mig_7series_0 DDR3Instance (
 
     // Slave Interface Read Address Ports
     .s_axi_arid                     (4'h0),
-    .s_axi_araddr                   (axi4if.ARADDR[27:0]),
+    .s_axi_araddr                   (axi4if.ARADDR[28:0]),
     .s_axi_arlen                    (8'h00),  // 1 transfer
     .s_axi_arsize                   (3'b010), // 4 bytes
     .s_axi_arburst                  (2'b00),  // FIXED
@@ -91,7 +91,7 @@ mig_7series_0 DDR3Instance (
     .s_axi_rvalid                   (axi4if.RVALID),
     .s_axi_rready                   (axi4if.RREADY),
     // System Clock Ports
-    .sys_clk_i                      (clocks.clk_sys_i), // 200MHz - should this be axi4if.ACLK ?
+    .sys_clk_i                      (clocks.clk_sys_i), // 100MHz
     // Reference Clock Ports
     .clk_ref_i                      (clocks.clk_ref_i), // 200MHz
     .sys_rst                        (axi4if.ARESETn) );

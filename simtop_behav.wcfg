@@ -12,159 +12,38 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000000000 us"></ZoomStartTime>
-      <ZoomEndTime time="107.750000001 us"></ZoomEndTime>
-      <Cursor1Time time="50.394038000 us"></Cursor1Time>
+      <ZoomStartTime time="220,797.966667 ns"></ZoomStartTime>
+      <ZoomEndTime time="221,230.166668 ns"></ZoomEndTime>
+      <Cursor1Time time="220,870.000000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="270"></NameColumnWidth>
-      <ValueColumnWidth column_width="111"></ValueColumnWidth>
+      <ValueColumnWidth column_width="105"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="134" />
-   <wvobject fp_name="/simtop/topmoduleinstance/sys_clock" type="logic">
+   <WVObjectSize size="304" />
+   <wvobject fp_name="/simtop/sys_clock" type="logic">
       <obj_property name="ElementShortName">sys_clock</obj_property>
       <obj_property name="ObjectShortName">sys_clock</obj_property>
    </wvobject>
-   <wvobject type="divider" fp_name="divider786">
-      <obj_property name="label">CPU</obj_property>
+   <wvobject fp_name="/simtop/topmoduleinstance/calib_done" type="logic">
+      <obj_property name="ElementShortName">calib_done</obj_property>
+      <obj_property name="ObjectShortName">calib_done</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider43">
+      <obj_property name="label">AXI4Lite</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/ACLK" type="logic">
-      <obj_property name="ElementShortName">ACLK</obj_property>
-      <obj_property name="ObjectShortName">ACLK</obj_property>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/validwaddr_ddr3" type="logic">
+      <obj_property name="ElementShortName">validwaddr_ddr3</obj_property>
+      <obj_property name="ObjectShortName">validwaddr_ddr3</obj_property>
+      <obj_property name="CustomSignalColor">#FFD700</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate" type="array">
-      <obj_property name="ElementShortName">cpustate[12:0]</obj_property>
-      <obj_property name="ObjectShortName">cpustate[12:0]</obj_property>
-      <obj_property name="isExpanded"></obj_property>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[12]" type="logic">
-         <obj_property name="ElementShortName">[12]</obj_property>
-         <obj_property name="ObjectShortName">[12]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[11]" type="logic">
-         <obj_property name="ElementShortName">[11]</obj_property>
-         <obj_property name="ObjectShortName">[11]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[10]" type="logic">
-         <obj_property name="ElementShortName">[10]</obj_property>
-         <obj_property name="ObjectShortName">[10]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[9]" type="logic">
-         <obj_property name="ElementShortName">[9]</obj_property>
-         <obj_property name="ObjectShortName">[9]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[8]" type="logic">
-         <obj_property name="ElementShortName">[8]</obj_property>
-         <obj_property name="ObjectShortName">[8]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[7]" type="logic">
-         <obj_property name="ElementShortName">[7]</obj_property>
-         <obj_property name="ObjectShortName">[7]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[6]" type="logic">
-         <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="ElementShortName">[6]</obj_property>
-         <obj_property name="ObjectShortName">[6]</obj_property>
-         <obj_property name="label">wstore</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[5]" type="logic">
-         <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="ElementShortName">[5]</obj_property>
-         <obj_property name="ObjectShortName">[5]</obj_property>
-         <obj_property name="label">wload</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[4]" type="logic">
-         <obj_property name="ElementShortName">[4]</obj_property>
-         <obj_property name="ObjectShortName">[4]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[3]" type="logic">
-         <obj_property name="ElementShortName">[3]</obj_property>
-         <obj_property name="ObjectShortName">[3]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[2]" type="logic">
-         <obj_property name="ElementShortName">[2]</obj_property>
-         <obj_property name="ObjectShortName">[2]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[1]" type="logic">
-         <obj_property name="ElementShortName">[1]</obj_property>
-         <obj_property name="ObjectShortName">[1]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[0]" type="logic">
-         <obj_property name="ElementShortName">[0]</obj_property>
-         <obj_property name="ObjectShortName">[0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[12]" type="logic">
-         <obj_property name="ElementShortName">[12]</obj_property>
-         <obj_property name="ObjectShortName">[12]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[11]" type="logic">
-         <obj_property name="ElementShortName">[11]</obj_property>
-         <obj_property name="ObjectShortName">[11]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[10]" type="logic">
-         <obj_property name="ElementShortName">[10]</obj_property>
-         <obj_property name="ObjectShortName">[10]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[9]" type="logic">
-         <obj_property name="ElementShortName">[9]</obj_property>
-         <obj_property name="ObjectShortName">[9]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[8]" type="logic">
-         <obj_property name="ElementShortName">[8]</obj_property>
-         <obj_property name="ObjectShortName">[8]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[7]" type="logic">
-         <obj_property name="ElementShortName">[7]</obj_property>
-         <obj_property name="ObjectShortName">[7]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[6]" type="logic">
-         <obj_property name="ElementShortName">[6]</obj_property>
-         <obj_property name="ObjectShortName">[6]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[5]" type="logic">
-         <obj_property name="ElementShortName">[5]</obj_property>
-         <obj_property name="ObjectShortName">[5]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[4]" type="logic">
-         <obj_property name="ElementShortName">[4]</obj_property>
-         <obj_property name="ObjectShortName">[4]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[3]" type="logic">
-         <obj_property name="ElementShortName">[3]</obj_property>
-         <obj_property name="ObjectShortName">[3]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[2]" type="logic">
-         <obj_property name="ElementShortName">[2]</obj_property>
-         <obj_property name="ObjectShortName">[2]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[1]" type="logic">
-         <obj_property name="ElementShortName">[1]</obj_property>
-         <obj_property name="ObjectShortName">[1]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[0]" type="logic">
-         <obj_property name="ElementShortName">[0]</obj_property>
-         <obj_property name="ObjectShortName">[0]</obj_property>
-      </wvobject>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/HART0/PC" type="array">
-      <obj_property name="ElementShortName">PC[31:0]</obj_property>
-      <obj_property name="ObjectShortName">PC[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/HART0/instruction" type="array">
-      <obj_property name="ElementShortName">instruction[31:0]</obj_property>
-      <obj_property name="ObjectShortName">instruction[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/HART0/IntegerRegisters/registers" type="array">
-      <obj_property name="ElementShortName">registers[0:31][31:0]</obj_property>
-      <obj_property name="ObjectShortName">registers[0:31][31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/HART0/wfi" type="logic">
-      <obj_property name="ElementShortName">wfi</obj_property>
-      <obj_property name="ObjectShortName">wfi</obj_property>
-   </wvobject>
-   <wvobject type="divider" fp_name="divider1016">
-      <obj_property name="label">AXI4Chain</obj_property>
-      <obj_property name="DisplayName">label</obj_property>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/validraddr_ddr3" type="logic">
+      <obj_property name="ElementShortName">validraddr_ddr3</obj_property>
+      <obj_property name="ObjectShortName">validraddr_ddr3</obj_property>
+      <obj_property name="CustomSignalColor">#FFD700</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/validwaddr_bram" type="logic">
       <obj_property name="ElementShortName">validwaddr_bram</obj_property>
@@ -214,18 +93,6 @@
       <obj_property name="CustomSignalColor">#FFD700</obj_property>
       <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/validwaddr_ddr3" type="logic">
-      <obj_property name="ElementShortName">validwaddr_ddr3</obj_property>
-      <obj_property name="ObjectShortName">validwaddr_ddr3</obj_property>
-      <obj_property name="CustomSignalColor">#FFD700</obj_property>
-      <obj_property name="UseCustomSignalColor">true</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/validraddr_ddr3" type="logic">
-      <obj_property name="ElementShortName">validraddr_ddr3</obj_property>
-      <obj_property name="ObjectShortName">validraddr_ddr3</obj_property>
-      <obj_property name="CustomSignalColor">#FFD700</obj_property>
-      <obj_property name="UseCustomSignalColor">true</obj_property>
-   </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/validwaddr_gpu" type="logic">
       <obj_property name="ElementShortName">validwaddr_gpu</obj_property>
       <obj_property name="ObjectShortName">validwaddr_gpu</obj_property>
@@ -250,101 +117,533 @@
       <obj_property name="CustomSignalColor">#FFD700</obj_property>
       <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
-   <wvobject type="divider" fp_name="divider184">
-      <obj_property name="label">AXI4Lite</obj_property>
-      <obj_property name="DisplayName">label</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/ACLK" type="logic">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/ACLK" type="logic">
       <obj_property name="ElementShortName">ACLK</obj_property>
       <obj_property name="ObjectShortName">ACLK</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/ARESETn" type="logic">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/ARESETn" type="logic">
       <obj_property name="ElementShortName">ARESETn</obj_property>
       <obj_property name="ObjectShortName">ARESETn</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/AWADDR" type="array">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/AWADDR" type="array">
       <obj_property name="ElementShortName">AWADDR[31:0]</obj_property>
       <obj_property name="ObjectShortName">AWADDR[31:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/AWVALID" type="logic">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/AWVALID" type="logic">
       <obj_property name="ElementShortName">AWVALID</obj_property>
       <obj_property name="ObjectShortName">AWVALID</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/AWREADY" type="logic">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/AWREADY" type="logic">
       <obj_property name="ElementShortName">AWREADY</obj_property>
       <obj_property name="ObjectShortName">AWREADY</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/WDATA" type="array">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/WDATA" type="array">
       <obj_property name="ElementShortName">WDATA[31:0]</obj_property>
       <obj_property name="ObjectShortName">WDATA[31:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/WSTRB" type="array">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/WSTRB" type="array">
       <obj_property name="ElementShortName">WSTRB[3:0]</obj_property>
       <obj_property name="ObjectShortName">WSTRB[3:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/WVALID" type="logic">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/WVALID" type="logic">
       <obj_property name="ElementShortName">WVALID</obj_property>
       <obj_property name="ObjectShortName">WVALID</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/WREADY" type="logic">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/WREADY" type="logic">
       <obj_property name="ElementShortName">WREADY</obj_property>
       <obj_property name="ObjectShortName">WREADY</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/BRESP" type="array">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/BRESP" type="array">
       <obj_property name="ElementShortName">BRESP[1:0]</obj_property>
       <obj_property name="ObjectShortName">BRESP[1:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/BVALID" type="logic">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/BVALID" type="logic">
       <obj_property name="ElementShortName">BVALID</obj_property>
       <obj_property name="ObjectShortName">BVALID</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/BREADY" type="logic">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/BREADY" type="logic">
       <obj_property name="ElementShortName">BREADY</obj_property>
       <obj_property name="ObjectShortName">BREADY</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/ARADDR" type="array">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/ARADDR" type="array">
       <obj_property name="ElementShortName">ARADDR[31:0]</obj_property>
       <obj_property name="ObjectShortName">ARADDR[31:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/ARVALID" type="logic">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/ARVALID" type="logic">
       <obj_property name="ElementShortName">ARVALID</obj_property>
       <obj_property name="ObjectShortName">ARVALID</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/ARREADY" type="logic">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/ARREADY" type="logic">
       <obj_property name="ElementShortName">ARREADY</obj_property>
       <obj_property name="ObjectShortName">ARREADY</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/RDATA" type="array">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/RDATA" type="array">
       <obj_property name="ElementShortName">RDATA[31:0]</obj_property>
       <obj_property name="ObjectShortName">RDATA[31:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/RRESP" type="array">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/RRESP" type="array">
       <obj_property name="ElementShortName">RRESP[1:0]</obj_property>
       <obj_property name="ObjectShortName">RRESP[1:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/RREADY" type="logic">
-      <obj_property name="ElementShortName">RREADY</obj_property>
-      <obj_property name="ObjectShortName">RREADY</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/axi4if/RVALID" type="logic">
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/RVALID" type="logic">
       <obj_property name="ElementShortName">RVALID</obj_property>
       <obj_property name="ObjectShortName">RVALID</obj_property>
    </wvobject>
-   <wvobject type="divider" fp_name="divider260">
-      <obj_property name="label">DDR3</obj_property>
+   <wvobject fp_name="/simtop/topmoduleinstance/axi4chain/RREADY" type="logic">
+      <obj_property name="ElementShortName">RREADY</obj_property>
+      <obj_property name="ObjectShortName">RREADY</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider44">
+      <obj_property name="label">HART0</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/calib_done" type="logic">
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/irq" type="array">
+      <obj_property name="ElementShortName">irq[3:0]</obj_property>
+      <obj_property name="ObjectShortName">irq[3:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/calib_done" type="logic">
       <obj_property name="ElementShortName">calib_done</obj_property>
       <obj_property name="ObjectShortName">calib_done</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ui_clk" type="logic">
-      <obj_property name="ElementShortName">ui_clk</obj_property>
-      <obj_property name="ObjectShortName">ui_clk</obj_property>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate" type="array">
+      <obj_property name="ElementShortName">cpustate[12:0]</obj_property>
+      <obj_property name="ObjectShortName">cpustate[12:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[12]" type="logic">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[12]</obj_property>
+         <obj_property name="ObjectShortName">[12]</obj_property>
+         <obj_property name="label">wfi</obj_property>
+      </wvobject>
+      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[11]" type="logic">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[11]</obj_property>
+         <obj_property name="ObjectShortName">[11]</obj_property>
+         <obj_property name="label">wback</obj_property>
+      </wvobject>
+      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[10]" type="logic">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[10]</obj_property>
+         <obj_property name="ObjectShortName">[10]</obj_property>
+         <obj_property name="label">fstall</obj_property>
+      </wvobject>
+      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[9]" type="logic">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[9]</obj_property>
+         <obj_property name="ObjectShortName">[9]</obj_property>
+         <obj_property name="label">fpuop</obj_property>
+      </wvobject>
+      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[8]" type="logic">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[8]</obj_property>
+         <obj_property name="ObjectShortName">[8]</obj_property>
+         <obj_property name="label">fmstall</obj_property>
+      </wvobject>
+      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[7]" type="logic">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[7]</obj_property>
+         <obj_property name="ObjectShortName">[7]</obj_property>
+         <obj_property name="label">waitimath</obj_property>
+      </wvobject>
+      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[6]" type="logic">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[6]</obj_property>
+         <obj_property name="ObjectShortName">[6]</obj_property>
+         <obj_property name="label">waitstore</obj_property>
+      </wvobject>
+      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[5]" type="logic">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[5]</obj_property>
+         <obj_property name="ObjectShortName">[5]</obj_property>
+         <obj_property name="label">waitload</obj_property>
+      </wvobject>
+      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[4]" type="logic">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[4]</obj_property>
+         <obj_property name="ObjectShortName">[4]</obj_property>
+         <obj_property name="label">execute</obj_property>
+      </wvobject>
+      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[3]" type="logic">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[3]</obj_property>
+         <obj_property name="ObjectShortName">[3]</obj_property>
+         <obj_property name="label">decode</obj_property>
+      </wvobject>
+      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[2]" type="logic">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[2]</obj_property>
+         <obj_property name="ObjectShortName">[2]</obj_property>
+         <obj_property name="label">fetch</obj_property>
+      </wvobject>
+      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[1]" type="logic">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[1]</obj_property>
+         <obj_property name="ObjectShortName">[1]</obj_property>
+         <obj_property name="label">retire</obj_property>
+      </wvobject>
+      <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate[0]" type="logic">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">[0]</obj_property>
+         <obj_property name="ObjectShortName">[0]</obj_property>
+         <obj_property name="label">init</obj_property>
+      </wvobject>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ui_clk_sync_rst" type="logic">
-      <obj_property name="ElementShortName">ui_clk_sync_rst</obj_property>
-      <obj_property name="ObjectShortName">ui_clk_sync_rst</obj_property>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/PC" type="array">
+      <obj_property name="ElementShortName">PC[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PC[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/adjacentPC" type="array">
+      <obj_property name="ElementShortName">adjacentPC[31:0]</obj_property>
+      <obj_property name="ObjectShortName">adjacentPC[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/csrval" type="array">
+      <obj_property name="ElementShortName">csrval[31:0]</obj_property>
+      <obj_property name="ObjectShortName">csrval[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/hwinterrupt" type="logic">
+      <obj_property name="ElementShortName">hwinterrupt</obj_property>
+      <obj_property name="ObjectShortName">hwinterrupt</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/illegalinstruction" type="logic">
+      <obj_property name="ElementShortName">illegalinstruction</obj_property>
+      <obj_property name="ObjectShortName">illegalinstruction</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/timerinterrupt" type="logic">
+      <obj_property name="ElementShortName">timerinterrupt</obj_property>
+      <obj_property name="ObjectShortName">timerinterrupt</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/miena" type="logic">
+      <obj_property name="ElementShortName">miena</obj_property>
+      <obj_property name="ObjectShortName">miena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/msena" type="logic">
+      <obj_property name="ElementShortName">msena</obj_property>
+      <obj_property name="ObjectShortName">msena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/mtena" type="logic">
+      <obj_property name="ElementShortName">mtena</obj_property>
+      <obj_property name="ObjectShortName">mtena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/ecall" type="logic">
+      <obj_property name="ElementShortName">ecall</obj_property>
+      <obj_property name="ObjectShortName">ecall</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/ebreak" type="logic">
+      <obj_property name="ElementShortName">ebreak</obj_property>
+      <obj_property name="ObjectShortName">ebreak</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/wfi" type="logic">
+      <obj_property name="ElementShortName">wfi</obj_property>
+      <obj_property name="ObjectShortName">wfi</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/mret" type="logic">
+      <obj_property name="ElementShortName">mret</obj_property>
+      <obj_property name="ObjectShortName">mret</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/trq" type="logic">
+      <obj_property name="ElementShortName">trq</obj_property>
+      <obj_property name="ObjectShortName">trq</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/mip" type="array">
+      <obj_property name="ElementShortName">mip[2:0]</obj_property>
+      <obj_property name="ObjectShortName">mip[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/mtvec" type="array">
+      <obj_property name="ElementShortName">mtvec[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mtvec[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/shortcnt" type="array">
+      <obj_property name="ElementShortName">shortcnt[3:0]</obj_property>
+      <obj_property name="ObjectShortName">shortcnt[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpusidetrigger" type="array">
+      <obj_property name="ElementShortName">cpusidetrigger[63:0]</obj_property>
+      <obj_property name="ObjectShortName">cpusidetrigger[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/clockcounter" type="array">
+      <obj_property name="ElementShortName">clockcounter[63:0]</obj_property>
+      <obj_property name="ObjectShortName">clockcounter[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/CSRReg" type="array">
+      <obj_property name="ElementShortName">CSRReg[0:15][31:0]</obj_property>
+      <obj_property name="ObjectShortName">CSRReg[0:15][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/csrindex" type="array">
+      <obj_property name="ElementShortName">csrindex[4:0]</obj_property>
+      <obj_property name="ObjectShortName">csrindex[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/csrwe" type="logic">
+      <obj_property name="ElementShortName">csrwe</obj_property>
+      <obj_property name="ObjectShortName">csrwe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/csrin" type="array">
+      <obj_property name="ElementShortName">csrin[31:0]</obj_property>
+      <obj_property name="ObjectShortName">csrin[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/csrindex_l" type="array">
+      <obj_property name="ElementShortName">csrindex_l[4:0]</obj_property>
+      <obj_property name="ObjectShortName">csrindex_l[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/instruction" type="array">
+      <obj_property name="ElementShortName">instruction[31:0]</obj_property>
+      <obj_property name="ObjectShortName">instruction[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/decen" type="logic">
+      <obj_property name="ElementShortName">decen</obj_property>
+      <obj_property name="ObjectShortName">decen</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/isrecordingform" type="logic">
+      <obj_property name="ElementShortName">isrecordingform</obj_property>
+      <obj_property name="ObjectShortName">isrecordingform</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/instrOneHot" type="array">
+      <obj_property name="ElementShortName">instrOneHot[17:0]</obj_property>
+      <obj_property name="ObjectShortName">instrOneHot[17:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/selectimmedasrval2" type="logic">
+      <obj_property name="ElementShortName">selectimmedasrval2</obj_property>
+      <obj_property name="ObjectShortName">selectimmedasrval2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/immed" type="array">
+      <obj_property name="ElementShortName">immed[31:0]</obj_property>
+      <obj_property name="ObjectShortName">immed[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/rs1" type="array">
+      <obj_property name="ElementShortName">rs1[4:0]</obj_property>
+      <obj_property name="ObjectShortName">rs1[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/rs2" type="array">
+      <obj_property name="ElementShortName">rs2[4:0]</obj_property>
+      <obj_property name="ObjectShortName">rs2[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/rs3" type="array">
+      <obj_property name="ElementShortName">rs3[4:0]</obj_property>
+      <obj_property name="ObjectShortName">rs3[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/rd" type="array">
+      <obj_property name="ElementShortName">rd[4:0]</obj_property>
+      <obj_property name="ObjectShortName">rd[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/func3" type="array">
+      <obj_property name="ElementShortName">func3[2:0]</obj_property>
+      <obj_property name="ObjectShortName">func3[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/func7" type="array">
+      <obj_property name="ElementShortName">func7[6:0]</obj_property>
+      <obj_property name="ObjectShortName">func7[6:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/func12" type="array">
+      <obj_property name="ElementShortName">func12[11:0]</obj_property>
+      <obj_property name="ObjectShortName">func12[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/aluop" type="array">
+      <obj_property name="ElementShortName">aluop[3:0]</obj_property>
+      <obj_property name="ObjectShortName">aluop[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/bluop" type="array">
+      <obj_property name="ElementShortName">bluop[2:0]</obj_property>
+      <obj_property name="ObjectShortName">bluop[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/rwren" type="logic">
+      <obj_property name="ElementShortName">rwren</obj_property>
+      <obj_property name="ObjectShortName">rwren</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/frwe" type="logic">
+      <obj_property name="ElementShortName">frwe</obj_property>
+      <obj_property name="ObjectShortName">frwe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/rdin" type="array">
+      <obj_property name="ElementShortName">rdin[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rdin[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/frdin" type="array">
+      <obj_property name="ElementShortName">frdin[31:0]</obj_property>
+      <obj_property name="ObjectShortName">frdin[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/rval1" type="array">
+      <obj_property name="ElementShortName">rval1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rval1[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/rval2" type="array">
+      <obj_property name="ElementShortName">rval2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rval2[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/frval1" type="array">
+      <obj_property name="ElementShortName">frval1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">frval1[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/frval2" type="array">
+      <obj_property name="ElementShortName">frval2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">frval2[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/frval3" type="array">
+      <obj_property name="ElementShortName">frval3[31:0]</obj_property>
+      <obj_property name="ObjectShortName">frval3[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/aluen" type="logic">
+      <obj_property name="ElementShortName">aluen</obj_property>
+      <obj_property name="ObjectShortName">aluen</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/reqalu" type="logic">
+      <obj_property name="ElementShortName">reqalu</obj_property>
+      <obj_property name="ObjectShortName">reqalu</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/aluout" type="array">
+      <obj_property name="ElementShortName">aluout[31:0]</obj_property>
+      <obj_property name="ObjectShortName">aluout[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/branchout" type="logic">
+      <obj_property name="ElementShortName">branchout</obj_property>
+      <obj_property name="ObjectShortName">branchout</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/branchr" type="logic">
+      <obj_property name="ElementShortName">branchr</obj_property>
+      <obj_property name="ObjectShortName">branchr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/fmaddstrobe" type="logic">
+      <obj_property name="ElementShortName">fmaddstrobe</obj_property>
+      <obj_property name="ObjectShortName">fmaddstrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/fmsubstrobe" type="logic">
+      <obj_property name="ElementShortName">fmsubstrobe</obj_property>
+      <obj_property name="ObjectShortName">fmsubstrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/fnmsubstrobe" type="logic">
+      <obj_property name="ElementShortName">fnmsubstrobe</obj_property>
+      <obj_property name="ObjectShortName">fnmsubstrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/fnmaddstrobe" type="logic">
+      <obj_property name="ElementShortName">fnmaddstrobe</obj_property>
+      <obj_property name="ObjectShortName">fnmaddstrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/faddstrobe" type="logic">
+      <obj_property name="ElementShortName">faddstrobe</obj_property>
+      <obj_property name="ObjectShortName">faddstrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/fsubstrobe" type="logic">
+      <obj_property name="ElementShortName">fsubstrobe</obj_property>
+      <obj_property name="ObjectShortName">fsubstrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/fmulstrobe" type="logic">
+      <obj_property name="ElementShortName">fmulstrobe</obj_property>
+      <obj_property name="ObjectShortName">fmulstrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/fdivstrobe" type="logic">
+      <obj_property name="ElementShortName">fdivstrobe</obj_property>
+      <obj_property name="ObjectShortName">fdivstrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/fi2fstrobe" type="logic">
+      <obj_property name="ElementShortName">fi2fstrobe</obj_property>
+      <obj_property name="ObjectShortName">fi2fstrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/fui2fstrobe" type="logic">
+      <obj_property name="ElementShortName">fui2fstrobe</obj_property>
+      <obj_property name="ObjectShortName">fui2fstrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/ff2istrobe" type="logic">
+      <obj_property name="ElementShortName">ff2istrobe</obj_property>
+      <obj_property name="ObjectShortName">ff2istrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/ff2uistrobe" type="logic">
+      <obj_property name="ElementShortName">ff2uistrobe</obj_property>
+      <obj_property name="ObjectShortName">ff2uistrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/fsqrtstrobe" type="logic">
+      <obj_property name="ElementShortName">fsqrtstrobe</obj_property>
+      <obj_property name="ObjectShortName">fsqrtstrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/feqstrobe" type="logic">
+      <obj_property name="ElementShortName">feqstrobe</obj_property>
+      <obj_property name="ObjectShortName">feqstrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/fltstrobe" type="logic">
+      <obj_property name="ElementShortName">fltstrobe</obj_property>
+      <obj_property name="ObjectShortName">fltstrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/flestrobe" type="logic">
+      <obj_property name="ElementShortName">flestrobe</obj_property>
+      <obj_property name="ObjectShortName">flestrobe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/FPUResultValid" type="logic">
+      <obj_property name="ElementShortName">FPUResultValid</obj_property>
+      <obj_property name="ObjectShortName">FPUResultValid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/FPUResult" type="array">
+      <obj_property name="ElementShortName">FPUResult[31:0]</obj_property>
+      <obj_property name="ObjectShortName">FPUResult[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/mout" type="array">
+      <obj_property name="ElementShortName">mout[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mout[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/mwrite" type="logic">
+      <obj_property name="ElementShortName">mwrite</obj_property>
+      <obj_property name="ObjectShortName">mwrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/mulbusy" type="logic">
+      <obj_property name="ElementShortName">mulbusy</obj_property>
+      <obj_property name="ObjectShortName">mulbusy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/divbusy" type="logic">
+      <obj_property name="ElementShortName">divbusy</obj_property>
+      <obj_property name="ObjectShortName">divbusy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/divbusyu" type="logic">
+      <obj_property name="ElementShortName">divbusyu</obj_property>
+      <obj_property name="ObjectShortName">divbusyu</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/product" type="array">
+      <obj_property name="ElementShortName">product[31:0]</obj_property>
+      <obj_property name="ObjectShortName">product[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/quotient" type="array">
+      <obj_property name="ElementShortName">quotient[31:0]</obj_property>
+      <obj_property name="ObjectShortName">quotient[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/quotientu" type="array">
+      <obj_property name="ElementShortName">quotientu[31:0]</obj_property>
+      <obj_property name="ObjectShortName">quotientu[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/remainder" type="array">
+      <obj_property name="ElementShortName">remainder[31:0]</obj_property>
+      <obj_property name="ObjectShortName">remainder[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/remainderu" type="array">
+      <obj_property name="ElementShortName">remainderu[31:0]</obj_property>
+      <obj_property name="ObjectShortName">remainderu[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/isexecuting" type="logic">
+      <obj_property name="ElementShortName">isexecuting</obj_property>
+      <obj_property name="ObjectShortName">isexecuting</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/isexecutingimath" type="logic">
+      <obj_property name="ElementShortName">isexecutingimath</obj_property>
+      <obj_property name="ObjectShortName">isexecutingimath</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/mulstart" type="logic">
+      <obj_property name="ElementShortName">mulstart</obj_property>
+      <obj_property name="ObjectShortName">mulstart</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/divstart" type="logic">
+      <obj_property name="ElementShortName">divstart</obj_property>
+      <obj_property name="ObjectShortName">divstart</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/imathstart" type="logic">
+      <obj_property name="ElementShortName">imathstart</obj_property>
+      <obj_property name="ObjectShortName">imathstart</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/imathbusy" type="logic">
+      <obj_property name="ElementShortName">imathbusy</obj_property>
+      <obj_property name="ObjectShortName">imathbusy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/loadstoreaddress" type="array">
+      <obj_property name="ElementShortName">loadstoreaddress[31:0]</obj_property>
+      <obj_property name="ObjectShortName">loadstoreaddress[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider150">
+      <obj_property name="label">DDR3</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3Instance/ddr3_dq" type="array">
       <obj_property name="ElementShortName">ddr3_dq[15:0]</obj_property>
@@ -359,8 +658,8 @@
       <obj_property name="ObjectShortName">ddr3_dqs_p[1:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3Instance/ddr3_addr" type="array">
-      <obj_property name="ElementShortName">ddr3_addr[13:0]</obj_property>
-      <obj_property name="ObjectShortName">ddr3_addr[13:0]</obj_property>
+      <obj_property name="ElementShortName">ddr3_addr[14:0]</obj_property>
+      <obj_property name="ObjectShortName">ddr3_addr[14:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3Instance/ddr3_ba" type="array">
       <obj_property name="ElementShortName">ddr3_ba[2:0]</obj_property>
@@ -393,10 +692,6 @@
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3Instance/ddr3_cke" type="array">
       <obj_property name="ElementShortName">ddr3_cke[0:0]</obj_property>
       <obj_property name="ObjectShortName">ddr3_cke[0:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3Instance/ddr3_cs_n" type="array">
-      <obj_property name="ElementShortName">ddr3_cs_n[0:0]</obj_property>
-      <obj_property name="ObjectShortName">ddr3_cs_n[0:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3Instance/ddr3_dm" type="array">
       <obj_property name="ElementShortName">ddr3_dm[1:0]</obj_property>
@@ -459,8 +754,8 @@
       <obj_property name="ObjectShortName">s_axi_awid[3:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3Instance/s_axi_awaddr" type="array">
-      <obj_property name="ElementShortName">s_axi_awaddr[27:0]</obj_property>
-      <obj_property name="ObjectShortName">s_axi_awaddr[27:0]</obj_property>
+      <obj_property name="ElementShortName">s_axi_awaddr[28:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awaddr[28:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3Instance/s_axi_awlen" type="array">
       <obj_property name="ElementShortName">s_axi_awlen[7:0]</obj_property>
@@ -539,8 +834,8 @@
       <obj_property name="ObjectShortName">s_axi_arid[3:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3Instance/s_axi_araddr" type="array">
-      <obj_property name="ElementShortName">s_axi_araddr[27:0]</obj_property>
-      <obj_property name="ObjectShortName">s_axi_araddr[27:0]</obj_property>
+      <obj_property name="ElementShortName">s_axi_araddr[28:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_araddr[28:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3Instance/s_axi_arlen" type="array">
       <obj_property name="ElementShortName">s_axi_arlen[7:0]</obj_property>
@@ -614,7 +909,7 @@
       <obj_property name="ElementShortName">sys_rst</obj_property>
       <obj_property name="ObjectShortName">sys_rst</obj_property>
    </wvobject>
-   <wvobject type="divider" fp_name="divider1444">
+   <wvobject type="divider" fp_name="divider220">
       <obj_property name="label">BRAM</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
@@ -693,5 +988,361 @@
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/BRAM/A4LiteVRAMSinglePort/s_axi_rready" type="logic">
       <obj_property name="ElementShortName">s_axi_rready</obj_property>
       <obj_property name="ObjectShortName">s_axi_rready</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider346">
+      <obj_property name="label">SRAM</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_aclk" type="logic">
+      <obj_property name="ElementShortName">s_aclk</obj_property>
+      <obj_property name="ObjectShortName">s_aclk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_aresetn" type="logic">
+      <obj_property name="ElementShortName">s_aresetn</obj_property>
+      <obj_property name="ObjectShortName">s_aresetn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_awaddr" type="array">
+      <obj_property name="ElementShortName">s_axi_awaddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awaddr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_awvalid" type="logic">
+      <obj_property name="ElementShortName">s_axi_awvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_awready" type="logic">
+      <obj_property name="ElementShortName">s_axi_awready</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_wdata" type="array">
+      <obj_property name="ElementShortName">s_axi_wdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_wstrb" type="array">
+      <obj_property name="ElementShortName">s_axi_wstrb[3:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wstrb[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_wvalid" type="logic">
+      <obj_property name="ElementShortName">s_axi_wvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_wready" type="logic">
+      <obj_property name="ElementShortName">s_axi_wready</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_bresp" type="array">
+      <obj_property name="ElementShortName">s_axi_bresp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_bresp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_bvalid" type="logic">
+      <obj_property name="ElementShortName">s_axi_bvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axi_bvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_bready" type="logic">
+      <obj_property name="ElementShortName">s_axi_bready</obj_property>
+      <obj_property name="ObjectShortName">s_axi_bready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_araddr" type="array">
+      <obj_property name="ElementShortName">s_axi_araddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_araddr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_arvalid" type="logic">
+      <obj_property name="ElementShortName">s_axi_arvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_arready" type="logic">
+      <obj_property name="ElementShortName">s_axi_arready</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_rdata" type="array">
+      <obj_property name="ElementShortName">s_axi_rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_rresp" type="array">
+      <obj_property name="ElementShortName">s_axi_rresp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rresp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_rvalid" type="logic">
+      <obj_property name="ElementShortName">s_axi_rvalid</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SRAM/A4LiteVRAMSinglePort/s_axi_rready" type="logic">
+      <obj_property name="ElementShortName">s_axi_rready</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rready</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider240">
+      <obj_property name="label">UART</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartrcvempty" type="logic">
+      <obj_property name="ElementShortName">uartrcvempty</obj_property>
+      <obj_property name="ObjectShortName">uartrcvempty</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/waddrstate" type="array">
+      <obj_property name="ElementShortName">waddrstate[1:0]</obj_property>
+      <obj_property name="ObjectShortName">waddrstate[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/writestate" type="array">
+      <obj_property name="ElementShortName">writestate[1:0]</obj_property>
+      <obj_property name="ObjectShortName">writestate[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/raddrstate" type="array">
+      <obj_property name="ElementShortName">raddrstate[1:0]</obj_property>
+      <obj_property name="ObjectShortName">raddrstate[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/din" type="array">
+      <obj_property name="ElementShortName">din[7:0]</obj_property>
+      <obj_property name="ObjectShortName">din[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/we" type="array">
+      <obj_property name="ElementShortName">we[3:0]</obj_property>
+      <obj_property name="ObjectShortName">we[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/transmitbyte" type="logic">
+      <obj_property name="ElementShortName">transmitbyte</obj_property>
+      <obj_property name="ObjectShortName">transmitbyte</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/datatotransmit" type="array">
+      <obj_property name="ElementShortName">datatotransmit[7:0]</obj_property>
+      <obj_property name="ObjectShortName">datatotransmit[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uarttxbusy" type="logic">
+      <obj_property name="ElementShortName">uarttxbusy</obj_property>
+      <obj_property name="ObjectShortName">uarttxbusy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartsenddout" type="array">
+      <obj_property name="ElementShortName">uartsenddout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">uartsenddout[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartsendre" type="logic">
+      <obj_property name="ElementShortName">uartsendre</obj_property>
+      <obj_property name="ObjectShortName">uartsendre</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartsendfull" type="logic">
+      <obj_property name="ElementShortName">uartsendfull</obj_property>
+      <obj_property name="ObjectShortName">uartsendfull</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartsendempty" type="logic">
+      <obj_property name="ElementShortName">uartsendempty</obj_property>
+      <obj_property name="ObjectShortName">uartsendempty</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartsendvalid" type="logic">
+      <obj_property name="ElementShortName">uartsendvalid</obj_property>
+      <obj_property name="ObjectShortName">uartsendvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartwritemode" type="array">
+      <obj_property name="ElementShortName">uartwritemode[1:0]</obj_property>
+      <obj_property name="ObjectShortName">uartwritemode[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartbyteavailable" type="logic">
+      <obj_property name="ElementShortName">uartbyteavailable</obj_property>
+      <obj_property name="ObjectShortName">uartbyteavailable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartbytein" type="array">
+      <obj_property name="ElementShortName">uartbytein[7:0]</obj_property>
+      <obj_property name="ObjectShortName">uartbytein[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartrcvfull" type="logic">
+      <obj_property name="ElementShortName">uartrcvfull</obj_property>
+      <obj_property name="ObjectShortName">uartrcvfull</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartrcvvalid" type="logic">
+      <obj_property name="ElementShortName">uartrcvvalid</obj_property>
+      <obj_property name="ObjectShortName">uartrcvvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartrcvdin" type="array">
+      <obj_property name="ElementShortName">uartrcvdin[7:0]</obj_property>
+      <obj_property name="ObjectShortName">uartrcvdin[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartrcvdout" type="array">
+      <obj_property name="ElementShortName">uartrcvdout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">uartrcvdout[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartrcvre" type="logic">
+      <obj_property name="ElementShortName">uartrcvre</obj_property>
+      <obj_property name="ObjectShortName">uartrcvre</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/UART/uartrcvwe" type="logic">
+      <obj_property name="ElementShortName">uartrcvwe</obj_property>
+      <obj_property name="ObjectShortName">uartrcvwe</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider264">
+      <obj_property name="label">SPI</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SPIMaster/waddrstate" type="array">
+      <obj_property name="ElementShortName">waddrstate[1:0]</obj_property>
+      <obj_property name="ObjectShortName">waddrstate[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SPIMaster/writestate" type="array">
+      <obj_property name="ElementShortName">writestate[1:0]</obj_property>
+      <obj_property name="ObjectShortName">writestate[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SPIMaster/raddrstate" type="array">
+      <obj_property name="ElementShortName">raddrstate[1:0]</obj_property>
+      <obj_property name="ObjectShortName">raddrstate[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SPIMaster/writeaddress" type="array">
+      <obj_property name="ElementShortName">writeaddress[31:0]</obj_property>
+      <obj_property name="ObjectShortName">writeaddress[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SPIMaster/readaddress" type="array">
+      <obj_property name="ElementShortName">readaddress[31:0]</obj_property>
+      <obj_property name="ObjectShortName">readaddress[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SPIMaster/writedata" type="array">
+      <obj_property name="ElementShortName">writedata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">writedata[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SPIMaster/readdata" type="array">
+      <obj_property name="ElementShortName">readdata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">readdata[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SPIMaster/we" type="array">
+      <obj_property name="ElementShortName">we[3:0]</obj_property>
+      <obj_property name="ObjectShortName">we[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SPIMaster/cansend" type="logic">
+      <obj_property name="ElementShortName">cansend</obj_property>
+      <obj_property name="ObjectShortName">cansend</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SPIMaster/hasvaliddata" type="logic">
+      <obj_property name="ElementShortName">hasvaliddata</obj_property>
+      <obj_property name="ObjectShortName">hasvaliddata</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/SPIMaster/spiincomingdata" type="array">
+      <obj_property name="ElementShortName">spiincomingdata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">spiincomingdata[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider276">
+      <obj_property name="label">GPU</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/paletteReadAddress" type="array">
+      <obj_property name="ElementShortName">paletteReadAddress[7:0]</obj_property>
+      <obj_property name="ObjectShortName">paletteReadAddress[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/paletteWriteAddress" type="array">
+      <obj_property name="ElementShortName">paletteWriteAddress[7:0]</obj_property>
+      <obj_property name="ObjectShortName">paletteWriteAddress[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/palettewe" type="logic">
+      <obj_property name="ElementShortName">palettewe</obj_property>
+      <obj_property name="ObjectShortName">palettewe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/palettedin" type="array">
+      <obj_property name="ElementShortName">palettedin[23:0]</obj_property>
+      <obj_property name="ObjectShortName">palettedin[23:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/palettedout" type="array">
+      <obj_property name="ElementShortName">palettedout[23:0]</obj_property>
+      <obj_property name="ObjectShortName">palettedout[23:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/video_x" type="array">
+      <obj_property name="ElementShortName">video_x[11:0]</obj_property>
+      <obj_property name="ObjectShortName">video_x[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/video_y" type="array">
+      <obj_property name="ElementShortName">video_y[11:0]</obj_property>
+      <obj_property name="ObjectShortName">video_y[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/videopagesel" type="logic">
+      <obj_property name="ElementShortName">videopagesel</obj_property>
+      <obj_property name="ObjectShortName">videopagesel</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/videowe" type="array">
+      <obj_property name="ElementShortName">videowe[3:0]</obj_property>
+      <obj_property name="ObjectShortName">videowe[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/videodin" type="array">
+      <obj_property name="ElementShortName">videodin[31:0]</obj_property>
+      <obj_property name="ObjectShortName">videodin[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/videowaddr" type="array">
+      <obj_property name="ElementShortName">videowaddr[14:0]</obj_property>
+      <obj_property name="ObjectShortName">videowaddr[14:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/actual_y" type="array">
+      <obj_property name="ElementShortName">actual_y[11:0]</obj_property>
+      <obj_property name="ObjectShortName">actual_y[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/video_tile_x" type="array">
+      <obj_property name="ElementShortName">video_tile_x[3:0]</obj_property>
+      <obj_property name="ObjectShortName">video_tile_x[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/video_tile_y" type="array">
+      <obj_property name="ElementShortName">video_tile_y[3:0]</obj_property>
+      <obj_property name="ObjectShortName">video_tile_y[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/tile_pixel_x" type="array">
+      <obj_property name="ElementShortName">tile_pixel_x[4:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_pixel_x[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/tile_pixel_y" type="array">
+      <obj_property name="ElementShortName">tile_pixel_y[4:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_pixel_y[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/inDisplayWindow" type="logic">
+      <obj_property name="ElementShortName">inDisplayWindow</obj_property>
+      <obj_property name="ObjectShortName">inDisplayWindow</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/hSync" type="logic">
+      <obj_property name="ElementShortName">hSync</obj_property>
+      <obj_property name="ObjectShortName">hSync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/vSync" type="logic">
+      <obj_property name="ElementShortName">vSync</obj_property>
+      <obj_property name="ObjectShortName">vSync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/vsync_we" type="logic">
+      <obj_property name="ElementShortName">vsync_we</obj_property>
+      <obj_property name="ObjectShortName">vsync_we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/vsynccounter" type="array">
+      <obj_property name="ElementShortName">vsynccounter[31:0]</obj_property>
+      <obj_property name="ObjectShortName">vsynccounter[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/VIDEO_B" type="array">
+      <obj_property name="ElementShortName">VIDEO_B[7:0]</obj_property>
+      <obj_property name="ObjectShortName">VIDEO_B[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/VIDEO_R" type="array">
+      <obj_property name="ElementShortName">VIDEO_R[7:0]</obj_property>
+      <obj_property name="ObjectShortName">VIDEO_R[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/VIDEO_G" type="array">
+      <obj_property name="ElementShortName">VIDEO_G[7:0]</obj_property>
+      <obj_property name="ObjectShortName">VIDEO_G[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/waddrstate" type="array">
+      <obj_property name="ElementShortName">waddrstate[1:0]</obj_property>
+      <obj_property name="ObjectShortName">waddrstate[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/writestate" type="array">
+      <obj_property name="ElementShortName">writestate[1:0]</obj_property>
+      <obj_property name="ObjectShortName">writestate[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/raddrstate" type="array">
+      <obj_property name="ElementShortName">raddrstate[1:0]</obj_property>
+      <obj_property name="ObjectShortName">raddrstate[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/writeaddress" type="array">
+      <obj_property name="ElementShortName">writeaddress[31:0]</obj_property>
+      <obj_property name="ObjectShortName">writeaddress[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/din" type="array">
+      <obj_property name="ElementShortName">din[7:0]</obj_property>
+      <obj_property name="ObjectShortName">din[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/we" type="array">
+      <obj_property name="ElementShortName">we[3:0]</obj_property>
+      <obj_property name="ObjectShortName">we[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/re" type="logic">
+      <obj_property name="ElementShortName">re</obj_property>
+      <obj_property name="ObjectShortName">re</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/dout" type="array">
+      <obj_property name="ElementShortName">dout[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dout[31:0]</obj_property>
    </wvobject>
 </wave_config>

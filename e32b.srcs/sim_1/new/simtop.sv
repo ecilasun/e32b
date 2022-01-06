@@ -17,12 +17,11 @@ wire ddr3_reset_n;
 wire [0:0]   ddr3_cke;
 wire [0:0]   ddr3_ck_p; 
 wire [0:0]   ddr3_ck_n;
-wire [0:0]   ddr3_cs_n;
 wire ddr3_ras_n; 
 wire ddr3_cas_n;
 wire ddr3_we_n;
 wire [2:0]   ddr3_ba;
-wire [13:0]  ddr3_addr;
+wire [14:0]  ddr3_addr;
 wire [0:0]   ddr3_odt;
 wire [1:0]   ddr3_dm;
 wire [1:0]   ddr3_dqs_p;
@@ -34,7 +33,7 @@ ddr3_model ddr3simmod(
     .ck(ddr3_ck_p),
     .ck_n(ddr3_ck_n),
     .cke(ddr3_cke),
-    .cs_n(ddr3_cs_n),
+    .cs_n(1'b0),
     .ras_n(ddr3_ras_n),
     .cas_n(ddr3_cas_n),
     .we_n(ddr3_we_n),
@@ -69,7 +68,6 @@ topmodule topmoduleinstance(
     .ddr3_cke(ddr3_cke),
     .ddr3_ck_p(ddr3_ck_p),
     .ddr3_ck_n(ddr3_ck_n),
-    .ddr3_cs_n(ddr3_cs_n),
     .ddr3_ras_n(ddr3_ras_n), 
     .ddr3_cas_n(ddr3_cas_n), 
     .ddr3_we_n(ddr3_we_n),

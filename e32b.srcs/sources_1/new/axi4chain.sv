@@ -13,10 +13,9 @@ module axi4chain(
 // Main system memory
 // ------------------------------------------------------------------------------------
 
-// DDR3 lower 256Mbytes, sys-mem @00000000-0FFFFFFF
-// DDR3 upper 256Mbytes, hi-mem  @80000000-8FFFFFFF
-wire validwaddr_ddr3 = (4'h0 == axi4if.AWADDR[31:28]) | (4'h8 == axi4if.AWADDR[31:28]);
-wire validraddr_ddr3 = (4'h0 == axi4if.ARADDR[31:28]) | (4'h8 == axi4if.ARADDR[31:28]);
+// DDR3 512Mbytes, sys-mem @00000000-1FFFFFFF
+wire validwaddr_ddr3 = (4'h0 == axi4if.AWADDR[31:28]) | (4'h1 == axi4if.AWADDR[31:28]);
+wire validraddr_ddr3 = (4'h0 == axi4if.ARADDR[31:28]) | (4'h1 == axi4if.ARADDR[31:28]);
 axi4 ddr3if(axi4if.ACLK, axi4if.ARESETn);
 axi4ddr3 DDR3(
 	.axi4if(ddr3if),
@@ -26,20 +25,20 @@ axi4ddr3 DDR3(
 	.ui_clk(ui_clk) );
 
 // ------------------------------------------------------------------------------------
-// Internal block memory
+// Internal block memories
 // ------------------------------------------------------------------------------------
 
-wire validw_internalmem = (4'h1 == axi4if.AWADDR[31:28]);
-wire validr_internalmem = (4'h1 == axi4if.ARADDR[31:28]);
+wire validw_internalmem = (4'h8 == axi4if.AWADDR[31:28]);
+wire validr_internalmem = (4'h8 == axi4if.ARADDR[31:28]);
 
-// B-RAM (64KBytes, boot program memory ram) @10000000-1000FFFF
+// B-RAM (64KBytes, boot program memory ram) @80000000-8000FFFF
 wire validwaddr_bram = validw_internalmem & (axi4if.AWADDR[19:16] == 4'h0);
 wire validraddr_bram = validr_internalmem & (axi4if.ARADDR[19:16] == 4'h0);
 axi4 bramif(axi4if.ACLK, axi4if.ARESETn);
 axi4bram BRAM(
 	.axi4if(bramif));
 
-// S-RAM (128KBytes, scratchpad memory) @10010000-1002FFFF
+// S-RAM (128KBytes, scratchpad memory) @80010000-8002FFFF
 wire validwaddr_sram = validw_internalmem & (axi4if.AWADDR[19:16] != 4'h0);
 wire validraddr_sram = validr_internalmem & (axi4if.ARADDR[19:16] != 4'h0);
 axi4 sramif(axi4if.ACLK, axi4if.ARESETn);
