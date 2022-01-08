@@ -119,20 +119,23 @@ ddr3readdone DDR3ReadDoneQueue(
 	.dout(ddr3readout),
 	.rd_en(ddr3readre),
 	.valid(ddr3readvalid),
-	.rst(ui_clk_sync_rst) );
+	// Reset/status
+	.rst(ui_clk_sync_rst),
+	.wr_rst_busy(),
+	.rd_rst_busy() );
 
-localparam IDLE = 3'd0;
-localparam DECODECMD = 3'd1;
-localparam CACHERESOLVE = 3'd2;
-localparam CACHEWRITEBACK = 3'd3;
-localparam CACHEWRITEBACKDONE = 3'd4;
-localparam CACHEPOPULATE = 3'd5;
-localparam CACHEPOPULATEDONE = 3'd6;
+localparam CACHEIDLE			= 3'd0;
+localparam CACHELOOKUPSETUP		= 3'd1;
+localparam CACHERESOLVE			= 3'd2;
+localparam CACHEWRITEBACK		= 3'd3;
+localparam CACHEWRITEBACKDONE	= 3'd4;
+localparam CACHEPOPULATE 		= 3'd5;
+localparam CACHEPOPULATEDONE	= 3'd6;
 
 localparam CMD_WRITE = 3'b000;
 localparam CMD_READ = 3'b001;
 
-logic [2:0] ddr3uistate = IDLE;
+logic [2:0] ddr3uistate = CACHEIDLE;
 
 // [65:62]     [61:30]    [29:1]                   [0]
 // wmask[3:0], din[31:0], warrd[29:1]/raddr[29:1], cmdr/cmdw[0:0] == total of 66 bits
@@ -146,7 +149,7 @@ logic [7:0] cline;		// Current cache line 0..255 (there are 256 cache lines)
 logic [1:0] coffset;	// Current word offset 0..3 (each cache line is 4xWORDs (128bits))
 logic [31:0] cwidemask;	// Wide write mask
 
-logic ddr3dirty [0:255];			// Cache line dirty bits
+logic ddr3valid [0:255];			// Cache line valid bits
 logic [127:0] ddr3cache [0:255];	// Cache lines
 logic [17:0] ddr3tags [0:255];		// Cache line tags
 
@@ -156,12 +159,15 @@ logic [31:0] ddr3din = 32'd0;
 initial begin
 	integer i;
 	// All pages are 'clean', all tags are invalid and cache is zeroed out by default
-	for (int i=0;i<256;i=i+1) begin
-		ddr3dirty[i] = 1'b0;		// Dirty flag is set to zero by default
+	for (int i=0; i<256; i=i+1) begin
+		ddr3valid[i] = 1'b1;		// Cache lines are all valid by default
 		ddr3tags[i] = 18'h3FFFF;	// All bits set for default tag
-		ddr3cache[i] = 128'd0;		// Cache line contains zeroes initially
+		ddr3cache[i] = 128'd0;		// Initially, cache line contains zero
 	end
 end
+
+// NOTE: This module uses a direct mapped cache with no dedicated I$/D$ but a combined cache, therefore will function
+// very poorly as-is. Separate I$ will follow in following versions.
 
 always @(posedge clocks.ui_clk) begin
 	if (ui_clk_sync_rst) begin
@@ -170,20 +176,21 @@ always @(posedge clocks.ui_clk) begin
 
 	end else begin
 
+		// Stop read/write requests
 		ddr3readwe <= 1'b0;
 		ddr3cmd_re <= 1'b0;
 
 		case (ddr3uistate)
 
-			IDLE: begin
-				// Pull one command from the queue
+			CACHEIDLE: begin
+				// Pull one command from the queue if we have something
 				if (~ddr3cmd_empty) begin
 					ddr3cmd_re <= 1'b1;
-					ddr3uistate <= DECODECMD;
+					ddr3uistate <= CACHELOOKUPSETUP;
 				end
 			end
 
-			DECODECMD: begin
+			CACHELOOKUPSETUP: begin
 				if (ddr3cmd_valid) begin
 					// Set up cache access data
 					cwidemask <= {	{8{ddr3cmd_dout[65]}},
@@ -195,13 +202,14 @@ always @(posedge clocks.ui_clk) begin
 					cline <= ddr3cmd_dout[11:4];				// axi4if.AxADDR[11:4] Cache line 0..255
 					coffset <= ddr3cmd_dout[3:2];				// axi4if.AxADDR[3:2] WORD offset 0..3
 					ptag <= ddr3tags[ddr3cmd_dout[11:4]];		// Previous tag stored for this cache line
-					// Resolve cache access
+					// Test for cache hit or miss
 					ddr3uistate <= CACHERESOLVE;
 				end
 			end
 
 			CACHERESOLVE: begin
-				if (ptag == ctag) begin	// Cache hit
+				// If previous tag from cache is same as new tag, we have a cache hit
+				if (ptag == ctag) begin
 					if (ddr3cmd_dout[0] == 1'b1) begin // Write
 						case (coffset)
 							2'b00: ddr3cache[cline][31:0] <= ((~cwidemask)&ddr3cache[cline][31:0]) | (cwidemask&ddr3din);
@@ -209,8 +217,8 @@ always @(posedge clocks.ui_clk) begin
 							2'b10: ddr3cache[cline][95:64] <= ((~cwidemask)&ddr3cache[cline][95:64]) | (cwidemask&ddr3din);
 							2'b11: ddr3cache[cline][127:96] <= ((~cwidemask)&ddr3cache[cline][127:96]) | (cwidemask&ddr3din);
 						endcase
-						// Mark this line dirty
-						ddr3dirty[cline] <= 1'b1;
+						// Mark this cache line invalid so that it can be flushed to DDR3 memory next time
+						ddr3valid[cline] <= 1'b0;
 					end else begin // Read
 						case (coffset)
 							2'b00: ddr3readin <= ddr3cache[cline][31:0];
@@ -222,16 +230,11 @@ always @(posedge clocks.ui_clk) begin
 						ddr3readwe <= 1'b1;
 					end
 					// We're done, listen to next command
-					ddr3uistate <= IDLE;
-				end else begin // Cache miss
-					// Tag in cache isn't same as current access tag (flush->reload->resolve or reload->resolve)
-					if (ddr3dirty[cline] == 1'b1) begin
-						// We need to first flush then reload the cache line
-						ddr3uistate <= CACHEWRITEBACK;
-					end else begin
-						// In this case it's sufficient to only reload the new line
-						ddr3uistate <= CACHEPOPULATE;
-					end
+					ddr3uistate <= CACHEIDLE;
+				end else begin // Otherwise, we have a cache miss
+					// If the current cache line is invalid, 1)flush, 2)reload and 3)resolve
+					// If the current cache line is valid, 1)reload and 2)resolve
+					ddr3uistate <= ddr3valid[cline] ? CACHEPOPULATE : CACHEWRITEBACK;
 				end
 			end
 
@@ -256,8 +259,8 @@ always @(posedge clocks.ui_clk) begin
 					app_wdf_wren <= 0;
 				end
 				if (~app_en & ~app_wdf_wren) begin
-					// Clear dirty bit
-					ddr3dirty[cline] <= 1'b0;
+					// Set valid bit
+					ddr3valid[cline] <= 1'b1;
 					ddr3uistate <= CACHEPOPULATE; // We can now load the new page
 				end
 			end
@@ -274,7 +277,7 @@ always @(posedge clocks.ui_clk) begin
 				end
 			end
 
-			default /*CACHEPOPULATEDONE*/:begin
+			default: begin // CACHEPOPULATEDONE
 				if (app_rdy & app_en) begin
 					app_en <= 0;
 				end
@@ -283,7 +286,7 @@ always @(posedge clocks.ui_clk) begin
 					// Update tag
 					ptag <= ctag;
 					ddr3tags[cline] <= ctag;
-					// Update cache contents
+					// Update previous/current cache contents
 					ddr3cache[cline] <= app_rd_data;
 					// Go to resolve
 					ddr3uistate <= CACHERESOLVE;
@@ -335,7 +338,7 @@ always @(posedge axi4if.ACLK) begin
 					waddrstate <= WAACK;
 				end
 			end
-			default: begin
+			default: begin // WAACK
 				axi4if.AWREADY <= 1'b1;
 				waddrstate <= WAIDLE;
 			end
