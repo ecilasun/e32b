@@ -51,20 +51,24 @@ assign wires.spi_cs_n = 1'b0; // Keep attached SPI device selected/powered on
 // ----------------------------------------------------------------------------
 
 always @(posedge axi4if.ACLK) begin
-	// Write address
-	case (waddrstate)
-		2'b00: begin
-			if (axi4if.AWVALID) begin
-				writeaddress <= axi4if.AWADDR;
-				axi4if.AWREADY <= 1'b1;
-				waddrstate <= 2'b01;
+	if (~axi4if.ARESETn) begin
+		axi4if.AWREADY <= 1'b1;
+	end else begin
+		// Write address
+		case (waddrstate)
+			2'b00: begin
+				if (axi4if.AWVALID) begin
+					writeaddress <= axi4if.AWADDR;
+					axi4if.AWREADY <= 1'b0;
+					waddrstate <= 2'b01;
+				end
 			end
-		end
-		default/*2'b01*/: begin
-			axi4if.AWREADY <= 1'b0;
-			waddrstate <= 2'b00;
-		end
-	endcase
+			default/*2'b01*/: begin
+				axi4if.AWREADY <= 1'b1;
+				waddrstate <= 2'b00;
+			end
+		endcase
+	end
 end
 
 always @(posedge axi4if.ACLK) begin
@@ -97,21 +101,21 @@ end
 
 always @(posedge axi4if.ACLK) begin
 	if (~axi4if.ARESETn) begin
-		axi4if.ARREADY <= 1'b0;
+		axi4if.ARREADY <= 1'b1;
 		axi4if.RVALID <= 1'b0;
 		axi4if.RRESP <= 2'b00;
+		axi4if.RDATA <= 32'd0;
 	end else begin
 		// Read address
 		case (raddrstate)
 			2'b00: begin
 				if (axi4if.ARVALID) begin
-					axi4if.ARREADY <= 1'b1;
+					axi4if.ARREADY <= 1'b0;
 					readaddress <= axi4if.ARADDR;
 					raddrstate <= 2'b01;
 				end
 			end
 			2'b01: begin
-				axi4if.ARREADY <= 1'b0;
 				// Master ready to accept
 				if (axi4if.RREADY & hasvaliddata) begin
 					// Produce the data on the bus and assert valid
@@ -124,6 +128,7 @@ always @(posedge axi4if.ACLK) begin
 			default/*2'b10*/: begin
 				// At this point master should have responded properly with ARVALID=0
 				axi4if.RVALID <= 1'b0;
+				axi4if.ARREADY <= 1'b1;
 				//axi4if.RLAST <= 1'b0;
 				raddrstate <= 2'b00;
 			end

@@ -112,7 +112,7 @@ axi4dummy NULLDEVICE(
 // Write router
 // ------------------------------------------------------------------------------------
 
-wire [31:0] waddr = axi4if.AWADDR;
+wire [31:0] waddr = {3'b000, axi4if.AWADDR[28:0]};
 
 always_comb begin
 	uartif.AWADDR = validwaddr_uart ? waddr : 32'dz;
@@ -206,7 +206,7 @@ end
 // Read router
 // ------------------------------------------------------------------------------------
 
-wire [31:0] raddr = axi4if.ARADDR;
+wire [31:0] raddr = {3'b000, axi4if.ARADDR[28:0]};
 
 always_comb begin
 

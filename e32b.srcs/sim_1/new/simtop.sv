@@ -50,7 +50,7 @@ ddr3_model ddr3simmod(
 // This ensures that after startup we start getting
 // hardware interrupts and can see the interrupt handler,
 // if installed and enabled, running on the CPU.
-assign uart_txd_in = uart_rxd_out;
+assign uart_txd_in = 1'b1;//uart_rxd_out;
 
 // Loopback the SPI data
 assign spi_miso = spi_mosi;

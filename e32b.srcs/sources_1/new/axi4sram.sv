@@ -3,7 +3,7 @@
 module axi4sram(
     axi4.SLAVE axi4if);
 
-axi4litesmem A4LiteVRAMSinglePort(
+axi4litesmem A4LiteSRAMSinglePort(
   .s_aclk(axi4if.ACLK),            // input wire s_aclk
   .s_aresetn(axi4if.ARESETn),      // input wire s_aresetn
   .s_axi_awaddr(axi4if.AWADDR),    // input wire [31 : 0] s_axi_awaddr

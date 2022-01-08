@@ -397,12 +397,12 @@ always @(posedge axi4if.ACLK) begin
 		end
 
 		CPUFETCH: begin
-			if (axi4if.ARREADY) begin // Handshake complete?
-				axi4if.ARVALID <= 1'b0;
+			if (axi4if.ARREADY) begin
+				axi4if.ARVALID <= 1'b0; // Address handshake complete
 			end
 
-			if (axi4if.RVALID) begin // Data ready
-				axi4if.RREADY <= 1'b0; // Data accepted
+			if (axi4if.RVALID) begin
+				axi4if.RREADY <= 1'b0; // Data read complete
 
 				// Latch instruction and enable decoder
 				instruction <= axi4if.RDATA;
@@ -546,12 +546,12 @@ always @(posedge axi4if.ACLK) begin
 		end
 
 		CPULOADWAIT: begin
-			if (axi4if.ARREADY) begin // Wait until bus accepts the read address
-				axi4if.ARVALID <= 1'b0;
+			if (axi4if.ARREADY) begin
+				axi4if.ARVALID <= 1'b0; // Address handshake complete
 			end
 
 			if (axi4if.RVALID) begin
-				axi4if.RREADY <= 1'b0; // Data accepted, go to not-ready
+				axi4if.RREADY <= 1'b0; // Data read complete
 
 				case (func3)
 					3'b000: begin // BYTE with sign extension
@@ -601,17 +601,16 @@ always @(posedge axi4if.ACLK) begin
 
 		CPUSTOREWAIT: begin
 			if (axi4if.AWREADY) begin
-				axi4if.AWVALID <= 1'b0;
+				axi4if.AWVALID <= 1'b0; // Address handshake complete
 			end
 
 			if (axi4if.WREADY) begin
-				// We can now turn off valid and go to next stage
 				axi4if.WVALID <= 1'b0;
 				axi4if.WSTRB <= 4'h0;
 			end
 
 			if (axi4if.BVALID) begin
-				axi4if.BREADY <= 1'b0;
+				axi4if.BREADY <= 1'b0; // Data write complete
 				cpustate <= CPUWBACK;
 			end else begin
 				// Didn't store yet

@@ -109,7 +109,7 @@ always @(posedge clocks.uartbaseclock) begin
 	uartrcvwe <= 1'b0;
 	// NOTE: Any byte that won't fit into the FIFO will be dropped
 	// Make sure to consume them quickly on arrival!
-	if (uartbyteavailable & (~uartsendfull)) begin
+	if (uartbyteavailable & (~uartrcvfull)) begin
 		uartrcvwe <= 1'b1;
 		uartrcvdin <= uartbytein;
 	end
@@ -117,20 +117,24 @@ end
 
 // Main state machine
 always @(posedge axi4if.ACLK) begin
-	// Write address
-	case (waddrstate)
-		2'b00: begin
-			if (axi4if.AWVALID & (~uartsendfull)) begin
-				//writeaddress <= axi4if.AWADDR; // TODO: select subdevice using some bits of address
-				axi4if.AWREADY <= 1'b1;
-				waddrstate <= 2'b01;
+	if (~axi4if.ARESETn) begin
+		axi4if.AWREADY <= 1'b1;
+	end else begin
+		// Write address
+		case (waddrstate)
+			2'b00: begin
+				if (axi4if.AWVALID & (~uartsendfull)) begin
+					axi4if.AWREADY <= 1'b0;
+					//writeaddress <= axi4if.AWADDR; // TODO: select subdevice using some bits of address
+					waddrstate <= 2'b01;
+				end
 			end
-		end
-		default/*2'b01*/: begin
-			axi4if.AWREADY <= 1'b0;
-			waddrstate <= 2'b00;
-		end
-	endcase
+			default/*2'b01*/: begin
+				axi4if.AWREADY <= 1'b1;
+				waddrstate <= 2'b00;
+			end
+		endcase
+	end
 end
 
 always @(posedge axi4if.ACLK) begin
@@ -163,7 +167,7 @@ end
 
 always @(posedge axi4if.ACLK) begin
 	if (~axi4if.ARESETn) begin
-		axi4if.ARREADY <= 1'b0;
+		axi4if.ARREADY <= 1'b1;
 		axi4if.RVALID <= 1'b0;
 		axi4if.RRESP <= 2'b00;
 	end else begin
@@ -172,7 +176,7 @@ always @(posedge axi4if.ACLK) begin
 		case (raddrstate)
 			2'b00: begin
 				if (axi4if.ARVALID) begin
-					axi4if.ARREADY <= 1'b1;
+					axi4if.ARREADY <= 1'b0;
 					if (axi4if.ARADDR[3:0] == 4'h8) begin // Data I/O port
 						uartrcvre <= 1'b1;
 						raddrstate <= 2'b01;
@@ -182,7 +186,6 @@ always @(posedge axi4if.ACLK) begin
 				end
 			end
 			2'b01: begin
-				axi4if.ARREADY <= 1'b0;
 				// Master ready to accept
 				if (axi4if.RREADY & uartrcvvalid) begin
 					axi4if.RDATA <= {uartrcvdout, uartrcvdout, uartrcvdout, uartrcvdout};
@@ -192,7 +195,6 @@ always @(posedge axi4if.ACLK) begin
 				end
 			end
 			2'b10: begin
-				axi4if.ARREADY <= 1'b0;
 				// Master ready to accept
 				if (axi4if.RREADY) begin
 					if (axi4if.ARADDR[3:0] == 4'h4) // Byteavailable port
@@ -207,6 +209,7 @@ always @(posedge axi4if.ACLK) begin
 			default/*2'b11*/: begin
 				// At this point master should have responded properly with ARVALID=0
 				axi4if.RVALID <= 1'b0;
+				axi4if.ARREADY <= 1'b1;
 				//axi4if.RLAST <= 1'b0;
 				raddrstate <= 2'b00;
 			end

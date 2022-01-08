@@ -98,13 +98,14 @@ clockandresetgen ClockAndResetGenerator(
 
 FPGADeviceClocks clocks(
 	.calib_done(calib_done),
-	.cpuclock(ui_clk),//cpuclock), // Bus/CPU clock taken over by DDR3 generated clock
+	.cpuclock(cpuclock), // Bus/CPU clock taken over by DDR3 generated clock
 	.wallclock(wallclock),
 	.uartbaseclock(uartbaseclock),
 	.spibaseclock(spibaseclock),
 	.gpubaseclock(gpubaseclock),
 	.videoclock(videoclock),
 	.videoclock10(videoclock10),
+	.ui_clk(ui_clk), // DDR3 driven clock
 	.clk_sys_i(clk_sys_i),
 	.clk_ref_i(clk_ref_i) );
 
@@ -115,7 +116,7 @@ FPGADeviceClocks clocks(
 wire [3:0] irq;
 
 axi4 axi4chain(
-	.ACLK(ui_clk),
+	.ACLK(cpuclock),
 	.ARESETn(~devicereset) );
 
 axi4chain AXIChain(
