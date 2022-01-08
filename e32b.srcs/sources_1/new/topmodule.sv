@@ -114,6 +114,7 @@ FPGADeviceClocks clocks(
 // ----------------------------------------------------------------------------
 
 wire [3:0] irq;
+wire ifetch;
 
 axi4 axi4chain(
 	.ACLK(cpuclock),
@@ -124,6 +125,7 @@ axi4chain AXIChain(
 	.clocks(clocks),
 	.wires(wires),
 	.gpudata(gpudata),
+	.ifetch(ifetch),
 	.irq(irq),
 	.calib_done(calib_done),
 	.ui_clk(ui_clk) );
@@ -137,6 +139,7 @@ axi4cpu #(.RESETVECTOR(32'h80000000)) HART0(
 	.axi4if(axi4chain),
 	.clocks(clocks),
 	.wires(wires),
+	.ifetch(ifetch), // High when we're requesting an instruction
 	.irq(irq),
 	.calib_done(calib_done) );
 

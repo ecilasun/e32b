@@ -5,6 +5,7 @@ module axi4chain(
 	FPGADeviceClocks.DEFAULT clocks,
 	FPGADeviceWires.DEFAULT wires,
 	GPUDataOutput.DEFAULT gpudata,
+	input wire ifetch,
 	output wire [3:0] irq,
 	output wire calib_done,
 	output wire ui_clk );
@@ -21,6 +22,7 @@ axi4ddr3 DDR3(
 	.axi4if(ddr3if),
 	.clocks(clocks),
 	.wires(wires),
+	.ifetch(ifetch),
 	.calib_done(calib_done),
 	.ui_clk(ui_clk) );
 

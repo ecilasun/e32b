@@ -7,6 +7,7 @@ module axi4cpu #(
 	axi4.MASTER axi4if,
 	FPGADeviceClocks.DEFAULT clocks,
 	FPGADeviceWires.DEFAULT wires,
+	output logic ifetch = 1'b0,
 	input wire [3:0] irq,
 	input wire calib_done );
 
@@ -391,7 +392,8 @@ always @(posedge axi4if.ACLK) begin
 			end
 
 			axi4if.ARVALID <= 1'b1;
-			axi4if.RREADY <= 1'b1; // Ready to accept
+			axi4if.RREADY <= 1'b1;	// Ready to accept
+			ifetch <= 1'b1;			// This is an instruction fetch
 
 			cpustate <= CPUFETCH;
 		end
@@ -416,6 +418,8 @@ always @(posedge axi4if.ACLK) begin
 				mtvec <= {CSRReg[`CSR_MTVEC][31:2], 2'b00};
 				mip <= {CSRReg[`CSR_MIP][11], CSRReg[`CSR_MIP][3], CSRReg[`CSR_MIP][7]}; // high if interrupt pending
 				cpusidetrigger <= {CSRReg[`CSR_TIMECMPHI], CSRReg[`CSR_TIMECMPLO]}; // Latch the timecmp value
+
+				ifetch <= 1'b0; // Instruction fetch done
 
 				cpustate <= CPUDECODE;
 			end else begin
