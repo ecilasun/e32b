@@ -12,15 +12,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="444.492240369 us"></ZoomStartTime>
-      <ZoomEndTime time="554.642240370 us"></ZoomEndTime>
-      <Cursor1Time time="497.507063937 us"></Cursor1Time>
+      <ZoomStartTime time="317,669.000000 ns"></ZoomStartTime>
+      <ZoomEndTime time="319,814.000001 ns"></ZoomEndTime>
+      <Cursor1Time time="318,310.000000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="245"></NameColumnWidth>
-      <ValueColumnWidth column_width="88"></ValueColumnWidth>
+      <NameColumnWidth column_width="264"></NameColumnWidth>
+      <ValueColumnWidth column_width="127"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="118" />
+   <WVObjectSize size="120" />
    <wvobject fp_name="/simtop/sys_clock" type="logic">
       <obj_property name="ElementShortName">sys_clock</obj_property>
       <obj_property name="ObjectShortName">sys_clock</obj_property>
@@ -204,6 +204,7 @@
    <wvobject fp_name="/simtop/topmoduleinstance/HART0/cpustate" type="array">
       <obj_property name="ElementShortName">cpustate[12:0]</obj_property>
       <obj_property name="ObjectShortName">cpustate[12:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/HART0/PC" type="array">
       <obj_property name="ElementShortName">PC[31:0]</obj_property>
@@ -256,6 +257,11 @@
    <wvobject fp_name="/simtop/topmoduleinstance/HART0/instruction" type="array">
       <obj_property name="ElementShortName">instruction[31:0]</obj_property>
       <obj_property name="ObjectShortName">instruction[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/HART0/IntegerRegisters/registers" type="array">
+      <obj_property name="ElementShortName">registers[0:31][31:0]</obj_property>
+      <obj_property name="ObjectShortName">registers[0:31][31:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
    </wvobject>
    <wvobject type="divider" fp_name="divider150">
       <obj_property name="label">DDR3</obj_property>
@@ -489,17 +495,21 @@
       <obj_property name="label">CACHE</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ifetch" type="logic">
+      <obj_property name="ElementShortName">ifetch</obj_property>
+      <obj_property name="ObjectShortName">ifetch</obj_property>
+   </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ptag" type="array">
-      <obj_property name="ElementShortName">ptag[16:0]</obj_property>
-      <obj_property name="ObjectShortName">ptag[16:0]</obj_property>
+      <obj_property name="ElementShortName">ptag[17:0]</obj_property>
+      <obj_property name="ObjectShortName">ptag[17:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ctag" type="array">
-      <obj_property name="ElementShortName">ctag[16:0]</obj_property>
-      <obj_property name="ObjectShortName">ctag[16:0]</obj_property>
+      <obj_property name="ElementShortName">ctag[17:0]</obj_property>
+      <obj_property name="ObjectShortName">ctag[17:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/cline" type="array">
-      <obj_property name="ElementShortName">cline[7:0]</obj_property>
-      <obj_property name="ObjectShortName">cline[7:0]</obj_property>
+      <obj_property name="ElementShortName">cline[8:0]</obj_property>
+      <obj_property name="ObjectShortName">cline[8:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/coffset" type="array">
@@ -510,16 +520,17 @@
       <obj_property name="ElementShortName">cwidemask[31:0]</obj_property>
       <obj_property name="ObjectShortName">cwidemask[31:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ddr3dirty" type="array">
-      <obj_property name="ElementShortName">ddr3dirty[0:255]</obj_property>
-      <obj_property name="ObjectShortName">ddr3dirty[0:255]</obj_property>
-   </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ddr3cache" type="array">
-      <obj_property name="ElementShortName">ddr3cache[0:255][127:0]</obj_property>
-      <obj_property name="ObjectShortName">ddr3cache[0:255][127:0]</obj_property>
+      <obj_property name="ElementShortName">ddr3cache[0:511][127:0]</obj_property>
+      <obj_property name="ObjectShortName">ddr3cache[0:511][127:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ddr3tags" type="array">
-      <obj_property name="ElementShortName">ddr3tags[0:255][16:0]</obj_property>
-      <obj_property name="ObjectShortName">ddr3tags[0:255][16:0]</obj_property>
+      <obj_property name="ElementShortName">ddr3tags[0:511][17:0]</obj_property>
+      <obj_property name="ObjectShortName">ddr3tags[0:511][17:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ddr3valid" type="array">
+      <obj_property name="ElementShortName">ddr3valid[0:511]</obj_property>
+      <obj_property name="ObjectShortName">ddr3valid[0:511]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
    </wvobject>
 </wave_config>

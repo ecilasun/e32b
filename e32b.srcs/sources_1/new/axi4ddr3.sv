@@ -1,13 +1,19 @@
 `timescale 1ns / 1ps
 
+// NOTE: This module uses a direct mapped cache with address space divided
+// between D$ and I$ so that D$ ranges from cache line #0 to #255 (inclusive)
+// and I$ starts at cache line #256 and goes up to cache line #511 (inclusive).
+// Cache contents are written back when a tag change occurs and if the contents
+// at that cache line are invalid (wback-on r/w)
+
 module axi4ddr3(
 	axi4.SLAVE axi4if,
 	FPGADeviceClocks.DEFAULT clocks,
 	FPGADeviceWires.DEFAULT wires,
 	input wire ifetch,
-	output wire calib_done,
-	output wire ui_clk);
+	output wire calib_done );
 
+wire ui_clk;
 wire ui_clk_sync_rst;
 
 logic [28:0] app_addr = 29'd0;
@@ -70,11 +76,11 @@ mig_7series_0 u_mig_7series_0 (
 );
 
 wire ddr3cmd_full;
-logic [65:0] ddr3cmd_din;
+logic [64:0] ddr3cmd_din;
 logic ddr3cmd_we = 1'b0;
 
 wire ddr3cmd_empty;
-wire [65:0] ddr3cmd_dout;
+wire [64:0] ddr3cmd_dout;
 logic ddr3cmd_re = 1'b0;
 wire ddr3cmd_valid;
 
@@ -85,15 +91,13 @@ ddr3cmdfifo DDR3CommandFIFO(
 	.din(ddr3cmd_din),
 	.wr_en(ddr3cmd_we),
 	// DDR3 app side
-	.rd_clk(clocks.ui_clk),
+	.rd_clk(ui_clk),
 	.empty(ddr3cmd_empty),
 	.dout(ddr3cmd_dout),
 	.rd_en(ddr3cmd_re),
 	.valid(ddr3cmd_valid),
 	// Reset/status
-	.rst(ui_clk_sync_rst),
-	.wr_rst_busy(),
-	.rd_rst_busy() );
+	.rst(ui_clk_sync_rst) );
 
 // Read done queue
 wire ddr3readfull;
@@ -107,7 +111,7 @@ wire ddr3readvalid;
 
 ddr3readdone DDR3ReadDoneQueue(
 	// DDR3 app side
-	.wr_clk(clocks.ui_clk),
+	.wr_clk(ui_clk),
 	.full(ddr3readfull),
 	.din(ddr3readin),
 	.wr_en(ddr3readwe),
@@ -118,9 +122,7 @@ ddr3readdone DDR3ReadDoneQueue(
 	.rd_en(ddr3readre),
 	.valid(ddr3readvalid),
 	// Reset/status
-	.rst(ui_clk_sync_rst),
-	.wr_rst_busy(),
-	.rd_rst_busy() );
+	.rst(ui_clk_sync_rst) );
 
 localparam CACHEIDLE			= 3'd0;
 localparam CACHELOOKUPSETUP		= 3'd1;
@@ -135,40 +137,31 @@ localparam CMD_READ = 3'b001;
 
 logic [2:0] ddr3uistate = CACHEIDLE;
 
-// [65:62]     [61:30]    [29:1]                   [0]
-// wmask[3:0], din[31:0], warrd[29:1]/raddr[29:1], cmdr/cmdw[0:0] == total of 66 bits
+logic [16:0] ptag;					// Previous cache tag (17 bits)
+logic [16:0] ctag;					// Current cache tag (17 bits)
+logic [8:0] cline;					// Current cache line 0..512 (there are 512 cache lines)
+logic [1:0] coffset;				// Current word offset 0..3 (each cache line is 4xWORDs (128bits))
+logic [31:0] cwidemask;				// Wide write mask
 
-// logic [65:0] ddr3cmd = {we, din, waddr[29:2], ifetch, 1'b1} -> write
-// logic [65:0] ddr3cmd = {36'dz, raddr[29:2], ifetch, 1'b0} -> read
-
-logic [17:0] ptag;		// Previous cache tag (18 bits)
-logic [17:0] ctag;		// Current cache tag (18 bits)
-logic [8:0] cline;		// Current cache line 0..512 (there are 512 cache lines)
-logic [1:0] coffset;	// Current word offset 0..3 (each cache line is 4xWORDs (128bits))
-logic [31:0] cwidemask;	// Wide write mask
+logic ccmd = 1'b0;					// Cache command (0'b0:read, 1'b1:write)
 
 logic ddr3valid [0:511];			// Cache line valid bits
 logic [127:0] ddr3cache [0:511];	// Cache lines x2
-logic [17:0] ddr3tags [0:511];		// Cache line tags
+logic [16:0] ddr3tags [0:511];		// Cache line tags
 
-// Incoming data to write from bus side
-logic [31:0] ddr3din = 32'd0;
+logic [31:0] ddr3din = 32'd0;		// Input data to write from bus side
 
 initial begin
 	integer i;
 	// All pages are 'clean', all tags are invalid and cache is zeroed out by default
 	for (int i=0; i<512; i=i+1) begin
 		ddr3valid[i] = 1'b1;		// Cache lines are all valid by default
-		ddr3tags[i] = 18'h3FFFF;	// All bits set for default tag
+		ddr3tags[i]  = 17'h1FFFF;	// All bits set for default tag
 		ddr3cache[i] = 128'd0;		// Initially, cache line contains zero
 	end
 end
 
-// NOTE: This module uses a direct mapped cache with address space divided
-// between D$ and I$ so that D$ ranges from 0 to 255 inclusive and I$ starts
-// at 256 and goes up to 511 inclusive.
-
-always @(posedge clocks.ui_clk) begin
+always @(posedge ui_clk) begin
 	if (ui_clk_sync_rst) begin
 
 		// noop
@@ -191,16 +184,20 @@ always @(posedge clocks.ui_clk) begin
 
 			CACHELOOKUPSETUP: begin
 				if (ddr3cmd_valid) begin
-					// Set up cache access data
-					cwidemask <= {	{8{ddr3cmd_dout[65]}},
-									{8{ddr3cmd_dout[64]}},
+					coffset <= ddr3cmd_dout[1:0];								// Cache offset 0..3 (last 2 bits of memory address discarded, this is word offset into 128bits)
+					cline <= {ddr3cmd_dout[9:2], ddr3cmd_dout[28]};				// Cache line 0..255 (last 4 bits of memory address discarded, this is a 128-bit aligned address)
+					ctag <= ddr3cmd_dout[26:10];								// Cache tag 00000..1FFFF
+					ccmd <= ddr3cmd_dout[27];									// Read/write command
+					//ifetchmode <= ddr3cmd_dout[28];							// Instruction fetch mode
+					ddr3din <= ddr3cmd_dout[60:29];								// Data to write
+
+					ptag <= ddr3tags[{ddr3cmd_dout[9:2], ddr3cmd_dout[28]}];	// Previous cache tag
+
+					cwidemask <= {	{8{ddr3cmd_dout[64]}},
 									{8{ddr3cmd_dout[63]}},
-									{8{ddr3cmd_dout[62]}} };				// Build byte-wide mask for selective writes to cache
-					ddr3din <= ddr3cmd_dout[61:30];							// Data to write
-					ctag <= ddr3cmd_dout[29:12];							// axi4if.AxADDR[29:12] Cache tag 0..256144 (reaches up to 512Mbyte range with 29:0 range)
-					cline <= {ddr3cmd_dout[1], ddr3cmd_dout[11:4]};			// {ifetch, axi4if.AxADDR[11:4]} Cache line 0..511
-					coffset <= ddr3cmd_dout[3:2];							// axi4if.AxADDR[3:2] WORD offset 0..3
-					ptag <= ddr3tags[{ddr3cmd_dout[1], ddr3cmd_dout[11:4]}];	// Previous tag stored for this cache line
+									{8{ddr3cmd_dout[62]}},
+									{8{ddr3cmd_dout[61]}} };					// Build byte-wide mask for selective writes to cache
+
 					// Test for cache hit or miss
 					ddr3uistate <= CACHERESOLVE;
 				end
@@ -209,12 +206,12 @@ always @(posedge clocks.ui_clk) begin
 			CACHERESOLVE: begin
 				// If previous tag from cache is same as new tag, we have a cache hit
 				if (ptag == ctag) begin
-					if (ddr3cmd_dout[0] == 1'b1) begin // Write
+					if (ccmd == 1'b1) begin // Write
 						case (coffset)
-							2'b00: ddr3cache[cline][31:0] <= ((~cwidemask)&ddr3cache[cline][31:0]) | (cwidemask&ddr3din);
-							2'b01: ddr3cache[cline][63:32] <= ((~cwidemask)&ddr3cache[cline][63:32]) | (cwidemask&ddr3din);
-							2'b10: ddr3cache[cline][95:64] <= ((~cwidemask)&ddr3cache[cline][95:64]) | (cwidemask&ddr3din);
-							2'b11: ddr3cache[cline][127:96] <= ((~cwidemask)&ddr3cache[cline][127:96]) | (cwidemask&ddr3din);
+							2'b00: ddr3cache[cline][31:0]	<= ((~cwidemask)&ddr3cache[cline][31:0]) | (cwidemask&ddr3din);
+							2'b01: ddr3cache[cline][63:32]	<= ((~cwidemask)&ddr3cache[cline][63:32]) | (cwidemask&ddr3din);
+							2'b10: ddr3cache[cline][95:64]	<= ((~cwidemask)&ddr3cache[cline][95:64]) | (cwidemask&ddr3din);
+							2'b11: ddr3cache[cline][127:96]	<= ((~cwidemask)&ddr3cache[cline][127:96]) | (cwidemask&ddr3din);
 						endcase
 						// Mark this cache line invalid so that it can be flushed to DDR3 memory next time
 						ddr3valid[cline] <= 1'b0;
@@ -231,8 +228,8 @@ always @(posedge clocks.ui_clk) begin
 					// We're done, listen to next command
 					ddr3uistate <= CACHEIDLE;
 				end else begin // Otherwise, we have a cache miss
-					// If the current cache line is invalid, 1)flush, 2)reload and 3)resolve
 					// If the current cache line is valid, 1)reload and 2)resolve
+					// If the current cache line is invalid, 1)flush, 2)reload and 3)resolve
 					ddr3uistate <= ddr3valid[cline] ? CACHEPOPULATE : CACHEWRITEBACK;
 				end
 			end
@@ -242,8 +239,8 @@ always @(posedge clocks.ui_clk) begin
 					app_en <= 1;
 					app_wdf_wren <= 1;
 					// Use previous tag to create writeback address (lines overlap)
-					// NOTE: Addresses are in multiples of 16 bits x8 == 128 bits (16 bytes)
-					app_addr <= {ptag, cline[7:0], 3'b000}; // Drop the ifetch bit when making memory address
+					// NOTE: Addresses are aligned to multiples of 8x16 bits == 128 bits (16 bytes)
+					app_addr <= {1'b0, ptag, cline[8:1], 3'b000}; // Drop the ifetch bit from cline when making memory address
 					app_cmd <= CMD_WRITE;
 					app_wdf_data <= ddr3cache[cline];
 					ddr3uistate <= CACHEWRITEBACKDONE;
@@ -269,8 +266,8 @@ always @(posedge clocks.ui_clk) begin
 				if (app_rdy) begin
 					app_en <= 1;
 					// Use current tag to create load address
-					// NOTE: Addresses are in multiples of 16 bits x8 == 128 bits (16 bytes)
-					app_addr <= {ctag, cline[7:0], 3'b000}; // Drop the ifetch bit when making memory address
+					// NOTE: Addresses are aligned to multiples of 8x16 bits == 128 bits (16 bytes)
+					app_addr <= {1'b0, ctag, cline[8:1], 3'b000}; // Drop the ifetch bit from cline when making memory address
 					app_cmd <= CMD_READ;
 					ddr3uistate <= CACHEPOPULATEDONE;
 				end
@@ -301,20 +298,23 @@ end
 // ----------------------------------------------------------------------------
 
 localparam WAIDLE = 2'd0;
-localparam WAACK = 2'd1;
+localparam WAACK  = 2'd1;
 
-localparam WIDLE = 2'd0;
+localparam WIDLE   = 2'd0;
 localparam WACCEPT = 2'd1;
-localparam WDELAY = 2'd2;
+localparam WDELAY  = 2'd2;
 
-localparam RIDLE = 2'd0;
-localparam RREAD = 2'd1;
-localparam RDELAY = 2'd2;
-localparam RFINALIZE = 2'd3;
+localparam RAIDLE = 2'd0;
+localparam RAACK  = 2'd1;
 
-logic [1:0] waddrstate = 2'b00;
-logic [1:0] writestate = 2'b00;
-logic [1:0] raddrstate = 2'b00;
+localparam RIDLE     = 2'd0;
+localparam RDELAY    = 2'd1;
+localparam RFINALIZE = 2'd2;
+
+logic [1:0] waddrstate = WAIDLE;
+logic [1:0] writestate = WIDLE;
+logic [1:0] raddrstate = RAIDLE;
+logic [1:0] readstate  = RIDLE;
 
 always @(posedge axi4if.ACLK) begin
 	if (~axi4if.ARESETn) begin
@@ -342,14 +342,15 @@ always @(posedge axi4if.ACLK) begin
 				waddrstate <= WAIDLE;
 			end
 		endcase
-	
+
 		// Write data
 		case (writestate)
 			WIDLE: begin
 				if (axi4if.WVALID & (~ddr3cmd_full)) begin
 					axi4if.WREADY <= 1'b1;
 					// Convert bus address to word-aligned address by dropping the byte and half offset bits
-					ddr3cmd_din <= {axi4if.WSTRB, axi4if.WDATA, axi4if.AWADDR[29:2], 1'b0, 1'b1}; // ifetch not used during writes
+					//                   [64:61]       [60:29]  [28]  [27]               [26:0]
+					ddr3cmd_din <= {axi4if.WSTRB, axi4if.WDATA, 1'b0, 1'b1, axi4if.AWADDR[28:2]}; // ifetch not used during writes
 					ddr3cmd_we <= 1'b1;
 					writestate <= WACCEPT;
 				end
@@ -375,8 +376,8 @@ always @(posedge axi4if.ACLK) begin
 			RIDLE: begin
 				if (axi4if.ARVALID & (~ddr3cmd_full)) begin
 					// Convert bus address to word-aligned address by dropping the byte and half offsetess bits
-					ddr3cmd_din <= {4'h0, 32'd0, axi4if.ARADDR[29:2], ifetch, 1'b0}; // ifetch only affects reads
-					ddr3cmd_we <= 1'b1;
+					//              [64:61]  [60:29]    [28]  [27]               [26:0]
+					ddr3cmd_din <= {   4'h0,   32'd0, ifetch, 1'b0, axi4if.ARADDR[28:2]}; // ifetch only affects reads
 					axi4if.ARREADY <= 1'b0;
 					raddrstate <= RREAD;
 				end

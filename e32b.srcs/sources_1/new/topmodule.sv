@@ -105,7 +105,6 @@ FPGADeviceClocks clocks(
 	.gpubaseclock(gpubaseclock),
 	.videoclock(videoclock),
 	.videoclock10(videoclock10),
-	.ui_clk(ui_clk), // DDR3 driven clock
 	.clk_sys_i(clk_sys_i),
 	.clk_ref_i(clk_ref_i) );
 
@@ -127,8 +126,7 @@ axi4chain AXIChain(
 	.gpudata(gpudata),
 	.ifetch(ifetch),
 	.irq(irq),
-	.calib_done(calib_done),
-	.ui_clk(ui_clk) );
+	.calib_done(calib_done) );
 
 // ----------------------------------------------------------------------------
 // Master device (CPU)

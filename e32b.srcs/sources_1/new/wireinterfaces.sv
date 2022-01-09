@@ -57,7 +57,6 @@ interface FPGADeviceClocks (
 		input gpubaseclock,
 		input videoclock,
 		input videoclock10,
-		input ui_clk,
 		input clk_sys_i,
 		input clk_ref_i );
 
@@ -70,7 +69,6 @@ interface FPGADeviceClocks (
 		input gpubaseclock,
 		input videoclock,
 		input videoclock10,
-		input ui_clk,
 		input clk_sys_i,
 		input clk_ref_i );
 

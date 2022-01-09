@@ -55,7 +55,7 @@
     <DataMask>1</DataMask>
     <ECC>Disabled</ECC>
     <Ordering>Strict</Ordering>
-    <BankMachineCnt>4</BankMachineCnt>
+    <BankMachineCnt>3</BankMachineCnt>
     <CustomPart>FALSE</CustomPart>
     <NewPartName/>
     <RowAddress>15</RowAddress>
@@ -141,14 +141,7 @@
     <mr2AutoSelfRefresh name="Auto Self Refresh">Enabled</mr2AutoSelfRefresh>
     <mr2SelfRefreshTempRange name="High Temparature Self Refresh Rate">Normal</mr2SelfRefreshTempRange>
     <mr2RTTWR name="RTT_WR - Dynamic On Die Termination (ODT)">Dynamic ODT off</mr2RTTWR>
-    <PortInterface>AXI</PortInterface>
-    <AXIParameters>
-      <C0_C_RD_WR_ARB_ALGORITHM>RD_PRI_REG</C0_C_RD_WR_ARB_ALGORITHM>
-      <C0_S_AXI_ADDR_WIDTH>29</C0_S_AXI_ADDR_WIDTH>
-      <C0_S_AXI_DATA_WIDTH>32</C0_S_AXI_DATA_WIDTH>
-      <C0_S_AXI_ID_WIDTH>4</C0_S_AXI_ID_WIDTH>
-      <C0_S_AXI_SUPPORTS_NARROW_BURST>0</C0_S_AXI_SUPPORTS_NARROW_BURST>
-    </AXIParameters>
+    <PortInterface>NATIVE</PortInterface>
   </Controller>
 
 
