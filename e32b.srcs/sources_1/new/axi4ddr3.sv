@@ -11,9 +11,9 @@ module axi4ddr3(
 	FPGADeviceClocks.DEFAULT clocks,
 	FPGADeviceWires.DEFAULT wires,
 	input wire ifetch,
-	output wire calib_done );
+	output wire calib_done,
+	output wire ui_clk );
 
-wire ui_clk;
 wire ui_clk_sync_rst;
 
 logic [28:0] app_addr = 29'd0;
@@ -65,7 +65,7 @@ mig_7series_0 u_mig_7series_0 (
     .app_zq_ack                     (),
     .app_wdf_mask                   (16'h0000),			// Active low
 
-    .ui_clk                         (ui_clk),
+    .ui_clk                         (ui_clk),			// Appears to be 100MHz and same-phase as CPU clock, but it not swappable somehow
     .ui_clk_sync_rst                (ui_clk_sync_rst),
     .init_calib_complete            (calib_done),
     .device_temp					(),					// Unused, TODO: Maybe we can expose this via the axi4 bus, to use as a random number seed or simply for monitoring?
@@ -206,30 +206,24 @@ ddr3cmdfifo DDR3Cmd(
 	.full(ddr3cmdfull),
 	.din(ddr3cmdin),
 	.wr_en(ddr3cmdwe),
-	.wr_clk(axi4if.ACLK),
 	.empty(ddr3cmdempty),
 	.dout(ddr3cmdout),
 	.rd_en(ddr3cmdre),
 	.valid(ddr3cmdvalid),
-	.rd_clk(ui_clk),
-	.rst(~axi4if.ARESETn),
-	.wr_rst_busy(),
-	.rd_rst_busy() );
+	.clk(axi4if.ACLK),
+	.rst(~axi4if.ARESETn) );
 
 // Read done queue
 ddr3readdonequeue DDR3ReadDone(
 	.full(ddr3readfull),
 	.din(ddr3readin),
 	.wr_en(ddr3readwe),
-	.wr_clk(ui_clk),
 	.empty(ddr3readempty),
 	.dout(ddr3readout),
 	.rd_en(ddr3readre),
 	.valid(ddr3readvalid),
-	.rd_clk(axi4if.ACLK),
-	.rst(ui_clk_sync_rst),
-	.wr_rst_busy(),
-	.rd_rst_busy() );
+	.clk(axi4if.ACLK),
+	.rst(ui_clk_sync_rst) );
 
 // ----------------------------------------------------------------------------
 // DDR3 frontend
@@ -260,13 +254,11 @@ end
 localparam DDR3AXI4IDLE				= 4'd0;
 localparam DDR3AXI4WRITECHECK		= 4'd1;
 localparam DDR3AXI4READCHECK		= 4'd2;
-localparam DDR3AXI4WRITEDONE		= 4'd3;
-localparam DDR3AXI4READDONE			= 4'd4;
-localparam CACHEWRITEHI				= 4'd5;
-localparam CACHEPOPULATELO			= 4'd6;
-localparam CACHEPOPULATEHI			= 4'd7;
-localparam CACHEPOPULATEWAIT		= 4'd8;
-localparam CACHEPOPULATEFINALIZE	= 4'd9;
+localparam CACHEWRITEHI				= 4'd3;
+localparam CACHEPOPULATELO			= 4'd4;
+localparam CACHEPOPULATEHI			= 4'd5;
+localparam CACHEPOPULATEWAIT		= 4'd6;
+localparam CACHEPOPULATEFINALIZE	= 4'd7;
 
 logic [3:0] ddr3axi4state = DDR3AXI4IDLE;
 logic [3:0] returnstate = DDR3AXI4IDLE;
@@ -286,7 +278,14 @@ always @(posedge axi4if.ACLK) begin
 		ddr3readre <= 1'b0;
 
 		case (ddr3axi4state)
+
 			DDR3AXI4IDLE: begin
+				axi4if.RVALID <= 1'b0;
+				axi4if.ARREADY <= 1'b1;
+
+				axi4if.BVALID <= 1'b0;
+				axi4if.AWREADY <= 1'b1;
+
 				if (axi4if.AWVALID) begin
 					coffset <= axi4if.AWADDR[4:2];					// Cache offset 0..7 (last 2 bits of memory address discarded, this is word offset into 256bits)
 					cline <= {axi4if.AWADDR[12:5], 1'b0};			// Cache line 0..255 (last 4 bits of memory address discarded, this is a 256-bit aligned address) (sans ifetch since this is a write)
@@ -332,7 +331,7 @@ always @(posedge axi4if.ACLK) begin
 						// Done
 						axi4if.BVALID <= 1'b1;
 						axi4if.BRESP = 2'b00; // OKAY
-						ddr3axi4state <= DDR3AXI4WRITEDONE;
+						ddr3axi4state <= DDR3AXI4IDLE;
 					end else begin
 						// Master not ready to accept response yet
 						ddr3axi4state <= DDR3AXI4WRITECHECK;
@@ -371,7 +370,7 @@ always @(posedge axi4if.ACLK) begin
 						endcase
 						// Done
 						axi4if.RVALID <= 1'b1;
-						ddr3axi4state <= DDR3AXI4READDONE;
+						ddr3axi4state <= DDR3AXI4IDLE;
 					end else begin
 						// Master not ready to receive yet
 						ddr3axi4state <= DDR3AXI4READCHECK;
@@ -393,18 +392,6 @@ always @(posedge axi4if.ACLK) begin
 						ddr3axi4state <= DDR3AXI4READCHECK;
 					end
 				end
-			end
-	
-			DDR3AXI4WRITEDONE: begin
-				axi4if.BVALID <= 1'b0;
-				axi4if.AWREADY <= 1'b1;
-				ddr3axi4state <= DDR3AXI4IDLE;
-			end
-
-			DDR3AXI4READDONE: begin
-				axi4if.RVALID <= 1'b0;
-				axi4if.ARREADY <= 1'b1;
-				ddr3axi4state <= DDR3AXI4IDLE;
 			end
 			
 			CACHEWRITEHI: begin

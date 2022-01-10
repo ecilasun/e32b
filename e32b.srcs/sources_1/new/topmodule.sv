@@ -86,7 +86,7 @@ wire devicereset, calib_done;
 clockandresetgen ClockAndResetGenerator(
 	.sys_clock_i(sys_clock),
 	.wallclock(wallclock),
-	.cpuclock(cpuclock),
+	.cpuclock(ui_clock/*cpuclock*/),
 	.uartbaseclock(uartbaseclock),
 	.spibaseclock(spibaseclock),
 	.gpubaseclock(gpubaseclock),
@@ -116,7 +116,7 @@ wire [3:0] irq;
 wire ifetch;
 
 axi4 axi4chain(
-	.ACLK(cpuclock),
+	.ACLK(ui_clk/*cpuclock*/),
 	.ARESETn(~devicereset) );
 
 axi4chain AXIChain(
@@ -126,7 +126,8 @@ axi4chain AXIChain(
 	.gpudata(gpudata),
 	.ifetch(ifetch),
 	.irq(irq),
-	.calib_done(calib_done) );
+	.calib_done(calib_done),
+	.ui_clk(ui_clk) );
 
 // ----------------------------------------------------------------------------
 // Master device (CPU)

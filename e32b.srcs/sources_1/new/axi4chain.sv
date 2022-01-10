@@ -7,7 +7,8 @@ module axi4chain(
 	GPUDataOutput.DEFAULT gpudata,
 	input wire ifetch,
 	output wire [3:0] irq,
-	output wire calib_done );
+	output wire calib_done,
+	output wire ui_clk );
 
 // ------------------------------------------------------------------------------------
 // Main system memory
@@ -22,7 +23,8 @@ axi4ddr3 DDR3(
 	.clocks(clocks),
 	.wires(wires),
 	.ifetch(ifetch),
-	.calib_done(calib_done) );
+	.calib_done(calib_done),
+	.ui_clk(ui_clk) );
 
 // ------------------------------------------------------------------------------------
 // Internal block memories
