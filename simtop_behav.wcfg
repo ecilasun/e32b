@@ -12,15 +12,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="317,669.000000 ns"></ZoomStartTime>
-      <ZoomEndTime time="319,814.000001 ns"></ZoomEndTime>
-      <Cursor1Time time="318,310.000000 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000000 ns"></ZoomStartTime>
+      <ZoomEndTime time="2,287.858906 ns"></ZoomEndTime>
+      <Cursor1Time time="1,000.000000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="264"></NameColumnWidth>
-      <ValueColumnWidth column_width="127"></ValueColumnWidth>
+      <ValueColumnWidth column_width="121"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="120" />
+   <WVObjectSize size="110" />
    <wvobject fp_name="/simtop/sys_clock" type="logic">
       <obj_property name="ElementShortName">sys_clock</obj_property>
       <obj_property name="ObjectShortName">sys_clock</obj_property>
@@ -261,7 +261,6 @@
    <wvobject fp_name="/simtop/topmoduleinstance/HART0/IntegerRegisters/registers" type="array">
       <obj_property name="ElementShortName">registers[0:31][31:0]</obj_property>
       <obj_property name="ObjectShortName">registers[0:31][31:0]</obj_property>
-      <obj_property name="isExpanded"></obj_property>
    </wvobject>
    <wvobject type="divider" fp_name="divider150">
       <obj_property name="label">DDR3</obj_property>
@@ -423,65 +422,17 @@
       <obj_property name="ElementShortName">sys_rst</obj_property>
       <obj_property name="ObjectShortName">sys_rst</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3CommandFIFO/rst" type="logic">
-      <obj_property name="ElementShortName">rst</obj_property>
-      <obj_property name="ObjectShortName">rst</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3CommandFIFO/wr_clk" type="logic">
-      <obj_property name="ElementShortName">wr_clk</obj_property>
-      <obj_property name="ObjectShortName">wr_clk</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3CommandFIFO/rd_clk" type="logic">
-      <obj_property name="ElementShortName">rd_clk</obj_property>
-      <obj_property name="ObjectShortName">rd_clk</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3CommandFIFO/din" type="array">
-      <obj_property name="ElementShortName">din[65:0]</obj_property>
-      <obj_property name="ObjectShortName">din[65:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3CommandFIFO/wr_en" type="logic">
-      <obj_property name="ElementShortName">wr_en</obj_property>
-      <obj_property name="ObjectShortName">wr_en</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3CommandFIFO/rd_en" type="logic">
-      <obj_property name="ElementShortName">rd_en</obj_property>
-      <obj_property name="ObjectShortName">rd_en</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3CommandFIFO/dout" type="array">
-      <obj_property name="ElementShortName">dout[65:0]</obj_property>
-      <obj_property name="ObjectShortName">dout[65:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3CommandFIFO/full" type="logic">
-      <obj_property name="ElementShortName">full</obj_property>
-      <obj_property name="ObjectShortName">full</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3CommandFIFO/empty" type="logic">
-      <obj_property name="ElementShortName">empty</obj_property>
-      <obj_property name="ObjectShortName">empty</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3CommandFIFO/valid" type="logic">
-      <obj_property name="ElementShortName">valid</obj_property>
-      <obj_property name="ObjectShortName">valid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3CommandFIFO/wr_rst_busy" type="logic">
-      <obj_property name="ElementShortName">wr_rst_busy</obj_property>
-      <obj_property name="ObjectShortName">wr_rst_busy</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/DDR3CommandFIFO/rd_rst_busy" type="logic">
-      <obj_property name="ElementShortName">rd_rst_busy</obj_property>
-      <obj_property name="ObjectShortName">rd_rst_busy</obj_property>
-   </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ddr3uistate" type="array">
       <obj_property name="ElementShortName">ddr3uistate[2:0]</obj_property>
       <obj_property name="ObjectShortName">ddr3uistate[2:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ddr3readin" type="array">
-      <obj_property name="ElementShortName">ddr3readin[31:0]</obj_property>
-      <obj_property name="ObjectShortName">ddr3readin[31:0]</obj_property>
+      <obj_property name="ElementShortName">ddr3readin[127:0]</obj_property>
+      <obj_property name="ObjectShortName">ddr3readin[127:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ddr3readout" type="array">
-      <obj_property name="ElementShortName">ddr3readout[31:0]</obj_property>
-      <obj_property name="ObjectShortName">ddr3readout[31:0]</obj_property>
+      <obj_property name="ElementShortName">ddr3readout[127:0]</obj_property>
+      <obj_property name="ObjectShortName">ddr3readout[127:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ddr3readwe" type="logic">
       <obj_property name="ElementShortName">ddr3readwe</obj_property>
@@ -500,12 +451,12 @@
       <obj_property name="ObjectShortName">ifetch</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ptag" type="array">
-      <obj_property name="ElementShortName">ptag[17:0]</obj_property>
-      <obj_property name="ObjectShortName">ptag[17:0]</obj_property>
+      <obj_property name="ElementShortName">ptag[16:0]</obj_property>
+      <obj_property name="ObjectShortName">ptag[16:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ctag" type="array">
-      <obj_property name="ElementShortName">ctag[17:0]</obj_property>
-      <obj_property name="ObjectShortName">ctag[17:0]</obj_property>
+      <obj_property name="ElementShortName">ctag[16:0]</obj_property>
+      <obj_property name="ObjectShortName">ctag[16:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/cline" type="array">
       <obj_property name="ElementShortName">cline[8:0]</obj_property>
@@ -525,12 +476,19 @@
       <obj_property name="ObjectShortName">ddr3cache[0:511][127:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ddr3tags" type="array">
-      <obj_property name="ElementShortName">ddr3tags[0:511][17:0]</obj_property>
-      <obj_property name="ObjectShortName">ddr3tags[0:511][17:0]</obj_property>
+      <obj_property name="ElementShortName">ddr3tags[0:511][16:0]</obj_property>
+      <obj_property name="ObjectShortName">ddr3tags[0:511][16:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ddr3valid" type="array">
       <obj_property name="ElementShortName">ddr3valid[0:511]</obj_property>
       <obj_property name="ObjectShortName">ddr3valid[0:511]</obj_property>
-      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/ddr3axi4state" type="array">
+      <obj_property name="ElementShortName">ddr3axi4state[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ddr3axi4state[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/DDR3/returnstate" type="array">
+      <obj_property name="ElementShortName">returnstate[3:0]</obj_property>
+      <obj_property name="ObjectShortName">returnstate[3:0]</obj_property>
    </wvobject>
 </wave_config>
