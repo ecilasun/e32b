@@ -408,30 +408,34 @@ always @(posedge axi4if.ACLK) begin
 			end
 			
 			CACHEWRITEHI: begin
-				ddr3cmdin <= { 1'b1, ptag, cline[8:1], 1'b1, ddr3cache[cline][255:128]};
-				ddr3cmdwe <= 1'b1;
-				ddr3axi4state <= CACHEPOPULATELO;
+				if (~ddr3cmdfull) begin
+					ddr3cmdin <= { 1'b1, ptag, cline[8:1], 1'b1, ddr3cache[cline][255:128]};
+					ddr3cmdwe <= 1'b1;
+					ddr3axi4state <= CACHEPOPULATELO;
+				end else begin
+					ddr3axi4state <= CACHEWRITEHI;
+				end
 			end
 
 			CACHEPOPULATELO: begin
-				//if (~ddr3cmdfull) begin
+				if (~ddr3cmdfull) begin
 					ddr3cmdin <= { 1'b0, ctag, cline[8:1], 1'b0, 128'd0 };		// Request a read of new cache line contents
 					ddr3cmdwe <= 1'b1;
 					ddr3axi4state <= CACHEPOPULATEHI;
-				/*end else begin
+				end else begin
 					ddr3axi4state <= CACHEPOPULATELO;
-				end*/
+				end
 			end
 
 			CACHEPOPULATEHI: begin
-				//if (~ddr3cmdfull) begin
+				if (~ddr3cmdfull) begin
 					ddr3cmdin <= { 1'b0, ctag, cline[8:1], 1'b1, 128'd0 };		// Request a read of new cache line contents
 					ddr3cmdwe <= 1'b1;
 					loadindex <= 1'b0;
 					ddr3axi4state <= CACHEPOPULATEWAIT;
-				/*end else begin
+				end else begin
 					ddr3axi4state <= CACHEPOPULATEHI;
-				end*/
+				end
 			end
 
 			CACHEPOPULATEWAIT: begin
