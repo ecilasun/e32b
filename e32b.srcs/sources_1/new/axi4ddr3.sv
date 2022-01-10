@@ -2,6 +2,7 @@
 
 // NOTE: This module uses a direct mapped cache with address space divided
 // between D$ and I$ so that D$ uses even cache entries and I$ uses the odd.
+// Each cache line consists of 8 words (256 bits).
 // Cache contents are written back when a tag change occurs and if the contents
 // at that cache line are invalid (wback-on r/w)
 
@@ -234,26 +235,25 @@ ddr3readdonequeue DDR3ReadDone(
 // DDR3 frontend
 // ----------------------------------------------------------------------------
 
-logic [16:0] ptag;					// Previous cache tag (17 bits)
-logic [16:0] ctag;					// Current cache tag (17 bits)
+logic [15:0] ptag;					// Previous cache tag (16 bits)
+logic [15:0] ctag;					// Current cache tag (16 bits)
 logic [8:0] cline;					// Current cache line 0..512 (there are 512 cache lines)
-logic [1:0] coffset;				// Current word offset 0..3 (each cache line is 4xWORDs (128bits))
+logic [2:0] coffset;				// Current word offset 0..7 (each cache line is 8xWORDs (256bits))
 logic [31:0] cwidemask;				// Wide write mask
 logic [31:0] wdata;					// Input data to write from bus side
-
-logic ccmd = 1'b0;					// Cache command (0'b0:read, 1'b1:write)
+logic loadindex;					// Cache load index (high/low 128 bits)
 
 logic ddr3valid [0:511];			// Cache line valid bits
-logic [127:0] ddr3cache [0:511];	// Cache lines x2
-logic [16:0] ddr3tags [0:511];		// Cache line tags
+logic [255:0] ddr3cache [0:511];	// Cache lines x2
+logic [15:0] ddr3tags [0:511];		// Cache line tags
 
 initial begin
 	integer i;
 	// All pages are 'clean', all tags are invalid and cache is zeroed out by default
 	for (int i=0; i<512; i=i+1) begin
 		ddr3valid[i] = 1'b1;		// Cache lines are all valid by default
-		ddr3tags[i]  = 17'h1FFFF;	// All bits set for default tag
-		ddr3cache[i] = 128'd0;		// Initially, cache line contains zero
+		ddr3tags[i]  = 16'hFFFF;	// All bits set for default tag
+		ddr3cache[i] = 256'd0;		// Initially, cache line contains zero
 	end
 end
 
@@ -262,9 +262,11 @@ localparam DDR3AXI4WRITECHECK		= 4'd1;
 localparam DDR3AXI4READCHECK		= 4'd2;
 localparam DDR3AXI4WRITEDONE		= 4'd3;
 localparam DDR3AXI4READDONE			= 4'd4;
-localparam CACHEPOPULATE			= 4'd5;
-localparam CACHEPOPULATEWAIT		= 4'd6;
-localparam CACHEPOPULATEFINALIZE	= 4'd7;
+localparam CACHEWRITEHI				= 4'd5;
+localparam CACHEPOPULATELO			= 4'd6;
+localparam CACHEPOPULATEHI			= 4'd7;
+localparam CACHEPOPULATEWAIT		= 4'd8;
+localparam CACHEPOPULATEFINALIZE	= 4'd9;
 
 logic [3:0] ddr3axi4state = DDR3AXI4IDLE;
 logic [3:0] returnstate = DDR3AXI4IDLE;
@@ -286,10 +288,10 @@ always @(posedge axi4if.ACLK) begin
 		case (ddr3axi4state)
 			DDR3AXI4IDLE: begin
 				if (axi4if.AWVALID) begin
-					coffset <= axi4if.AWADDR[3:2];					// Cache offset 0..3 (last 2 bits of memory address discarded, this is word offset into 128bits)
-					cline <= {axi4if.AWADDR[11:4], 1'b0};			// Cache line 0..255 (last 4 bits of memory address discarded, this is a 128-bit aligned address) (sans ifetch since this is a write)
-					ctag <= axi4if.AWADDR[28:12];					// Cache tag 00000..1FFFF
-					ptag <= ddr3tags[{axi4if.AWADDR[11:4], 1'b0}];	// Previous cache tag (sans ifetch since this is a write)
+					coffset <= axi4if.AWADDR[4:2];					// Cache offset 0..7 (last 2 bits of memory address discarded, this is word offset into 256bits)
+					cline <= {axi4if.AWADDR[12:5], 1'b0};			// Cache line 0..255 (last 4 bits of memory address discarded, this is a 256-bit aligned address) (sans ifetch since this is a write)
+					ctag <= axi4if.AWADDR[28:13];					// Cache tag 00000..1FFFF
+					ptag <= ddr3tags[{axi4if.AWADDR[12:5], 1'b0}];	// Previous cache tag (sans ifetch since this is a write)
 					wdata <= axi4if.WDATA;							// Incoming data
 					cwidemask <= {	{8{axi4if.WSTRB[3]}},
 									{8{axi4if.WSTRB[2]}},
@@ -301,10 +303,10 @@ always @(posedge axi4if.ACLK) begin
 				end
 
 				if (axi4if.ARVALID) begin
-					coffset <= axi4if.ARADDR[3:2];						// Cache offset 0..3 (last 2 bits of memory address discarded, this is word offset into 128bits)
-					cline <= {axi4if.ARADDR[11:4], ifetch};				// Cache line 0..255 (last 4 bits of memory address discarded, this is a 128-bit aligned address)
-					ctag <= axi4if.ARADDR[28:12];						// Cache tag 00000..1FFFF
-					ptag <= ddr3tags[{axi4if.ARADDR[11:4], ifetch}];	// Previous cache tag
+					coffset <= axi4if.ARADDR[4:2];						// Cache offset 0..3 (last 2 bits of memory address discarded, this is word offset into 128bits)
+					cline <= {axi4if.ARADDR[12:5], ifetch};				// Cache line 0..255 (last 4 bits of memory address discarded, this is a 128-bit aligned address)
+					ctag <= axi4if.ARADDR[28:13];						// Cache tag 00000..1FFFF
+					ptag <= ddr3tags[{axi4if.ARADDR[12:5], ifetch}];	// Previous cache tag
 
 					axi4if.RVALID <= 1'b0;
 					axi4if.ARREADY <= 1'b0;
@@ -316,10 +318,14 @@ always @(posedge axi4if.ACLK) begin
 				if (ctag == ptag) begin // Cache hit
 					if (axi4if.BREADY) begin
 						case (coffset)
-							2'b00: ddr3cache[cline][31:0]	<= ((~cwidemask)&ddr3cache[cline][31:0]) | (cwidemask&wdata);
-							2'b01: ddr3cache[cline][63:32]	<= ((~cwidemask)&ddr3cache[cline][63:32]) | (cwidemask&wdata);
-							2'b10: ddr3cache[cline][95:64]	<= ((~cwidemask)&ddr3cache[cline][95:64]) | (cwidemask&wdata);
-							2'b11: ddr3cache[cline][127:96]	<= ((~cwidemask)&ddr3cache[cline][127:96]) | (cwidemask&wdata);
+							3'b000: ddr3cache[cline][31:0]		<= ((~cwidemask)&ddr3cache[cline][31:0]) | (cwidemask&wdata);
+							3'b001: ddr3cache[cline][63:32]		<= ((~cwidemask)&ddr3cache[cline][63:32]) | (cwidemask&wdata);
+							3'b010: ddr3cache[cline][95:64]		<= ((~cwidemask)&ddr3cache[cline][95:64]) | (cwidemask&wdata);
+							3'b011: ddr3cache[cline][127:96]	<= ((~cwidemask)&ddr3cache[cline][127:96]) | (cwidemask&wdata);
+							3'b100: ddr3cache[cline][159:128]	<= ((~cwidemask)&ddr3cache[cline][159:128]) | (cwidemask&wdata);
+							3'b101: ddr3cache[cline][191:160]	<= ((~cwidemask)&ddr3cache[cline][191:160]) | (cwidemask&wdata);
+							3'b110: ddr3cache[cline][223:192]	<= ((~cwidemask)&ddr3cache[cline][223:192]) | (cwidemask&wdata);
+							3'b111: ddr3cache[cline][255:224]	<= ((~cwidemask)&ddr3cache[cline][255:224]) | (cwidemask&wdata);
 						endcase
 						// Mark line invalid (needs writeback)
 						ddr3valid[cline] <= 1'b0;
@@ -333,15 +339,19 @@ always @(posedge axi4if.ACLK) begin
 					end
 				end else begin // Cache miss
 					returnstate <= DDR3AXI4WRITECHECK;
-					if (ddr3valid[cline]) begin
-						ddr3cmdin <= { 1'b0, ctag, cline[8:1], 128'd0 };			// Request a read of new cache line contents
-						ddr3cmdwe <= 1'b1;
-						ddr3axi4state <= CACHEPOPULATEWAIT;
+					if (~ddr3cmdfull) begin
+						if (ddr3valid[cline]) begin
+							ddr3cmdin <= { 1'b0, ctag, cline[8:1], 1'b0, 128'd0 };					// Request a read of new cache line contents
+							ddr3cmdwe <= 1'b1;
+							ddr3axi4state <= CACHEPOPULATEHI;
+						end else begin
+							ddr3cmdin <= { 1'b1, ptag, cline[8:1], 1'b0, ddr3cache[cline][127:0] };	// Request write contents of this cache line to memory
+							ddr3valid[cline] <= 1'b1;												// Cache can now be assumed valid, go ahead and load new contents next
+							ddr3cmdwe <= 1'b1;
+							ddr3axi4state <= CACHEWRITEHI;
+						end
 					end else begin
-						ddr3cmdin <= { 1'b1, ptag, cline[8:1], ddr3cache[cline] };	// Request write contents of this cache line to memory
-						ddr3valid[cline] <= 1'b1;									// Cache can now be assumed valid, go ahead and load new contents next
-						ddr3cmdwe <= 1'b1;
-						ddr3axi4state <= CACHEPOPULATE;
+						ddr3axi4state <= DDR3AXI4WRITECHECK;
 					end
 				end
 			end
@@ -350,10 +360,14 @@ always @(posedge axi4if.ACLK) begin
 				if (ctag == ptag) begin // Cache hit
 					if (axi4if.RREADY) begin
 						case (coffset)
-							2'b00: axi4if.RDATA <= ddr3cache[cline][31:0];
-							2'b01: axi4if.RDATA <= ddr3cache[cline][63:32];
-							2'b10: axi4if.RDATA <= ddr3cache[cline][95:64];
-							2'b11: axi4if.RDATA <= ddr3cache[cline][127:96];
+							3'b000: axi4if.RDATA <= ddr3cache[cline][31:0];
+							3'b001: axi4if.RDATA <= ddr3cache[cline][63:32];
+							3'b010: axi4if.RDATA <= ddr3cache[cline][95:64];
+							3'b011: axi4if.RDATA <= ddr3cache[cline][127:96];
+							3'b100: axi4if.RDATA <= ddr3cache[cline][159:128];
+							3'b101: axi4if.RDATA <= ddr3cache[cline][191:160];
+							3'b110: axi4if.RDATA <= ddr3cache[cline][223:192];
+							3'b111: axi4if.RDATA <= ddr3cache[cline][255:224];
 						endcase
 						// Done
 						axi4if.RVALID <= 1'b1;
@@ -364,15 +378,19 @@ always @(posedge axi4if.ACLK) begin
 					end
 				end else begin // Cache miss
 					returnstate <= DDR3AXI4READCHECK;
-					if (ddr3valid[cline]) begin
-						ddr3cmdin <= { 1'b0, ctag, cline[8:1], 128'd0 };			// Request a read of new cache line contents
-						ddr3cmdwe <= 1'b1;
-						ddr3axi4state <= CACHEPOPULATEWAIT;
+					if (~ddr3cmdfull) begin
+						if (ddr3valid[cline]) begin
+							ddr3cmdin <= { 1'b0, ctag, cline[8:1], 1'b0, 128'd0 };					// Request a read of new cache line contents
+							ddr3cmdwe <= 1'b1;
+							ddr3axi4state <= CACHEPOPULATEHI;
+						end else begin
+							ddr3cmdin <= { 1'b1, ptag, cline[8:1], 1'b0, ddr3cache[cline][127:0] };	// Request write contents of this cache line to memory
+							ddr3valid[cline] <= 1'b1;												// Cache can now be assumed valid, go ahead and load new contents next
+							ddr3cmdwe <= 1'b1;
+							ddr3axi4state <= CACHEWRITEHI;
+						end
 					end else begin
-						ddr3cmdin <= { 1'b1, ptag, cline[8:1], ddr3cache[cline] };	// Request write contents of this cache line to memory
-						ddr3valid[cline] <= 1'b1;									// Cache can now be assumed valid, go ahead and load new contents next
-						ddr3cmdwe <= 1'b1;
-						ddr3axi4state <= CACHEPOPULATE;
+						ddr3axi4state <= DDR3AXI4READCHECK;
 					end
 				end
 			end
@@ -388,15 +406,32 @@ always @(posedge axi4if.ACLK) begin
 				axi4if.ARREADY <= 1'b1;
 				ddr3axi4state <= DDR3AXI4IDLE;
 			end
+			
+			CACHEWRITEHI: begin
+				ddr3cmdin <= { 1'b1, ptag, cline[8:1], 1'b1, ddr3cache[cline][255:128]};
+				ddr3cmdwe <= 1'b1;
+				ddr3axi4state <= CACHEPOPULATELO;
+			end
 
-			CACHEPOPULATE: begin
-				if (~ddr3cmdfull) begin
-					ddr3cmdin <= { 1'b0, ctag, cline[8:1], 128'd0 };			// Request a read of new cache line contents
+			CACHEPOPULATELO: begin
+				//if (~ddr3cmdfull) begin
+					ddr3cmdin <= { 1'b0, ctag, cline[8:1], 1'b0, 128'd0 };		// Request a read of new cache line contents
 					ddr3cmdwe <= 1'b1;
+					ddr3axi4state <= CACHEPOPULATEHI;
+				/*end else begin
+					ddr3axi4state <= CACHEPOPULATELO;
+				end*/
+			end
+
+			CACHEPOPULATEHI: begin
+				//if (~ddr3cmdfull) begin
+					ddr3cmdin <= { 1'b0, ctag, cline[8:1], 1'b1, 128'd0 };		// Request a read of new cache line contents
+					ddr3cmdwe <= 1'b1;
+					loadindex <= 1'b0;
 					ddr3axi4state <= CACHEPOPULATEWAIT;
-				end else begin
-					ddr3axi4state <= CACHEPOPULATE;
-				end
+				/*end else begin
+					ddr3axi4state <= CACHEPOPULATEHI;
+				end*/
 			end
 
 			CACHEPOPULATEWAIT: begin
@@ -408,12 +443,22 @@ always @(posedge axi4if.ACLK) begin
 				end
 			end
 
-			CACHEPOPULATEFINALIZE: begin
+			default /*CACHEPOPULATEFINALIZE*/: begin
 				if (ddr3readvalid) begin
-					ddr3cache[cline] <= ddr3readout;							// Replace contents of this line
-					ptag <= ctag;												// Set 'previous' tag so that we have a cache hits
-					ddr3tags[cline] <= ctag;									// Update the tag for next time around
-					ddr3axi4state <= returnstate;								// Try the last operation again (this time it'll result in a cache hit)
+					case (loadindex)
+						1'b0: begin
+							ddr3cache[cline][127:0] <= ddr3readout;				// Replace low part of cache line
+							loadindex <= 1'b1;
+							// Read one more
+							ddr3axi4state <= CACHEPOPULATEWAIT;
+						end
+						1'b1: begin
+							ddr3cache[cline][255:128] <= ddr3readout;			// Replace high part of cache line
+							ptag <= ctag;										// Set 'previous' tag so that we have a cache hits
+							ddr3tags[cline] <= ctag;							// Update the tag for next time around
+							ddr3axi4state <= returnstate;						// Try the last operation again (this time it'll result in a cache hit)
+						end
+					endcase
 				end else begin
 					ddr3axi4state <= CACHEPOPULATEFINALIZE;						// Still no response, wait a bit more
 				end
