@@ -240,14 +240,13 @@ logic [16:0] ctag;					// Current cache tag (17 bits)
 logic [8:0] cline;					// Current cache line 0..512 (there are 512 cache lines)
 logic [1:0] coffset;				// Current word offset 0..3 (each cache line is 4xWORDs (128bits))
 logic [31:0] cwidemask;				// Wide write mask
+logic [31:0] wdata;					// Input data to write from bus side
 
 logic ccmd = 1'b0;					// Cache command (0'b0:read, 1'b1:write)
 
 logic ddr3valid [0:511];			// Cache line valid bits
 logic [127:0] ddr3cache [0:511];	// Cache lines x2
 logic [16:0] ddr3tags [0:511];		// Cache line tags
-
-logic [31:0] ddr3din = 32'd0;		// Input data to write from bus side
 
 initial begin
 	integer i;
@@ -293,6 +292,7 @@ always @(posedge axi4if.ACLK) begin
 					cline <= {axi4if.AWADDR[11:4], 1'b0};			// Cache line 0..255 (last 4 bits of memory address discarded, this is a 128-bit aligned address) (sans ifetch since this is a write)
 					ctag <= axi4if.AWADDR[28:12];					// Cache tag 00000..1FFFF
 					ptag <= ddr3tags[{axi4if.AWADDR[11:4], 1'b0}];	// Previous cache tag (sans ifetch since this is a write)
+					wdata <= axi4if.WDATA;							// Incoming data
 					cwidemask <= {	{8{axi4if.WSTRB[3]}},
 									{8{axi4if.WSTRB[2]}},
 									{8{axi4if.WSTRB[1]}},
@@ -318,10 +318,10 @@ always @(posedge axi4if.ACLK) begin
 				if (ctag == ptag) begin // Cache hit
 					if (axi4if.BREADY) begin
 						case (coffset)
-							2'b00: ddr3cache[cline][31:0]	<= ((~cwidemask)&ddr3cache[cline][31:0]) | (cwidemask&axi4if.WDATA);
-							2'b01: ddr3cache[cline][63:32]	<= ((~cwidemask)&ddr3cache[cline][63:32]) | (cwidemask&axi4if.WDATA);
-							2'b10: ddr3cache[cline][95:64]	<= ((~cwidemask)&ddr3cache[cline][95:64]) | (cwidemask&axi4if.WDATA);
-							2'b11: ddr3cache[cline][127:96]	<= ((~cwidemask)&ddr3cache[cline][127:96]) | (cwidemask&axi4if.WDATA);
+							2'b00: ddr3cache[cline][31:0]	<= ((~cwidemask)&ddr3cache[cline][31:0]) | (cwidemask&wdata);
+							2'b01: ddr3cache[cline][63:32]	<= ((~cwidemask)&ddr3cache[cline][63:32]) | (cwidemask&wdata);
+							2'b10: ddr3cache[cline][95:64]	<= ((~cwidemask)&ddr3cache[cline][95:64]) | (cwidemask&wdata);
+							2'b11: ddr3cache[cline][127:96]	<= ((~cwidemask)&ddr3cache[cline][127:96]) | (cwidemask&wdata);
 						endcase
 						// Mark line invalid (needs writeback)
 						ddr3valid[cline] <= 1'b0;

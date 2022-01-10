@@ -80,10 +80,6 @@ wire hSync, vSync;
 wire vsync_we;
 wire [31:0] vsynccounter;
 
-wire [7:0] VIDEO_B = palettedout[7:0];
-wire [7:0] VIDEO_R = palettedout[15:8];
-wire [7:0] VIDEO_G = palettedout[23:16];
-
 videosignalgen VideoSignalGenerator(
 	.clk_i(clocks.videoclock),
 	.rst_i(~axi4if.ARESETn),
@@ -97,9 +93,7 @@ videosignalgen VideoSignalGenerator(
 HDMIOut VideoScanOutUnit(
 	.pixclk(clocks.videoclock),		// 25MHz pixel clock
 	.pixclk10(clocks.videoclock10),	// 250Mhz 10:1 TDMS shif clock
-	.red(VIDEO_R),
-	.green(VIDEO_G),
-	.blue(VIDEO_B),
+	.color(palettedout),
 	.inDrawArea(inDisplayWindow),
 	.hSync(hSync),
 	.vSync(vSync),

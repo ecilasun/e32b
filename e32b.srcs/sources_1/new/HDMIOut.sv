@@ -6,9 +6,7 @@
 module HDMIOut(
 	input wire pixclk,		// 25MHz
 	input wire pixclk10,	// 250MHz
-	input wire [7:0] red,
-	input wire [7:0] green,
-	input wire [7:0] blue,
+	input wire [23:0] color,
 	input wire inDrawArea,
 	input wire hSync, vSync,
 	output wire [2:0] TMDSp,
@@ -17,9 +15,9 @@ module HDMIOut(
 	output wire TMDSn_clock );
 
 wire [9:0] TMDS_red, TMDS_green, TMDS_blue;
-TMDS_encoder encode_R(.clk(pixclk), .VD(red  ), .CD(2'b00)        , .VDE(inDrawArea), .TMDS(TMDS_red));
-TMDS_encoder encode_G(.clk(pixclk), .VD(green), .CD(2'b00)        , .VDE(inDrawArea), .TMDS(TMDS_green));
-TMDS_encoder encode_B(.clk(pixclk), .VD(blue ), .CD({vSync,hSync}), .VDE(inDrawArea), .TMDS(TMDS_blue));
+TMDS_encoder encode_R(.clk(pixclk), .VD(color[15:8]),  .CD(2'b00),         .VDE(inDrawArea), .TMDS(TMDS_red));
+TMDS_encoder encode_G(.clk(pixclk), .VD(color[23:16]), .CD(2'b00),         .VDE(inDrawArea), .TMDS(TMDS_green));
+TMDS_encoder encode_B(.clk(pixclk), .VD(color[7:0]),   .CD({vSync,hSync}), .VDE(inDrawArea), .TMDS(TMDS_blue));
 
 logic [3:0] TMDS_mod10=0;  // modulus 10 counter
 logic [9:0] TMDS_shift_red=0, TMDS_shift_green=0, TMDS_shift_blue=0;
