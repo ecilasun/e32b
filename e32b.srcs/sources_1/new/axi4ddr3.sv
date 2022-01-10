@@ -263,10 +263,9 @@ localparam DDR3AXI4WRITECHECK		= 4'd1;
 localparam DDR3AXI4READCHECK		= 4'd2;
 localparam DDR3AXI4WRITEDONE		= 4'd3;
 localparam DDR3AXI4READDONE			= 4'd4;
-localparam CACHEWRITEBACK			= 4'd5;
-localparam CACHEPOPULATE			= 4'd6;
-localparam CACHEPOPULATEWAIT		= 4'd7;
-localparam CACHEPOPULATEFINALIZE	= 4'd8;
+localparam CACHEPOPULATE			= 4'd5;
+localparam CACHEPOPULATEWAIT		= 4'd6;
+localparam CACHEPOPULATEFINALIZE	= 4'd7;
 
 logic [3:0] ddr3axi4state = DDR3AXI4IDLE;
 logic [3:0] returnstate = DDR3AXI4IDLE;
@@ -335,7 +334,16 @@ always @(posedge axi4if.ACLK) begin
 					end
 				end else begin // Cache miss
 					returnstate <= DDR3AXI4WRITECHECK;
-					ddr3axi4state <= ddr3valid[cline] ? CACHEPOPULATE : CACHEWRITEBACK;
+					if (ddr3valid[cline]) begin
+						ddr3cmdin <= { 1'b0, ctag, cline[8:1], 128'd0 };			// Request a read of new cache line contents
+						ddr3cmdwe <= 1'b1;
+						ddr3axi4state <= CACHEPOPULATEWAIT;
+					end else begin
+						ddr3cmdin <= { 1'b1, ptag, cline[8:1], ddr3cache[cline] };	// Request write contents of this cache line to memory
+						ddr3valid[cline] <= 1'b1;									// Cache can now be assumed valid, go ahead and load new contents next
+						ddr3cmdwe <= 1'b1;
+						ddr3axi4state <= CACHEPOPULATE;
+					end
 				end
 			end
 
@@ -357,7 +365,16 @@ always @(posedge axi4if.ACLK) begin
 					end
 				end else begin // Cache miss
 					returnstate <= DDR3AXI4READCHECK;
-					ddr3axi4state <= ddr3valid[cline] ? CACHEPOPULATE : CACHEWRITEBACK;
+					if (ddr3valid[cline]) begin
+						ddr3cmdin <= { 1'b0, ctag, cline[8:1], 128'd0 };			// Request a read of new cache line contents
+						ddr3cmdwe <= 1'b1;
+						ddr3axi4state <= CACHEPOPULATEWAIT;
+					end else begin
+						ddr3cmdin <= { 1'b1, ptag, cline[8:1], ddr3cache[cline] };	// Request write contents of this cache line to memory
+						ddr3valid[cline] <= 1'b1;									// Cache can now be assumed valid, go ahead and load new contents next
+						ddr3cmdwe <= 1'b1;
+						ddr3axi4state <= CACHEPOPULATE;
+					end
 				end
 			end
 	
@@ -371,17 +388,6 @@ always @(posedge axi4if.ACLK) begin
 				axi4if.RVALID <= 1'b0;
 				axi4if.ARREADY <= 1'b1;
 				ddr3axi4state <= DDR3AXI4IDLE;
-			end
-
-			CACHEWRITEBACK: begin
-				if (~ddr3cmdfull) begin
-					ddr3cmdin <= { 1'b1, ptag, cline[8:1], ddr3cache[cline] };	// Request write contents of this cache line to memory
-					ddr3valid[cline] <= 1'b1;									// Cache can now be assumed valid, go ahead and load new contents next
-					ddr3cmdwe <= 1'b1;
-					ddr3axi4state <= CACHEPOPULATE;
-				end else begin
-					ddr3axi4state <= CACHEWRITEBACK;
-				end
 			end
 
 			CACHEPOPULATE: begin
@@ -398,6 +404,8 @@ always @(posedge axi4if.ACLK) begin
 				if (~ddr3readempty) begin										// We can now place a read request to fill the cache
 					ddr3readre <= 1'b1;
 					ddr3axi4state <= CACHEPOPULATEFINALIZE;
+				end else begin
+					ddr3axi4state <= CACHEPOPULATEWAIT;
 				end
 			end
 
