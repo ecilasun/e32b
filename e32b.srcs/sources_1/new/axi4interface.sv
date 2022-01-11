@@ -65,57 +65,31 @@ interface axi4 (
 	input ACLK,
 	input ARESETn);
 
-	//logic [1:0] AWID;
 	logic [31:0] AWADDR = 32'd0;
-	//logic [7:0] AWLEN;
-	//logic [2:0] AWSIZE;
-	//logic [1:0] AWBURST; // 00:FIXED 01:INCR 10:WRAP 11:RESERVED
-	//logic AWLOCK; // 0:normal 1:exclusive
-	//logic [3:0] AWCACHE; // [:write-allocate:read-allocate:cacheable:bufferable]
-	//logic [2:0] AWPROT; // [:instruction:nonsecure:privileged]
-	//logic AWQOS;
-	//logic AWREGION;
-	//logic AWUSER;
 	logic AWVALID = 1'b0;
 	logic AWREADY;
 
 	// Write data channel signals
-	//logic [1:0] WID;
 	logic [31:0] WDATA = 32'd0;
 	logic [3:0] WSTRB = 4'h0;
 	logic WLAST;
-	//logic WUSER;
 	logic WVALID = 1'b0;
 	logic WREADY;
 
 	// Write response channel signals
-	//logic [1:0] BID;
 	logic [1:0] BRESP; // 00:OKAY 01:EXOKAY 10:SLVERR 11:DECERR
-	//logic BUSER;
 	logic BVALID;
 	logic BREADY = 1'b1; // always ready for write response (might ignore)
 
 	// Read address channel signals
-	//logic [1:0] ARID;
 	logic [31:0] ARADDR = 32'd0;
-	//logic [7:0] ARLEN;
-	//logic [2:0] ARSIZE;
-	//logic [1:0] ARBURST;
-	//logic ARLOCK; // 0:normal 1:exclusive
-	//logic [3:0] ARCACHE; // [:write-allocate:read-allocate:cacheable:bufferable]
-	//logic [2:0] ARPROT; // [:instruction:nonsecure:privileged]
-	//logic ARQOS;
-	//logic ARREGION;
-	//logic ARUSER;
 	logic ARVALID = 1'b0;
 	logic ARREADY;
 
 	// Read data channel signals
-	//logic [1:0] RID;
 	logic [31:0] RDATA;
 	logic [1:0] RRESP; // 00:OKAY 01:EXOKAY 10:SLVERR 11:DECERR
 	logic RLAST;
-	//logic RUSER;
 	logic RVALID;
 	logic RREADY = 1'b0;
 
@@ -134,6 +108,59 @@ interface axi4 (
 		output BRESP, BVALID, input BREADY,
 		input ARADDR, ARVALID, output ARREADY,
 		output RDATA, RRESP, RLAST, RVALID, input RREADY );
+
+endinterface
+
+interface axi4wide (
+	input ACLK,
+	input ARESETn);
+
+	logic [31:0] AWADDR = 32'd0;
+	logic AWVALID = 1'b0;
+	logic AWREADY;
+
+	// Write data channel signals
+	logic [63:0] WDATA = 32'd0;
+	logic [7:0] WSTRB = 8'h00;
+	logic WLAST;
+	logic WVALID = 1'b0;
+	logic WREADY;
+
+	// Write response channel signals
+	logic [1:0] BRESP; // 00:OKAY 01:EXOKAY 10:SLVERR 11:DECERR
+	logic BVALID;
+	logic BREADY = 1'b1; // always ready for write response (might ignore)
+
+	// Read address channel signals
+	logic [31:0] ARADDR = 32'd0;
+	logic ARVALID = 1'b0;
+	logic ARREADY;
+
+	// Read data channel signals
+	logic [63:0] RDATA;
+	logic [1:0] RRESP; // 00:OKAY 01:EXOKAY 10:SLVERR 11:DECERR
+	logic RLAST;
+	logic RVALID;
+	logic RREADY = 1'b0;
+
+	modport MASTER(
+		input ACLK, ARESETn,
+		output AWADDR, AWVALID, input AWREADY,
+		output WDATA, WSTRB, WLAST, WVALID, input WREADY,
+		input  BRESP, BVALID, output BREADY,
+		output ARADDR, ARVALID, input ARREADY,
+		input RDATA, RRESP, RLAST, RVALID, output RREADY );
+
+	modport SLAVE(
+		input ACLK, ARESETn,
+		input AWADDR, AWVALID, output AWREADY,
+		input WDATA, WSTRB, WLAST, WVALID, output WREADY,
+		output BRESP, BVALID, input BREADY,
+		input ARADDR, ARVALID, output ARREADY,
+		output RDATA, RRESP, RLAST, RVALID, input RREADY );
+
+endinterface
+
 
 	/*modport MASTER(
 		input ACLK, ARESETn,
@@ -154,5 +181,3 @@ interface axi4 (
 	/*clocking cb_clk @(posedge ACLK);
 		default input #1ns output #1ns;
 	endclocking*/
-
-endinterface

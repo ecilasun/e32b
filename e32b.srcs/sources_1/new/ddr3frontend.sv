@@ -1,8 +1,8 @@
 `timescale 1ns / 1ps
 
 module ddr3frontend(
-	axi4.MASTER ddr3if, // To memory
-	axi4.SLAVE axi4if, // From bus
+	axi4wide.MASTER ddr3if,	// To memory
+	axi4.SLAVE axi4if,		// From bus
 	input wire ifetch );
 
 logic [15:0] ptag;					// Previous cache tag (16 bits)
@@ -12,7 +12,7 @@ logic [2:0] coffset;				// Current word offset 0..7 (each cache line is 8xWORDs 
 logic [31:0] cwidemask;				// Wide write mask
 logic [31:0] wdata;					// Input data to write from bus side
 //logic loadindex = 1'b0;				// Cache load index (high/low 128 bits)
-logic [7:0] burstindex = 8'b00000001;	// Index of current burst
+logic [3:0] burstindex = 4'b0001;	// Index of current burst
 
 logic ddr3valid [0:511];			// Cache line valid bits
 logic [255:0] ddr3cache [0:511];	// Cache lines x2
@@ -112,7 +112,7 @@ always @(posedge axi4if.ACLK) begin
 					end
 				end else begin // Cache miss
 					returnstate <= DDR3AXI4WRITECHECK;
-					burstindex <= 8'b00000001;
+					burstindex <= 4'b0001;
 					if (ddr3valid[cline]) begin
 						ddr3if.ARADDR <= {3'd0, ctag, cline[8:1], 5'd0}; // 32 byte aligned
 						ddr3if.ARVALID <= 1'b1;
@@ -150,7 +150,7 @@ always @(posedge axi4if.ACLK) begin
 					end
 				end else begin // Cache miss
 					returnstate <= DDR3AXI4READCHECK;
-					burstindex <= 8'b00000001;
+					burstindex <= 4'b0001;
 					if (ddr3valid[cline]) begin
 						ddr3if.ARADDR <= {3'd0, ctag, cline[8:1], 5'd0}; // 32 byte aligned
 						ddr3if.ARVALID <= 1'b1;
@@ -174,23 +174,19 @@ always @(posedge axi4if.ACLK) begin
 			end
 
 			DDR3AXI4WRITE: begin
-				ddr3if.WSTRB <= 4'hf;
+				ddr3if.WSTRB <= 8'hFF;
 				ddr3if.WVALID <= 1'b1;
 				case (1'b1)
-					burstindex[0]: ddr3if.WDATA <= ddr3cache[cline][31:0];
-					burstindex[1]: ddr3if.WDATA <= ddr3cache[cline][63:32];
-					burstindex[2]: ddr3if.WDATA <= ddr3cache[cline][95:64];
-					burstindex[3]: ddr3if.WDATA <= ddr3cache[cline][127:96];
-					burstindex[4]: ddr3if.WDATA <= ddr3cache[cline][159:128];
-					burstindex[5]: ddr3if.WDATA <= ddr3cache[cline][191:160];
-					burstindex[6]: ddr3if.WDATA <= ddr3cache[cline][223:192];
-					burstindex[7]: ddr3if.WDATA <= ddr3cache[cline][255:224];
+					burstindex[0]: ddr3if.WDATA <= ddr3cache[cline][63:0];
+					burstindex[1]: ddr3if.WDATA <= ddr3cache[cline][127:64];
+					burstindex[2]: ddr3if.WDATA <= ddr3cache[cline][191:128];
+					burstindex[3]: ddr3if.WDATA <= ddr3cache[cline][255:192];
 				endcase
 
 				// Next entry
 				if (ddr3if.WREADY) begin
-					burstindex <= {burstindex[6:0], burstindex[7]}; // Shift left
-					if (burstindex[7]) begin
+					burstindex <= {burstindex[2:0], burstindex[3]}; // Shift left
+					if (burstindex[3]) begin
 						ddr3if.WLAST <= 1'b1;
 						ddr3axi4state <= DDR3AXI4WRITECOMPLETE;
 					end
@@ -198,11 +194,11 @@ always @(posedge axi4if.ACLK) begin
 			end
 
 			DDR3AXI4WRITECOMPLETE: begin
-				ddr3if.WSTRB <= 4'h0;
+				ddr3if.WSTRB <= 8'h00;
 				ddr3if.WVALID <= 1'b0;
 
 				if (ddr3if.BVALID) begin
-					burstindex <= 8'b00000001;
+					burstindex <= 4'b0001;
 					ddr3if.ARADDR <= {3'd0, ctag, cline[8:1], 5'd0};
 					ddr3if.ARVALID <= 1'b1;
 					ddr3if.RREADY <= 1'b1;
@@ -220,16 +216,12 @@ always @(posedge axi4if.ACLK) begin
 
 			DDR3AXI4READ: begin
 				if (ddr3if.RVALID) begin
-					burstindex <= {burstindex[6:0], burstindex[7]}; // Shift left
+					burstindex <= {burstindex[2:0], burstindex[3]}; // Shift left
 					case (1'b1)
-						burstindex[0]: ddr3cache[cline][31:0] <= ddr3if.RDATA;
-						burstindex[1]: ddr3cache[cline][63:32] <= ddr3if.RDATA;
-						burstindex[2]: ddr3cache[cline][95:64] <= ddr3if.RDATA;
-						burstindex[3]: ddr3cache[cline][127:96] <= ddr3if.RDATA;
-						burstindex[4]: ddr3cache[cline][159:128] <= ddr3if.RDATA;
-						burstindex[5]: ddr3cache[cline][191:160] <= ddr3if.RDATA;
-						burstindex[6]: ddr3cache[cline][223:192] <= ddr3if.RDATA;
-						burstindex[7]: ddr3cache[cline][255:224] <= ddr3if.RDATA;
+						burstindex[0]: ddr3cache[cline][63:0] <= ddr3if.RDATA;
+						burstindex[1]: ddr3cache[cline][127:64] <= ddr3if.RDATA;
+						burstindex[2]: ddr3cache[cline][191:128] <= ddr3if.RDATA;
+						burstindex[3]: ddr3cache[cline][255:192] <= ddr3if.RDATA;
 					endcase
 					if (ddr3if.RLAST) begin
 						ptag <= ctag;

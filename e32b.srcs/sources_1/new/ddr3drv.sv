@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 module ddr3drv(
-	axi4.SLAVE ddr3if,
+	axi4wide.SLAVE ddr3if,
 	FPGADeviceClocks.DEFAULT clocks,
 	FPGADeviceWires.DEFAULT wires,
 	output wire calib_done,
@@ -45,8 +45,8 @@ mig_7series_0 DDR3Instance (
     // Slave Interface Write Address Ports
     .s_axi_awid                     (4'h0),
     .s_axi_awaddr                   (ddr3if.AWADDR[28:0]),
-    .s_axi_awlen                    (8'h07),  // 8 transfers
-    .s_axi_awsize                   (3'b010), // 4 bytes each
+    .s_axi_awlen                    (8'h03),  // 4 transfers
+    .s_axi_awsize                   (3'b011), // 8 bytes each
     .s_axi_awburst                  (2'b01),  // 00:FIXED 01:INCR 10:WRAP 11:RESERVED
     .s_axi_awlock                   (1'b0),
     .s_axi_awcache                  (4'h0),
@@ -71,8 +71,8 @@ mig_7series_0 DDR3Instance (
     // Slave Interface Read Address Ports
     .s_axi_arid                     (4'h0),
     .s_axi_araddr                   (ddr3if.ARADDR[28:0]),
-    .s_axi_arlen                    (8'h07),  // 8 transfers
-    .s_axi_arsize                   (3'b010), // 4 bytes each
+    .s_axi_arlen                    (8'h03),  // 4 transfers
+    .s_axi_arsize                   (3'b011), // 8 bytes each
     .s_axi_arburst                  (2'b01),  // 00:FIXED 01:INCR 10:WRAP 11:RESERVED
     .s_axi_arlock                   (1'b0),
     .s_axi_arcache                  (4'h0),

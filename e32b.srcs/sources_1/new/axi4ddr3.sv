@@ -16,7 +16,7 @@ module axi4ddr3(
 
 wire ui_clk_sync_rst;
 
-axi4 ddr3if(axi4if.ACLK, axi4if.ARESETn);
+axi4wide ddr3if(axi4if.ACLK, axi4if.ARESETn);
 
 ddr3drv DDR3Driver(
 	.ddr3if(ddr3if),
