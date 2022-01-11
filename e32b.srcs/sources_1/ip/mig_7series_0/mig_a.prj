@@ -55,14 +55,14 @@
     <DataMask>1</DataMask>
     <ECC>Disabled</ECC>
     <Ordering>Strict</Ordering>
-    <BankMachineCnt>3</BankMachineCnt>
+    <BankMachineCnt>4</BankMachineCnt>
     <CustomPart>FALSE</CustomPart>
     <NewPartName/>
     <RowAddress>15</RowAddress>
     <ColAddress>10</ColAddress>
     <BankAddress>3</BankAddress>
     <MemoryVoltage>1.5V</MemoryVoltage>
-    <UserMemoryAddressMap>BANK_ROW_COLUMN</UserMemoryAddressMap>
+    <UserMemoryAddressMap>ROW_BANK_COLUMN</UserMemoryAddressMap>
     <PinSelection>
       <Pin IN_TERM="" IOSTANDARD="" PADName="M2" SLEW="" VCCAUX_IO="" name="ddr3_addr[0]"/>
       <Pin IN_TERM="" IOSTANDARD="" PADName="L5" SLEW="" VCCAUX_IO="" name="ddr3_addr[10]"/>
@@ -141,7 +141,14 @@
     <mr2AutoSelfRefresh name="Auto Self Refresh">Enabled</mr2AutoSelfRefresh>
     <mr2SelfRefreshTempRange name="High Temparature Self Refresh Rate">Normal</mr2SelfRefreshTempRange>
     <mr2RTTWR name="RTT_WR - Dynamic On Die Termination (ODT)">Dynamic ODT off</mr2RTTWR>
-    <PortInterface>NATIVE</PortInterface>
+    <PortInterface>AXI</PortInterface>
+    <AXIParameters>
+      <C0_C_RD_WR_ARB_ALGORITHM>RD_PRI_REG</C0_C_RD_WR_ARB_ALGORITHM>
+      <C0_S_AXI_ADDR_WIDTH>29</C0_S_AXI_ADDR_WIDTH>
+      <C0_S_AXI_DATA_WIDTH>128</C0_S_AXI_DATA_WIDTH>
+      <C0_S_AXI_ID_WIDTH>4</C0_S_AXI_ID_WIDTH>
+      <C0_S_AXI_SUPPORTS_NARROW_BURST>0</C0_S_AXI_SUPPORTS_NARROW_BURST>
+    </AXIParameters>
   </Controller>
 
 

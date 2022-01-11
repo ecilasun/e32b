@@ -83,7 +83,7 @@ interface axi4 (
 	//logic [1:0] WID;
 	logic [31:0] WDATA = 32'd0;
 	logic [3:0] WSTRB = 4'h0;
-	//logic WLAST = 1'b1;
+	logic WLAST;
 	//logic WUSER;
 	logic WVALID = 1'b0;
 	logic WREADY;
@@ -114,7 +114,7 @@ interface axi4 (
 	//logic [1:0] RID;
 	logic [31:0] RDATA;
 	logic [1:0] RRESP; // 00:OKAY 01:EXOKAY 10:SLVERR 11:DECERR
-	//logic RLAST = 1'b1;
+	logic RLAST;
 	//logic RUSER;
 	logic RVALID;
 	logic RREADY = 1'b0;
@@ -122,18 +122,18 @@ interface axi4 (
 	modport MASTER(
 		input ACLK, ARESETn,
 		output AWADDR, AWVALID, input AWREADY,
-		output WDATA, WSTRB, WVALID, input WREADY,
+		output WDATA, WSTRB, WLAST, WVALID, input WREADY,
 		input  BRESP, BVALID, output BREADY,
 		output ARADDR, ARVALID, input ARREADY,
-		input RDATA, RRESP, RVALID, output RREADY );
+		input RDATA, RRESP, RLAST, RVALID, output RREADY );
 
 	modport SLAVE(
 		input ACLK, ARESETn,
 		input AWADDR, AWVALID, output AWREADY,
-		input WDATA, WSTRB, WVALID, output WREADY,
+		input WDATA, WSTRB, WLAST, WVALID, output WREADY,
 		output BRESP, BVALID, input BREADY,
 		input ARADDR, ARVALID, output ARREADY,
-		output RDATA, RRESP, RVALID, input RREADY );
+		output RDATA, RRESP, RLAST, RVALID, input RREADY );
 
 	/*modport MASTER(
 		input ACLK, ARESETn,

@@ -123,6 +123,7 @@ always_comb begin
 	uartif.WSTRB = validwaddr_uart ? axi4if.WSTRB : 4'h0;
 	uartif.WVALID = validwaddr_uart ? axi4if.WVALID : 1'b0;
 	uartif.BREADY = validwaddr_uart ? axi4if.BREADY : 1'b0;
+	uartif.WLAST = validwaddr_uart ? axi4if.WLAST : 1'b0;
 
 	sramif.AWADDR = validwaddr_sram ? waddr : 32'dz;
 	sramif.AWVALID = validwaddr_sram ? axi4if.AWVALID : 1'b0;
@@ -130,6 +131,7 @@ always_comb begin
 	sramif.WSTRB = validwaddr_sram ? axi4if.WSTRB : 4'h0;
 	sramif.WVALID = validwaddr_sram ? axi4if.WVALID : 1'b0;
 	sramif.BREADY = validwaddr_sram ? axi4if.BREADY : 1'b0;
+	sramif.WLAST = validwaddr_sram ? axi4if.WLAST : 1'b0;
 
 	spiif.AWADDR = validwaddr_spi ? waddr : 32'dz;
 	spiif.AWVALID = validwaddr_spi ? axi4if.AWVALID : 1'b0;
@@ -137,6 +139,7 @@ always_comb begin
 	spiif.WSTRB = validwaddr_spi ? axi4if.WSTRB : 4'h0;
 	spiif.WVALID = validwaddr_spi ? axi4if.WVALID : 1'b0;
 	spiif.BREADY = validwaddr_spi ? axi4if.BREADY : 1'b0;
+	spiif.WLAST = validwaddr_spi ? axi4if.WLAST : 1'b0;
 
 	bramif.AWADDR = validwaddr_bram ? waddr : 32'dz;
 	bramif.AWVALID = validwaddr_bram ? axi4if.AWVALID : 1'b0;
@@ -144,6 +147,7 @@ always_comb begin
 	bramif.WSTRB = validwaddr_bram ? axi4if.WSTRB : 4'h0;
 	bramif.WVALID = validwaddr_bram ? axi4if.WVALID : 1'b0;
 	bramif.BREADY = validwaddr_bram ? axi4if.BREADY : 1'b0;
+	bramif.WLAST = validwaddr_bram ? axi4if.WLAST : 1'b0;
 
 	ddr3if.AWADDR = validwaddr_ddr3 ? waddr : 32'dz;
 	ddr3if.AWVALID = validwaddr_ddr3 ? axi4if.AWVALID : 1'b0;
@@ -151,6 +155,7 @@ always_comb begin
 	ddr3if.WSTRB = validwaddr_ddr3 ? axi4if.WSTRB : 4'h0;
 	ddr3if.WVALID = validwaddr_ddr3 ? axi4if.WVALID : 1'b0;
 	ddr3if.BREADY = validwaddr_ddr3 ? axi4if.BREADY : 1'b0;
+	ddr3if.WLAST = validwaddr_ddr3 ? axi4if.WLAST : 1'b0;
 
 	gpuif.AWADDR = validwaddr_gpu ? waddr : 32'dz;
 	gpuif.AWVALID = validwaddr_gpu ? axi4if.AWVALID : 1'b0;
@@ -158,6 +163,7 @@ always_comb begin
 	gpuif.WSTRB = validwaddr_gpu ? axi4if.WSTRB : 4'h0;
 	gpuif.WVALID = validwaddr_gpu ? axi4if.WVALID : 1'b0;
 	gpuif.BREADY = validwaddr_gpu ? axi4if.BREADY : 1'b0;
+	gpuif.WLAST = validwaddr_gpu ? axi4if.WLAST : 1'b0;
 
 	dummyif.AWADDR = validwaddr_none ? waddr : 32'dz;
 	dummyif.AWVALID = validwaddr_none ? axi4if.AWVALID : 1'b0;
@@ -165,6 +171,7 @@ always_comb begin
 	dummyif.WSTRB = validwaddr_none ? axi4if.WSTRB : 4'h0;
 	dummyif.WVALID = validwaddr_none ? axi4if.WVALID : 1'b0;
 	dummyif.BREADY = validwaddr_none ? axi4if.BREADY : 1'b0;
+	dummyif.WLAST = validwaddr_none ? axi4if.WLAST : 1'b0;
 
 	if (validwaddr_uart) begin
 		axi4if.AWREADY = uartif.AWREADY;
@@ -245,36 +252,43 @@ always_comb begin
 		axi4if.RDATA = uartif.RDATA;
 		axi4if.RRESP = uartif.RRESP;
 		axi4if.RVALID = uartif.RVALID;
+		axi4if.RLAST = uartif.RLAST;
 	end else if (validraddr_sram) begin
 		axi4if.ARREADY = sramif.ARREADY;
 		axi4if.RDATA = sramif.RDATA;
 		axi4if.RRESP = sramif.RRESP;
 		axi4if.RVALID = sramif.RVALID;
+		axi4if.RLAST = sramif.RLAST;
 	end else if (validraddr_spi) begin
 		axi4if.ARREADY = spiif.ARREADY;
 		axi4if.RDATA = spiif.RDATA;
 		axi4if.RRESP = spiif.RRESP;
 		axi4if.RVALID = spiif.RVALID;
+		axi4if.RLAST = spiif.RLAST;
 	end else if (validraddr_bram) begin
 		axi4if.ARREADY = bramif.ARREADY;
 		axi4if.RDATA = bramif.RDATA;
 		axi4if.RRESP = bramif.RRESP;
 		axi4if.RVALID = bramif.RVALID;
+		axi4if.RLAST = bramif.RLAST;
 	end else if (validraddr_ddr3) begin
 		axi4if.ARREADY = ddr3if.ARREADY;
 		axi4if.RDATA = ddr3if.RDATA;
 		axi4if.RRESP = ddr3if.RRESP;
 		axi4if.RVALID = ddr3if.RVALID;
+		axi4if.RLAST = ddr3if.RLAST;
 	end else if (validraddr_gpu) begin
 		axi4if.ARREADY = gpuif.ARREADY;
 		axi4if.RDATA = gpuif.RDATA;
 		axi4if.RRESP = gpuif.RRESP;
 		axi4if.RVALID = gpuif.RVALID;
+		axi4if.RLAST = gpuif.RLAST;
 	end else begin
 		axi4if.ARREADY = dummyif.ARREADY;
 		axi4if.RDATA = dummyif.RDATA;
 		axi4if.RRESP = dummyif.RRESP;
 		axi4if.RVALID = dummyif.RVALID;
+		axi4if.RLAST = dummyif.RLAST;
 	end
 end
 
