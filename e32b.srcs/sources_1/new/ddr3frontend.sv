@@ -11,7 +11,6 @@ logic [8:0] cline;					// Current cache line 0..512 (there are 512 cache lines)
 logic [2:0] coffset;				// Current word offset 0..7 (each cache line is 8xWORDs (256bits))
 logic [31:0] cwidemask;				// Wide write mask
 logic [31:0] wdata;					// Input data to write from bus side
-//logic loadindex = 1'b0;				// Cache load index (high/low 128 bits)
 logic [3:0] burstindex = 4'b0001;	// Index of current burst
 
 logic ddr3valid [0:511];			// Cache line valid bits
@@ -214,7 +213,7 @@ always @(posedge axi4if.ACLK) begin
 				end
 			end
 
-			DDR3AXI4READ: begin
+			default: begin // DDR3AXI4READ
 				if (ddr3if.RVALID) begin
 					burstindex <= {burstindex[2:0], burstindex[3]}; // Shift left
 					case (1'b1)

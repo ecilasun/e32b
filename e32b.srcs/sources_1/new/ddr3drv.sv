@@ -49,7 +49,7 @@ mig_7series_0 DDR3Instance (
     .s_axi_awsize                   (3'b011), // 8 bytes each
     .s_axi_awburst                  (2'b01),  // 00:FIXED 01:INCR 10:WRAP 11:RESERVED
     .s_axi_awlock                   (1'b0),
-    .s_axi_awcache                  (4'h0),
+    .s_axi_awcache                  (4'b0011),
     .s_axi_awprot                   (3'b000),
     .s_axi_awqos                    (4'h0),
     .s_axi_awvalid                  (ddr3if.AWVALID),
@@ -75,7 +75,7 @@ mig_7series_0 DDR3Instance (
     .s_axi_arsize                   (3'b011), // 8 bytes each
     .s_axi_arburst                  (2'b01),  // 00:FIXED 01:INCR 10:WRAP 11:RESERVED
     .s_axi_arlock                   (1'b0),
-    .s_axi_arcache                  (4'h0),
+    .s_axi_arcache                  (4'b0011),
     .s_axi_arprot                   (3'b000),
     .s_axi_arqos                    (4'h0),
     .s_axi_arvalid                  (ddr3if.ARVALID),
