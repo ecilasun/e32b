@@ -9,8 +9,6 @@ logic [1:0] waddrstate = 2'b00;
 logic [1:0] writestate = 2'b00;
 logic [1:0] raddrstate = 2'b00;
 
-logic [31:0] writeaddress = 32'd0;
-logic [31:0] readaddress = 32'd0;
 logic [7:0] writedata = 7'd0;
 wire [7:0] readdata;
 logic [3:0] we = 4'h0;
@@ -46,6 +44,37 @@ SPI_Master #(.SPI_MODE(0), .CLKS_PER_HALF_BIT(2)) SPI(
 
 assign wires.spi_cs_n = 1'b0; // Keep attached SPI device selected/powered on
 
+wire fifofull, fifoempty, fifovalid;
+logic fifowe = 1'b0, fifore = 1'b0;
+logic [7:0] fifodin = 8'h00;
+wire [7:0] fifodout;
+
+spimasterinfifo SPIInputFIFO(
+	.wr_clk(clocks.spibaseclock),
+	.full(),
+	.din(fifodin),
+	.wr_en(fifowe),
+
+	.rd_clk(axi4if.ACLK),
+	.empty(fifoempty),
+	.dout(fifodout),
+	.rd_en(fifore),
+	.valid(fifovalid),
+
+	.rst(~axi4if.ARESETn),
+	.wr_rst_busy(),
+	.rd_rst_busy() );
+
+always @(posedge clocks.spibaseclock) begin
+	fifowe <= 1'b0;
+
+	if (hasvaliddata & (~fifofull)) begin // Make sure to drain the fifo!
+		// Stash incoming byte in FIFO
+		fifowe <= 1'b1;
+		fifodin <= spiincomingdata;
+	end
+end
+
 // ----------------------------------------------------------------------------
 // Main state machine
 // ----------------------------------------------------------------------------
@@ -57,8 +86,8 @@ always @(posedge axi4if.ACLK) begin
 		// Write address
 		case (waddrstate)
 			2'b00: begin
-				if (axi4if.AWVALID) begin
-					writeaddress <= axi4if.AWADDR;
+				if (axi4if.AWVALID & cansend) begin
+					//writeaddress <= axi4if.AWADDR;
 					axi4if.AWREADY <= 1'b0;
 					waddrstate <= 2'b01;
 				end
@@ -78,7 +107,7 @@ always @(posedge axi4if.ACLK) begin
 		2'b00: begin
 			if (axi4if.WVALID & cansend) begin
 				// Latch the data and byte select
-				writedata <= axi4if.WDATA;
+				writedata <= axi4if.WDATA[7:0];
 				we <= axi4if.WSTRB;
 				axi4if.WREADY <= 1'b1;
 				writestate <= 2'b01;
@@ -106,30 +135,35 @@ always @(posedge axi4if.ACLK) begin
 		axi4if.RRESP <= 2'b00;
 		axi4if.RDATA <= 32'd0;
 	end else begin
+
+		fifore <= 1'b0;
+
 		// Read address
 		case (raddrstate)
 			2'b00: begin
 				if (axi4if.ARVALID) begin
 					axi4if.ARREADY <= 1'b0;
-					readaddress <= axi4if.ARADDR;
+					// axi4if.ARADDR; unused, device has single mapped address
 					raddrstate <= 2'b01;
 				end
 			end
 			2'b01: begin
-				// Master ready to accept
-				if (axi4if.RREADY & hasvaliddata) begin
-					// Produce the data on the bus and assert valid
-					axi4if.RDATA <= {24'h0, spiincomingdata}; // Dummy read from unmapped device
-					axi4if.RVALID <= 1'b1;
-					//axi4if.RLAST <= 1'b1; // Last in burst
-					raddrstate <= 2'b10; // Delay one clock for master to pull down ARVALID
+				// Master ready to accept and fifo has incoming data
+				if (axi4if.RREADY & (~fifoempty)) begin
+					fifore <= 1'b1;
+					raddrstate <= 2'b10;
 				end
 			end
-			default/*2'b10*/: begin
-				// At this point master should have responded properly with ARVALID=0
+			2'b10: begin
+				if (fifovalid) begin
+					axi4if.RDATA <= {24'h0, fifodout};
+					axi4if.RVALID <= 1'b1;
+					raddrstate <= 2'b11; // Delay one clock for master to pull down ARVALID
+				end
+			end
+			default/*2'b11*/: begin
 				axi4if.RVALID <= 1'b0;
 				axi4if.ARREADY <= 1'b1;
-				//axi4if.RLAST <= 1'b0;
 				raddrstate <= 2'b00;
 			end
 		endcase
