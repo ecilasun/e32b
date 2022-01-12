@@ -603,7 +603,7 @@ always @(posedge axi4if.ACLK) begin
 			end
 		end
 
-		CPUSTOREWAIT: begin
+		CPUSTOREWAIT: begin // Might be able to get rid of this stage as we don't really need to wait until we have to read
 			if (axi4if.AWREADY) begin
 				axi4if.AWVALID <= 1'b0; // Address handshake complete
 			end
@@ -760,7 +760,7 @@ always @(posedge axi4if.ACLK) begin
 			end
 		end
 
-		CPUWBACK: begin
+		default: begin // CPUWBACK
 			case (1'b1)
 				instrOneHot[`O_H_LUI]:		rdin <= immed;
 				instrOneHot[`O_H_JAL],

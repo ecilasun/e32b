@@ -82,6 +82,7 @@ axi4spi SPIMaster(
 // FB0: 40000000
 // FB1: 40020000
 // PAL: 40040000
+// CTL: 40080000
 wire validwaddr_gpu = 4'h4 == axi4if.AWADDR[31:28];
 wire validraddr_gpu = 4'h4 == axi4if.ARADDR[31:28];
 axi4 gpuif(axi4if.ACLK, axi4if.ARESETn);
@@ -107,7 +108,7 @@ assign irq = {3'b000, ~uartrcvempty};
 // ------------------------------------------------------------------------------------
 
 axi4 dummyif(axi4if.ACLK, axi4if.ARESETn);
-axi4dummy NULLDEVICE(
+axi4dummy BusSink(
 	.axi4if(dummyif.SLAVE) );
 
 // ------------------------------------------------------------------------------------

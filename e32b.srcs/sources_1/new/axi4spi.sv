@@ -51,7 +51,7 @@ wire [7:0] fifodout;
 
 spimasterinfifo SPIInputFIFO(
 	.wr_clk(clocks.spibaseclock),
-	.full(),
+	.full(fifofull),
 	.din(fifodin),
 	.wr_en(fifowe),
 

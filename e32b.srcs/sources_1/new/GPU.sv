@@ -31,7 +31,12 @@ colorpalette Palette(
 wire [11:0] video_x;
 wire [11:0] video_y;
 
-logic videopagesel = 1'b0;
+// Normally GPU boots in single buffer mode
+// where reads and writes happen from the same video page.
+logic videowritepage = 1'b0;
+logic videoreadpage = 1'b0;
+logic [15:0] lanemask = 16'd0; // No simultaneous writes by default
+
 logic [3:0] videowe = 4'h0;
 logic [31:0] videodin = 32'd0;
 logic [14:0] videowaddr = 15'd0;
@@ -49,28 +54,27 @@ wire inDisplayWindow = (video_x<640) && (video_y<480);
 
 videounit VideoUnitA (
 		.clocks(clocks),
-		.writesenabled(1'b1),//~videopagesel), // 0->active for writes, inactive for output
+		.writesenabled(~videowritepage), // 0: Select for write
 		.video_x(video_x),
 		.video_y(video_y),
 		.waddr(videowaddr),
 		.we(videowe),
 		.din(videodin),
-		.lanemask(15'd0), // TODO: enable to allow simultaneous writes
+		.lanemask(lanemask), // Set bits high to allow simultaneous writes to corresponding slices
 		.paletteindexout(paletteReadAddressA) );
 
 /*videounit VideoUnitB (
-		.gpuclock(clocks.gpubaseclock),
-		.vgaclock(clocks.videoclock),
-		.writesenabled(videopagesel), // 1->active for writes, inactive for output
+		.clocks(clocks),
+		.writesenabled(videowritepage), // 1: Select for write
 		.video_x(video_x),
 		.video_y(video_y),
 		.waddr(videowaddr),
 		.we(videowe),
 		.din(videodin),
-		.lanemask(15'd0),
+		.lanemask(15'd0), // Set bits high to allow simultaneous writes to corresponding slices
 		.paletteindexout(paletteReadAddressB) );*/
 
-assign paletteReadAddress = paletteReadAddressA;//videopagesel ? paletteReadAddressA : paletteReadAddressB;
+assign paletteReadAddress = paletteReadAddressA;//videoreadpage ? paletteReadAddressA : paletteReadAddressB;
 
 // ----------------------------------------------------------------------------
 // Video output unit
@@ -157,8 +161,8 @@ always @(posedge axi4if.ACLK) begin
 		case (waddrstate)
 			2'b00: begin
 				if (axi4if.AWVALID) begin
-					writeaddress <= axi4if.AWADDR;
 					axi4if.AWREADY <= 1'b0;
+					writeaddress <= axi4if.AWADDR;
 					waddrstate <= 2'b01;
 				end
 			end
@@ -182,12 +186,20 @@ always @(posedge axi4if.ACLK) begin
 				//00000-1FFFF: page 0
 				//20000-3FFFF: page 1 (i.e. writeaddress[15]==pageselect)
 				//40000-401FF: color palette (writeaddress[18]==1)
-				//videopagesel <= writeaddress[15]; // Write page = 0: page0, 1: page1
-				if (writeaddress[18]==1'b1) begin
-					paletteWriteAddress = writeaddress[9:2]; // Palette index, multiples of word addresses
-					palettewe = 1'b1;
-					palettedin = axi4if.WDATA[23:0];
-				end else begin
+				//80000-8FFFF: device control (read/write page selection, vsync etc)
+				if (writeaddress[18]==1'b1) begin // Palette
+					paletteWriteAddress <= writeaddress[9:2]; // Palette index, multiples of word addresses
+					palettewe <= 1'b1;
+					palettedin <= axi4if.WDATA[23:0];
+				end else if (writeaddress[19]==1'b1) begin // Device control
+					// [31:18]: unused, TBD
+					// [17:17]: scanout page
+					// [16:16]: write page
+					// [15:0]: lane mask
+					videowritepage <= axi4if.WDATA[16];	// Setting this to 0 or 1 will select the corresponding video memory range active for write
+					videoreadpage <= axi4if.WDATA[17];	// Setting this to 0 or 1 will select the corresponding video memory range active for output
+					lanemask <= axi4if.WDATA[15:0];		// Setting this to 0xFFFF and writing to any slice will echo the writes to all slices
+				end else begin // Framebuffers
 					videowaddr <= writeaddress[16:2]; // Word aligned
 					videowe <= axi4if.WSTRB;
 					videodin <= axi4if.WDATA;
@@ -200,7 +212,7 @@ always @(posedge axi4if.ACLK) begin
 			axi4if.WREADY <= 1'b0;
 			if(axi4if.BREADY) begin
 				axi4if.BVALID <= 1'b1;
-				axi4if.BRESP = 2'b00; // OKAY
+				axi4if.BRESP <= 2'b00; // OKAY
 				writestate <= 2'b10;
 			end
 		end
@@ -222,6 +234,7 @@ always @(posedge axi4if.ACLK) begin
 		case (raddrstate)
 			2'b00: begin
 				if (axi4if.ARVALID) begin
+					// TODO: Reads from 80000-8FFFF will return vsync id
 					axi4if.ARREADY <= 1'b0;
 					re <= 1'b1;
 					raddrstate <= 2'b01;
@@ -232,14 +245,12 @@ always @(posedge axi4if.ACLK) begin
 				if (axi4if.RREADY /*& dataActuallyRead*/) begin
 					axi4if.RDATA <= dout;
 					axi4if.RVALID <= 1'b1;
-					//axi4if.RLAST <= 1'b1; // Last entry in burst
 					raddrstate <= 2'b10; // Delay one clock for master to pull down ARVALID
 				end
 			end
 			default/*2'b10*/: begin
 				axi4if.RVALID <= 1'b0;
 				axi4if.ARREADY <= 1'b1;
-				//axi4if.RLAST <= 1'b0;
 				raddrstate <= 2'b00;
 			end
 		endcase

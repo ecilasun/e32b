@@ -11,7 +11,7 @@ module videounit(
 		input wire [14:0] lanemask,
 		output wire [7:0] paletteindexout );
 
-logic [31:0] scanlinecache [0:127];
+logic [31:0] scanlinecache[0:127];
 
 // Each line in the video buffer contains 48 additional dwords (192 bytes) of extra storage at the end
 // This area can only be written to by the GPU
@@ -24,8 +24,8 @@ wire [11:0] pixelY = video_y;
 // video addrs = (Y<<9) + X where X is from 0 to 512 but we only use the 320 section for scanout
 wire [31:0] scanoutaddress = {pixelY[9:1], video_x[6:0]}; // stride of 48 at the end of scanline
 
-wire isCachingRow = video_x > 128 ? 1'b0 : 1'b1;	// Scanline cache enabled during the first 128 clocks of scanline
-wire [6:0] cachewriteaddress = video_x[6:0]-7'd1;	// One behind so that delayed clock can catch up
+wire isCachingRow = video_x > 128 ? 1'b0 : 1'b1;	// Scanline cache enabled when we're in left window
+wire [6:0] cachewriteaddress = video_x[6:0]-7'd1;	// Since memory data delays 1 clock, run 1 address behind to sync properly
 wire [6:0] cachereadaddress = video_x[9:3];
 
 wire [1:0] videobyteselect = video_x[2:1];
@@ -34,6 +34,8 @@ wire [31:0] vram_data[0:14];
 logic [7:0] videooutbyte;
 
 assign paletteindexout = videooutbyte;
+
+wire [3:0] sliceselect = scanoutaddress[14:11];
 
 // Generate 13 slices of 512*16 pixels of video memory (out of which we use 320 pixels for each row)
 genvar slicegen;
@@ -49,31 +51,31 @@ generate for (slicegen = 0; slicegen < 15; slicegen = slicegen + 1) begin : vram
 		.wea( writesenabled & (lanemask[slicegen] | (waddr[14:11]==slicegen[3:0])) ? we : 4'b0000 ),
 		// Read out to respective vram_data elements for each slice
 		.addrb(scanoutaddress[10:0]),
-		.enb((scanoutaddress[14:11]==slicegen[3:0] ? 1'b1:1'b0)),
-		.clkb(clocks.videoclock),
+		.enb((sliceselect==slicegen[3:0] ? 1'b1:1'b0)),
+		.clkb(clocks.gpubaseclock),
 		.doutb(vram_data[slicegen]) );
 end endgenerate
 
-always @(posedge(clocks.videoclock)) begin
+always @(posedge(clocks.gpubaseclock)) begin
 	if (isCachingRow) begin
-		scanlinecache[cachewriteaddress] = vram_data[scanoutaddress[14:11]];
+		scanlinecache[cachewriteaddress] <= vram_data[sliceselect];
 	end
 end
 
 // Copes with clock delay by shifting pixels one over
-always_comb begin
+always @(posedge clocks.videoclock) begin
 	case (videobyteselect)
 		2'b00: begin
-			videooutbyte = scanlinecache[cachereadaddress][15:8];
+			videooutbyte <= scanlinecache[cachereadaddress][7:0];
 		end
 		2'b01: begin
-			videooutbyte = scanlinecache[cachereadaddress][23:16];
+			videooutbyte <= scanlinecache[cachereadaddress][15:8];
 		end
 		2'b10: begin
-			videooutbyte = scanlinecache[cachereadaddress][31:24];
+			videooutbyte <= scanlinecache[cachereadaddress][23:16];
 		end
 		default/*2'b11*/: begin
-			videooutbyte = scanlinecache[cachereadaddress][7:0];
+			videooutbyte <= scanlinecache[cachereadaddress][31:24];
 		end
 	endcase
 end
