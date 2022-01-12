@@ -177,7 +177,7 @@ end
 always @(posedge axi4if.ACLK) begin
 	// Write data
 	videowe <= 4'h0;
-	palettewe = 1'b0;
+	palettewe <= 1'b0;
 	case (writestate)
 		2'b00: begin
 			if (axi4if.WVALID /*& canActuallyWrite*/) begin

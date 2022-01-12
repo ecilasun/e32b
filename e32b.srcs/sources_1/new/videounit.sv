@@ -8,7 +8,7 @@ module videounit(
 		input wire [14:0] waddr,
 		input wire [3:0] we,
 		input wire [31:0] din,
-		input wire [14:0] lanemask,
+		input wire [15:0] lanemask,
 		output wire [7:0] paletteindexout );
 
 logic [31:0] scanlinecache[0:127];
