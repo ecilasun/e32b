@@ -5,13 +5,13 @@ module ddr3frontend(
 	axi4.SLAVE axi4if,		// From bus
 	input wire ifetch );
 
-logic [15:0] ptag;					// Previous cache tag (16 bits)
-logic [15:0] ctag;					// Current cache tag (16 bits)
-logic [8:0] cline;					// Current cache line 0..512 (there are 512 cache lines)
-logic [2:0] coffset;				// Current word offset 0..7 (each cache line is 8xWORDs (256bits))
-logic [31:0] cwidemask;				// Wide write mask
-logic [31:0] wdata;					// Input data to write from bus side
-logic [3:0] burstindex = 4'b0001;	// Index of current burst
+logic [15:0] ptag;				// Previous cache tag (16 bits)
+logic [15:0] ctag;				// Current cache tag (16 bits)
+logic [8:0] cline;				// Current cache line 0..512 (there are 512 cache lines)
+logic [2:0] coffset;			// Current word offset 0..7 (each cache line is 8xWORDs (256bits))
+logic [31:0] cwidemask;			// Wide write mask
+logic [31:0] wdata;				// Input data to write from bus side
+logic [3:0] burstindex = 4'b1;	// Index of current burst
 
 logic ddr3valid [0:511];			// Cache line valid bits
 logic [255:0] ddr3cache [0:511];	// Cache lines x2
@@ -49,6 +49,10 @@ always @(posedge axi4if.ACLK) begin
 		axi4if.BRESP <= 2'b00; // 00:OK(all ok) 01:EXACCESSOK(exclusive access ok) 10:SLAVEERR(r/w or wait error) 11:DECODERERR(address error)
 		axi4if.BVALID <= 1'b0;
 	end else begin
+	
+		// TODO: When an FENCE.I is detected, the next memory operation has to invalidate all I$ tags so that I$ may reload the whole cache.
+		// Otherwise this will cause issues when D$ writes to memory but I$ doesn't know the memory contents have been changed, may therefore
+		// fail to load program instructions from memory after a new executable has been loaded.
 
 		case (ddr3axi4state)
 
@@ -90,14 +94,14 @@ always @(posedge axi4if.ACLK) begin
 				if (ctag == ptag) begin // Cache hit
 					if (axi4if.BREADY) begin
 						case (coffset)
-							3'b000: ddr3cache[cline][31:0]		<= ((~cwidemask)&ddr3cache[cline][31:0]) | (cwidemask&wdata);
-							3'b001: ddr3cache[cline][63:32]		<= ((~cwidemask)&ddr3cache[cline][63:32]) | (cwidemask&wdata);
-							3'b010: ddr3cache[cline][95:64]		<= ((~cwidemask)&ddr3cache[cline][95:64]) | (cwidemask&wdata);
-							3'b011: ddr3cache[cline][127:96]	<= ((~cwidemask)&ddr3cache[cline][127:96]) | (cwidemask&wdata);
-							3'b100: ddr3cache[cline][159:128]	<= ((~cwidemask)&ddr3cache[cline][159:128]) | (cwidemask&wdata);
-							3'b101: ddr3cache[cline][191:160]	<= ((~cwidemask)&ddr3cache[cline][191:160]) | (cwidemask&wdata);
-							3'b110: ddr3cache[cline][223:192]	<= ((~cwidemask)&ddr3cache[cline][223:192]) | (cwidemask&wdata);
-							3'b111: ddr3cache[cline][255:224]	<= ((~cwidemask)&ddr3cache[cline][255:224]) | (cwidemask&wdata);
+							3'b000: ddr3cache[cline] <= {ddr3cache[cline][255:32 ], ((~cwidemask)&ddr3cache[cline][31:0]   ) | (cwidemask&wdata)                         };
+							3'b001: ddr3cache[cline] <= {ddr3cache[cline][255:64 ], ((~cwidemask)&ddr3cache[cline][63:32]  ) | (cwidemask&wdata), ddr3cache[cline][31:0] };
+							3'b010: ddr3cache[cline] <= {ddr3cache[cline][255:96 ], ((~cwidemask)&ddr3cache[cline][95:64]  ) | (cwidemask&wdata), ddr3cache[cline][63:0] };
+							3'b011: ddr3cache[cline] <= {ddr3cache[cline][255:128], ((~cwidemask)&ddr3cache[cline][127:96] ) | (cwidemask&wdata), ddr3cache[cline][95:0] };
+							3'b100: ddr3cache[cline] <= {ddr3cache[cline][255:160], ((~cwidemask)&ddr3cache[cline][159:128]) | (cwidemask&wdata), ddr3cache[cline][127:0]};
+							3'b101: ddr3cache[cline] <= {ddr3cache[cline][255:192], ((~cwidemask)&ddr3cache[cline][191:160]) | (cwidemask&wdata), ddr3cache[cline][159:0]};
+							3'b110: ddr3cache[cline] <= {ddr3cache[cline][255:224], ((~cwidemask)&ddr3cache[cline][223:192]) | (cwidemask&wdata), ddr3cache[cline][191:0]};
+							3'b111: ddr3cache[cline] <= {                           ((~cwidemask)&ddr3cache[cline][255:224]) | (cwidemask&wdata), ddr3cache[cline][223:0]};
 						endcase
 						// Mark line invalid (needs writeback)
 						ddr3valid[cline] <= 1'b0;
@@ -111,7 +115,7 @@ always @(posedge axi4if.ACLK) begin
 					end
 				end else begin // Cache miss
 					returnstate <= DDR3AXI4WRITECHECK;
-					burstindex <= 4'b0001;
+					burstindex <= 4'd1;
 					if (ddr3valid[cline]) begin
 						ddr3if.ARADDR <= {3'd0, ctag, cline[8:1], 5'd0}; // 32 byte aligned
 						ddr3if.ARVALID <= 1'b1;
@@ -149,7 +153,7 @@ always @(posedge axi4if.ACLK) begin
 					end
 				end else begin // Cache miss
 					returnstate <= DDR3AXI4READCHECK;
-					burstindex <= 4'b0001;
+					burstindex <= 4'd1;
 					if (ddr3valid[cline]) begin
 						ddr3if.ARADDR <= {3'd0, ctag, cline[8:1], 5'd0}; // 32 byte aligned
 						ddr3if.ARVALID <= 1'b1;
@@ -197,8 +201,8 @@ always @(posedge axi4if.ACLK) begin
 				ddr3if.WVALID <= 1'b0;
 
 				if (ddr3if.BVALID) begin
-					burstindex <= 4'b0001;
-					ddr3if.ARADDR <= {3'd0, ctag, cline[8:1], 5'd0};
+					burstindex <= 4'd1;
+					ddr3if.ARADDR <= {3'd0, ctag, cline[8:1], 5'd0}; // 32 byte aligned
 					ddr3if.ARVALID <= 1'b1;
 					ddr3if.RREADY <= 1'b1;
 					ddr3axi4state <= DDR3AXI4READACCEPT;

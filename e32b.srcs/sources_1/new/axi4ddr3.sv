@@ -1,11 +1,5 @@
 `timescale 1ns / 1ps
 
-// NOTE: This module uses a direct mapped cache with address space divided
-// between D$ and I$ so that D$ uses even cache entries and I$ uses the odd.
-// Each cache line consists of 8 words (256 bits).
-// Cache contents are written back when a tag change occurs and if the contents
-// at that cache line are invalid (wback-on r/w)
-
 module axi4ddr3(
 	axi4.SLAVE axi4if,
 	FPGADeviceClocks.DEFAULT clocks,
