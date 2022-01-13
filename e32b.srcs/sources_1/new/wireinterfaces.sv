@@ -56,9 +56,9 @@ interface FPGADeviceClocks (
 		input spibaseclock,
 		input gpubaseclock,
 		input videoclock,
-		input videoclock10,
 		input clk_sys_i,
-		input clk_ref_i );
+		input clk_ref_i,
+		input devicereset );
 
 	modport DEFAULT (
 		input calib_done,
@@ -68,9 +68,9 @@ interface FPGADeviceClocks (
 		input spibaseclock,
 		input gpubaseclock,
 		input videoclock,
-		input videoclock10,
 		input clk_sys_i,
-		input clk_ref_i );
+		input clk_ref_i,
+		input devicereset );
 
 endinterface
 

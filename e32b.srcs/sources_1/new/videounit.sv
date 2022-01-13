@@ -1,81 +1,85 @@
 `timescale 1ns / 1ps
 
 module videounit(
-		FPGADeviceClocks.DEFAULT clocks,
-		input wire writesenabled,
+		input wire gpuclock,
+		input wire pixelclock,
 		input wire [11:0] video_x,
 		input wire [11:0] video_y,
+		// For direct writes from GPU
 		input wire [14:0] waddr,
 		input wire [3:0] we,
 		input wire [31:0] din,
-		input wire [15:0] lanemask,
+		// Output to scanout hardware
 		output wire [7:0] paletteindexout );
 
-logic [31:0] scanlinecache[0:127];
+// Tile arrangement (10x8)
+//            <-10 tiles wide->
+//         0                                   9
+//   ^   0[  ][  ][  ][  ][  ][  ][  ][  ][  ][  ]
+//   |    [  ][  ][  ][  ][  ][  ][  ][  ][  ][  ]
+//   8    [  ][  ][  ][  ][  ][  ][  ][  ][  ][  ]
+// tiles  [  ][  ][  ][  ][  ][  ][  ][  ][  ][  ]
+// high   [  ][  ][  ][  ][  ][  ][  ][  ][  ][  ]
+//   |    [  ][  ][  ][  ][  ][  ][  ][  ][  ][  ]
+//   v   7[  ][  ][  ][  ][  ][  ][  ][  ][  ][  ]
+// Each tile is 32x32 pixels, or 8x32 words in length,
+// with the first address of each tile at upper left hand corner,
+// scanning right then down:
+// 00: 00 00 00 00 00 00 00 00
+// 01: 00 00 00 00 00 00 00 00
+// ...
+// 1E: 00 00 00 00 00 00 00 00
+// 1F: 00 00 00 00 00 00 00 00
 
-// Each line in the video buffer contains 48 additional dwords (192 bytes) of extra storage at the end
-// This area can only be written to by the GPU
-// TODO: Find a nice use for this unused memory region
-//           80 DWORDS              +48 DWORDS
-// |------------------------------|............|
+// Scan-out tile id
+wire [3:0] stx = video_x[9:6]; // (vx%1024)/64 -> pixels are x2 wide
+wire [2:0] sty = video_y[8:6]; // (vy%1024)/64 -> pixels are x2 high
+wire [6:0] scantileid = stx + sty*10; // id -> 0..79
 
-wire [11:0] pixelY = video_y;
+// Scan-out tile local address
+wire [2:0] slx = video_x[5:3]; // (vx%64)/8
+wire [4:0] sly = video_y[5:1]; // (vy%64)
+wire [7:0] sladdress = {sly, slx};
 
-// video addrs = (Y<<9) + X where X is from 0 to 512 but we only use the 320 section for scanout
-wire [31:0] scanoutaddress = {pixelY[9:1], video_x[6:0]}; // stride of 48 at the end of scanline
-
-wire isCachingRow = video_x > 128 ? 1'b0 : 1'b1;	// Scanline cache enabled when we're in left window
-wire [6:0] cachewriteaddress = video_x[6:0]-7'd1;	// Since memory data delays 1 clock, run 1 address behind to sync properly
-wire [6:0] cachereadaddress = video_x[9:3];
-
+// Byte select within the scanout word
 wire [1:0] videobyteselect = video_x[2:1];
 
-wire [31:0] vram_data[0:14];
+wire [31:0] vram_data[0:79]; // One read slot per tile
 logic [7:0] videooutbyte;
 
 assign paletteindexout = videooutbyte;
 
-wire [3:0] sliceselect = scanoutaddress[14:11];
-
-// Generate 13 slices of 512*16 pixels of video memory (out of which we use 320 pixels for each row)
-genvar slicegen;
-generate for (slicegen = 0; slicegen < 15; slicegen = slicegen + 1) begin : vram_slices
-	vramslice vramslice_inst(
-		// Write to the matching slice
-		.addra(waddr[10:0]),
-		.clka(clocks.gpubaseclock),
+// Generate 10*8 tiles of 32*32 pixels each for an image of 320*256, out of which we scan out a 320x240 window
+genvar tilegen;
+generate for (tilegen = 0; tilegen < 80; tilegen = tilegen + 1) begin : video_tiles
+	//videowaddr <= {tileid, laddress};
+	graphicstile32x32 vtile_inst(
+		// Write to the matching tile
+		.addra(waddr[7:0]), // Per-tile address (0..255)
+		.clka(gpuclock),
 		.dina(din),
 		.ena(1'b1),
-		// If lane mask is enabled or if this vram slice is in the correct address range, enable writes
-		// NOTE: lane mask enable still uses the 'we' to control which bytes to update
-		.wea( writesenabled & (lanemask[slicegen] | (waddr[14:11]==slicegen[3:0])) ? we : 4'b0000 ),
-		// Read out to respective vram_data elements for each slice
-		.addrb(scanoutaddress[10:0]),
-		.enb((sliceselect==slicegen[3:0] ? 1'b1:1'b0)),
-		.clkb(clocks.gpubaseclock),
-		.doutb(vram_data[slicegen]) );
+		.wea(waddr[14:8]==tilegen[6:0] ? we : 4'b0000), // Select tile to write to
+		// Read out to respective vram_data elements for each tile
+		.addrb(sladdress),
+		.enb(scantileid==tilegen[6:0] ? 1'b1 : 1'b0), // Every tile always reads into their respective outputs
+		.clkb(pixelclock),
+		.doutb(vram_data[tilegen]) );
 end endgenerate
 
-always @(posedge(clocks.gpubaseclock)) begin
-	if (isCachingRow) begin
-		scanlinecache[cachewriteaddress] <= vram_data[sliceselect];
-	end
-end
-
-// Copes with clock delay by shifting pixels one over
-always @(posedge clocks.videoclock) begin
+always @(posedge pixelclock) begin
 	case (videobyteselect)
 		2'b00: begin
-			videooutbyte <= scanlinecache[cachereadaddress][7:0];
+			videooutbyte <= vram_data[scantileid][7:0];
 		end
 		2'b01: begin
-			videooutbyte <= scanlinecache[cachereadaddress][15:8];
+			videooutbyte <= vram_data[scantileid][15:8];
 		end
 		2'b10: begin
-			videooutbyte <= scanlinecache[cachereadaddress][23:16];
+			videooutbyte <= vram_data[scantileid][23:16];
 		end
-		default/*2'b11*/: begin
-			videooutbyte <= scanlinecache[cachereadaddress][31:24];
+		2'b11: begin
+			videooutbyte <= vram_data[scantileid][31:24];
 		end
 	endcase
 end

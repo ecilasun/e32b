@@ -80,7 +80,7 @@ GPUDataOutput gpudata(
 
 wire wallclock, cpuclock, uartbaseclock, spibaseclock;
 wire clk_sys_i, clk_ref_i;
-wire gpubaseclock, videoclock, videoclock10;
+wire gpubaseclock, videoclock;
 wire devicereset, calib_done;
 
 clockandresetgen ClockAndResetGenerator(
@@ -91,7 +91,6 @@ clockandresetgen ClockAndResetGenerator(
 	.spibaseclock(spibaseclock),
 	.gpubaseclock(gpubaseclock),
 	.videoclock(videoclock),
-	.videoclock10(videoclock10),
 	.clk_sys_i(clk_sys_i),
 	.clk_ref_i(clk_ref_i),
 	.devicereset(devicereset) );
@@ -104,9 +103,9 @@ FPGADeviceClocks clocks(
 	.spibaseclock(spibaseclock),
 	.gpubaseclock(gpubaseclock),
 	.videoclock(videoclock),
-	.videoclock10(videoclock10),
 	.clk_sys_i(clk_sys_i),
-	.clk_ref_i(clk_ref_i) );
+	.clk_ref_i(clk_ref_i),
+	.devicereset(devicereset) );
 
 // ----------------------------------------------------------------------------
 // AXI4 chain

@@ -69,12 +69,12 @@ BEGIN
   counter_x <= std_logic_vector(x);
   counter_y <= std_logic_vector(y);
   vsynccounter <= std_logic_vector(vscnt);
-
+  
   timing : PROCESS(clk_i)
   BEGIN
     IF rising_edge(clk_i) THEN
         vsynctrigger_o <= '0';
-      
+
         IF (x = C_RES_X+C_HFRONT - 1) THEN
             hsync_o <= '1';
         ELSIF (x = C_RES_X + C_HFRONT + C_HSYNC - 1) THEN

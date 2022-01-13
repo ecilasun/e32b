@@ -8,7 +8,6 @@ module clockandresetgen(
 	output wire spibaseclock,
 	output wire gpubaseclock,
 	output wire videoclock,
-	output wire videoclock10,
 	output wire clk_sys_i,
 	output wire clk_ref_i,
 	output logic devicereset = 1'b1 );
@@ -22,7 +21,7 @@ centralclockgen CentralClock(
 	.uartbaseclock(uartbaseclock),
 	.spibaseclock(spibaseclock),
 	.locked(centralclocklocked) );
-	
+
 ddr3clk DDR3MemoryClock(
 	.clk_in1(sys_clock_i),
 	.ddr3sys(clk_sys_i),
@@ -33,7 +32,6 @@ videoclocks GraphicsClock(
 	.clk_in1(sys_clock_i),
 	.gpubaseclock(gpubaseclock),
 	.videoclock(videoclock),
-	.videoclock10(videoclock10),
 	.locked(videoclklocked) );
 
 // Hold reset until clocks are locked
