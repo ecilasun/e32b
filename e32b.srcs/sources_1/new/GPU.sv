@@ -46,7 +46,7 @@ wire [7:0] paletteReadAddressB;
 wire inDisplayWindow = (video_x<640) && (video_y<480);
 wire pixelclock;
 
-videounit TiledFramebufferA(
+videounit FramebufferA(
 	.gpuclock(axi4if.ACLK),
 	.pixelclock(pixelclock),
 	.video_x(video_x),
@@ -123,23 +123,17 @@ always @(posedge gpuclock) begin
 end*/
 
 // ----------------------------------------------------------------------------
-// Linear address to tile address converter
+// CPU side strided address to VRAM address converter
 // ----------------------------------------------------------------------------
 
-logic [29:0] writeaddress = 30'd0;
+logic [31:0] writeaddress = 32'd0;
 
-wire [6:0] wx = writeaddress[6:0];		// wa%128
-wire [7:0] wy = writeaddress[14:7];		// wa/128
-wire [3:0] tx = wx[6:3];				// wx/8
-wire [2:0] lx = wx[2:0];				// tile horizontal word index (0..7)
-wire [2:0] ty = wy[7:5];				// wy/32
-wire [4:0] ly = wy[4:0];				// tile vertical word index (0..31)
+// Address from CPU side is in the form y*512 + x, word aligned (drop last 2 bits)
+wire [6:0] ax = writeaddress[8:2]; // low bits are x position (wordalignedaddress[6:0])
+wire [8:0] ay = writeaddress[16:9]; // high bits are y position (wordalignedaddress[14:7])
 
-// Linear memory address to tile id
-wire [6:0] tileid = tx + ty*10;			// linear tile index (0..69)
-
-// Linear memory address to tile local address
-wire [7:0] laddress = {ly, lx};			// linear tile local address (0..255)
+// Convert to stride320 from stride512, keep word aligned (stride320 in word is stride80)
+wire [14:0] laddress = ax + ay*80;
 
 // ----------------------------------------------------------------------------
 // GPU
@@ -162,7 +156,7 @@ always @(posedge axi4if.ACLK) begin
 			2'b00: begin
 				if (axi4if.AWVALID) begin
 					axi4if.AWREADY <= 1'b0;
-					writeaddress <= axi4if.AWADDR[31:2]; // Word aligned write address
+					writeaddress <= axi4if.AWADDR; // Word aligned write address
 					waddrstate <= 2'b01;
 				end
 			end
@@ -188,14 +182,14 @@ always @(posedge axi4if.ACLK) begin
 			// Latch the data and byte select
 			// TODO: Detect which video page or command stream we're writing to via address
 			//00000-1FFFF: page 0
-			//20000-3FFFF: page 1 (i.e. writeaddress[15]==pageselect)
+			//20000-3FFFF: page 1 (writeaddress[15] is from pageselect, to the CPU it should be exposed as the same address perhaps?)
 			//40000-401FF: color palette (writeaddress[18]==1)
-			//80000-8FFFF: device control (read/write page selection, vsync etc)
-			if (writeaddress[16]==1'b1) begin // Palette
-				paletteWriteAddress <= writeaddress[7:0]; // Palette index, multiples of word addresses
+			//80000-8FFFF: device control (writeaddress[19]==1, read/write page selection, vsync etc)
+			if (writeaddress[18]==1'b1) begin // Palette
+				paletteWriteAddress <= writeaddress[9:2]; // Palette index, word aligned address
 				palettewe <= 1'b1;
 				palettedin <= axi4if.WDATA[23:0];
-			end else if (writeaddress[17]==1'b1) begin // Device control
+			end else if (writeaddress[19]==1'b1) begin // Device control
 				// [31:18]: unused, TBD
 				// [17:17]: scanout page
 				// [16:16]: write page
@@ -203,7 +197,7 @@ always @(posedge axi4if.ACLK) begin
 				videowritepage <= axi4if.WDATA[16];	// Setting this to 0 or 1 will select the corresponding video memory range active for write
 				videoreadpage <= axi4if.WDATA[17];	// Setting this to 0 or 1 will select the corresponding video memory range active for output
 			end else begin // Framebuffers
-				videowaddr <= {tileid, laddress};
+				videowaddr <= laddress; // Word aligned
 				videowe <= axi4if.WSTRB;
 				videodin <= axi4if.WDATA;
 			end

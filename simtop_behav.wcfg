@@ -12,15 +12,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000000000 us"></ZoomStartTime>
-      <ZoomEndTime time="45.076043236 us"></ZoomEndTime>
-      <Cursor1Time time="1.000000000 us"></Cursor1Time>
+      <ZoomStartTime time="0.006000000 us"></ZoomStartTime>
+      <ZoomEndTime time="43.986000001 us"></ZoomEndTime>
+      <Cursor1Time time="10.829340809 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="255"></NameColumnWidth>
+      <NameColumnWidth column_width="249"></NameColumnWidth>
       <ValueColumnWidth column_width="88"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="144" />
+   <WVObjectSize size="139" />
    <wvobject fp_name="/simtop/sys_clock" type="logic">
       <obj_property name="ElementShortName">sys_clock</obj_property>
       <obj_property name="ObjectShortName">sys_clock</obj_property>
@@ -118,76 +118,58 @@
       <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
    <wvobject type="divider" fp_name="divider1259">
-      <obj_property name="label">TiledFrameBuffer</obj_property>
+      <obj_property name="label">FrameBuffer</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/gpuclock" type="logic">
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/FramebufferA/gpuclock" type="logic">
       <obj_property name="ElementShortName">gpuclock</obj_property>
       <obj_property name="ObjectShortName">gpuclock</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/pixelclock" type="logic">
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/FramebufferA/pixelclock" type="logic">
       <obj_property name="ElementShortName">pixelclock</obj_property>
       <obj_property name="ObjectShortName">pixelclock</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/videobyteselect" type="array">
-      <obj_property name="ElementShortName">videobyteselect[1:0]</obj_property>
-      <obj_property name="ObjectShortName">videobyteselect[1:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/video_x" type="array">
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/FramebufferA/video_x" type="array">
       <obj_property name="ElementShortName">video_x[11:0]</obj_property>
       <obj_property name="ObjectShortName">video_x[11:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/video_y" type="array">
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/FramebufferA/video_y" type="array">
       <obj_property name="ElementShortName">video_y[11:0]</obj_property>
       <obj_property name="ObjectShortName">video_y[11:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/waddr" type="array">
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/FramebufferA/waddr" type="array">
       <obj_property name="ElementShortName">waddr[14:0]</obj_property>
       <obj_property name="ObjectShortName">waddr[14:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/we" type="array">
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/FramebufferA/we" type="array">
       <obj_property name="ElementShortName">we[3:0]</obj_property>
       <obj_property name="ObjectShortName">we[3:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/din" type="array">
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/FramebufferA/din" type="array">
       <obj_property name="ElementShortName">din[31:0]</obj_property>
       <obj_property name="ObjectShortName">din[31:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/paletteindexout" type="array">
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/FramebufferA/paletteindexout" type="array">
       <obj_property name="ElementShortName">paletteindexout[7:0]</obj_property>
       <obj_property name="ObjectShortName">paletteindexout[7:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/stx" type="array">
-      <obj_property name="ElementShortName">stx[3:0]</obj_property>
-      <obj_property name="ObjectShortName">stx[3:0]</obj_property>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/FramebufferA/saddr" type="array">
+      <obj_property name="ElementShortName">saddr[14:0]</obj_property>
+      <obj_property name="ObjectShortName">saddr[14:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/sty" type="array">
-      <obj_property name="ElementShortName">sty[2:0]</obj_property>
-      <obj_property name="ObjectShortName">sty[2:0]</obj_property>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/FramebufferA/videobyteselect" type="array">
+      <obj_property name="ElementShortName">videobyteselect[1:0]</obj_property>
+      <obj_property name="ObjectShortName">videobyteselect[1:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/scantileid" type="array">
-      <obj_property name="ElementShortName">scantileid[6:0]</obj_property>
-      <obj_property name="ObjectShortName">scantileid[6:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/slx" type="array">
-      <obj_property name="ElementShortName">slx[2:0]</obj_property>
-      <obj_property name="ObjectShortName">slx[2:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/sly" type="array">
-      <obj_property name="ElementShortName">sly[4:0]</obj_property>
-      <obj_property name="ObjectShortName">sly[4:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/sladdress" type="array">
-      <obj_property name="ElementShortName">sladdress[7:0]</obj_property>
-      <obj_property name="ObjectShortName">sladdress[7:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/vram_data" type="array">
-      <obj_property name="ElementShortName">vram_data[0:69][31:0]</obj_property>
-      <obj_property name="ObjectShortName">vram_data[0:69][31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/TiledFramebufferA/videooutbyte" type="array">
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/FramebufferA/videooutbyte" type="array">
       <obj_property name="ElementShortName">videooutbyte[7:0]</obj_property>
       <obj_property name="ObjectShortName">videooutbyte[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/AXIChain/GPU/FramebufferA/scanout" type="array">
+      <obj_property name="ElementShortName">scanout[31:0]</obj_property>
+      <obj_property name="ObjectShortName">scanout[31:0]</obj_property>
    </wvobject>
    <wvobject type="divider" fp_name="divider44">
       <obj_property name="label">HART0</obj_property>
