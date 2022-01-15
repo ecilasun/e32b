@@ -74,7 +74,7 @@ axi4spi SPIMaster(
 	.clocks(clocks),
 	.wires(wires) );
 
-// PS2 Keyboard (4 bytes, HID input port) @20002000-20002000
+// PS2 Keyboard (4 bytes, HID input port) @20002000-20002008
 wire validwaddr_ps2 = validw_devicemap & (4'h2 == axi4if.AWADDR[15:12]);
 wire validraddr_ps2 = validr_devicemap & (4'h2 == axi4if.ARADDR[15:12]);
 axi4 ps2if(axi4if.ACLK, axi4if.ARESETn);

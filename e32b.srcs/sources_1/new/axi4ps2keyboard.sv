@@ -117,8 +117,13 @@ always @(posedge axi4if.ACLK) begin
 			2'b00: begin
 				if (axi4if.ARVALID) begin
 					axi4if.ARREADY <= 1'b0;
-					// axi4if.ARADDR; unused, device has single mapped address
-					raddrstate <= 2'b01;
+					if (axi4if.ARADDR[3:0] == 4'h8) begin // Incoming data available?
+						axi4if.RDATA <= {31'd0, ~fifoempty};
+						axi4if.RVALID <= 1'b1;
+						raddrstate <= 2'b11; // Delay one clock for master to pull down ARVALID
+					end else begin
+						raddrstate <= 2'b01;
+					end
 				end
 			end
 			2'b01: begin
@@ -130,7 +135,7 @@ always @(posedge axi4if.ACLK) begin
 			end
 			2'b10: begin
 				if (fifovalid) begin
-					axi4if.RDATA <= {16'h0, fifodout}; // Key scan code
+					axi4if.RDATA <= {16'd0, fifodout}; // Key scan code
 					axi4if.RVALID <= 1'b1;
 					raddrstate <= 2'b11; // Delay one clock for master to pull down ARVALID
 				end
