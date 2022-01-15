@@ -149,9 +149,9 @@ set_property -dict { PACKAGE_PIN AB2   IOSTANDARD TMDS_33  } [get_ports { hdmi_t
 #set_property -dict { PACKAGE_PIN H15   IOSTANDARD LVCMOS33 } [get_ports { xa_n[3] }]; #IO_L5N_T0_AD9N_15 Sch=xa_n[4]
 
 
-## UART
-set_property -dict { PACKAGE_PIN AA19  IOSTANDARD LVCMOS33 } [get_ports { uart_rxd_out }]; #IO_L15P_T2_DQS_RDWR_B_14 Sch=uart_rx_out
-set_property -dict { PACKAGE_PIN V18   IOSTANDARD LVCMOS33 } [get_ports { uart_txd_in }]; #IO_L14P_T2_SRCC_14 Sch=uart_tx_in
+## UART - do not forget to set internal pullup resistors to 'true' here for keyboard to work correctly
+set_property -dict { PACKAGE_PIN AA19  IOSTANDARD LVCMOS33 PULLUP true} [get_ports { uart_rxd_out }]; #IO_L15P_T2_DQS_RDWR_B_14 Sch=uart_rx_out
+set_property -dict { PACKAGE_PIN V18   IOSTANDARD LVCMOS33 PULLUP true} [get_ports { uart_txd_in }]; #IO_L14P_T2_SRCC_14 Sch=uart_tx_in
 
 
 ## Ethernet
