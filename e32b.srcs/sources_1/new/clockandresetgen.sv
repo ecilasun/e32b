@@ -8,6 +8,7 @@ module clockandresetgen(
 	output wire spibaseclock,
 	output wire gpubaseclock,
 	output wire videoclock,
+	output wire clk50mhz,
 	output wire clk_sys_i,
 	output wire clk_ref_i,
 	output logic devicereset = 1'b1 );
@@ -20,6 +21,7 @@ centralclockgen CentralClock(
 	.cpuclock(cpuclock),
 	.uartbaseclock(uartbaseclock),
 	.spibaseclock(spibaseclock),
+	.clk50mhz(clk50mhz),
 	.locked(centralclocklocked) );
 
 ddr3clk DDR3MemoryClock(

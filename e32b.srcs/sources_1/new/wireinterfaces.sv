@@ -20,7 +20,10 @@ interface FPGADeviceWires (
 		output [1:0] ddr3_dm,
 		inout [1:0] ddr3_dqs_p,
 		inout [1:0] ddr3_dqs_n,
-		inout [15:0] ddr3_dq );
+		inout [15:0] ddr3_dq,
+		// HID
+		input ps2_clk,
+		input ps2_data );
 
 	modport DEFAULT (
 		output uart_rxd_out,
@@ -43,7 +46,10 @@ interface FPGADeviceWires (
 		output ddr3_dm,
 		inout ddr3_dqs_p,
 		inout ddr3_dqs_n,
-		inout ddr3_dq );
+		inout ddr3_dq,
+		// HID
+		input ps2_clk,
+		input ps2_data );
 
 endinterface
 
@@ -56,6 +62,7 @@ interface FPGADeviceClocks (
 		input spibaseclock,
 		input gpubaseclock,
 		input videoclock,
+		input clk50mhz,
 		input clk_sys_i,
 		input clk_ref_i,
 		input devicereset );
@@ -68,6 +75,7 @@ interface FPGADeviceClocks (
 		input spibaseclock,
 		input gpubaseclock,
 		input videoclock,
+		input clk50mhz,
 		input clk_sys_i,
 		input clk_ref_i,
 		input devicereset );

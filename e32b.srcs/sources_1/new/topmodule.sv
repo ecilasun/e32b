@@ -32,7 +32,10 @@ module topmodule(
     output wire [1:0] ddr3_dm,
     inout wire [1:0] ddr3_dqs_p,
     inout wire [1:0] ddr3_dqs_n,
-    inout wire [15:0] ddr3_dq );
+    inout wire [15:0] ddr3_dq,
+    // HID
+    input wire ps2_clk,
+    input wire ps2_data );
 
 // ----------------------------------------------------------------------------
 // Device wire interface
@@ -66,7 +69,10 @@ FPGADeviceWires wires(
     .ddr3_dm(ddr3_dm),
     .ddr3_dqs_p(ddr3_dqs_p),
     .ddr3_dqs_n(ddr3_dqs_n),
-    .ddr3_dq(ddr3_dq) );
+    .ddr3_dq(ddr3_dq),
+    // HID
+    .ps2_clk(ps2_clk),
+    .ps2_data(ps2_data) );
 
 GPUDataOutput gpudata(
 	.TMDSp(hdmi_tx_p),
@@ -80,7 +86,7 @@ GPUDataOutput gpudata(
 
 wire wallclock, cpuclock, uartbaseclock, spibaseclock;
 wire clk_sys_i, clk_ref_i;
-wire gpubaseclock, videoclock;
+wire gpubaseclock, videoclock, clk50mhz;
 wire devicereset, calib_done;
 
 clockandresetgen ClockAndResetGenerator(
@@ -91,6 +97,7 @@ clockandresetgen ClockAndResetGenerator(
 	.spibaseclock(spibaseclock),
 	.gpubaseclock(gpubaseclock),
 	.videoclock(videoclock),
+	.clk50mhz(clk50mhz),
 	.clk_sys_i(clk_sys_i),
 	.clk_ref_i(clk_ref_i),
 	.devicereset(devicereset) );
@@ -103,6 +110,7 @@ FPGADeviceClocks clocks(
 	.spibaseclock(spibaseclock),
 	.gpubaseclock(gpubaseclock),
 	.videoclock(videoclock),
+	.clk50mhz(clk50mhz),
 	.clk_sys_i(clk_sys_i),
 	.clk_ref_i(clk_ref_i),
 	.devicereset(devicereset) );

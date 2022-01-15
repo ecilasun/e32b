@@ -74,6 +74,15 @@ axi4spi SPIMaster(
 	.clocks(clocks),
 	.wires(wires) );
 
+// PS2 Keyboard (4 bytes, HID input port) @20002000-20002000
+wire validwaddr_ps2 = validw_devicemap & (4'h2 == axi4if.AWADDR[15:12]);
+wire validraddr_ps2 = validr_devicemap & (4'h2 == axi4if.ARADDR[15:12]);
+axi4 ps2if(axi4if.ACLK, axi4if.ARESETn);
+axi4ps2keyboard PS2Keyboard(
+	.axi4if(ps2if),
+	.clocks(clocks),
+	.wires(wires) );
+
 // ------------------------------------------------------------------------------------
 // GPU
 // ------------------------------------------------------------------------------------
@@ -93,8 +102,8 @@ axi4gpu GPU(
 	.gpudata(gpudata));
 
 // NULL device active when no valid addres range is selected
-wire validwaddr_none = ~(validwaddr_sram | validwaddr_uart | validwaddr_spi | validwaddr_bram | validwaddr_ddr3 | validwaddr_gpu);
-wire validraddr_none = ~(validraddr_sram | validraddr_uart | validraddr_spi | validraddr_bram | validraddr_ddr3 | validraddr_gpu);
+wire validwaddr_none = ~(validwaddr_sram | validwaddr_uart | validwaddr_spi | validwaddr_ps2 | validwaddr_bram | validwaddr_ddr3 | validwaddr_gpu);
+wire validraddr_none = ~(validraddr_sram | validraddr_uart | validraddr_spi | validraddr_ps2 | validraddr_bram | validraddr_ddr3 | validraddr_gpu);
 
 // ------------------------------------------------------------------------------------
 // Interrupt setup
@@ -141,6 +150,14 @@ always_comb begin
 	spiif.WVALID = validwaddr_spi ? axi4if.WVALID : 1'b0;
 	spiif.BREADY = validwaddr_spi ? axi4if.BREADY : 1'b0;
 	spiif.WLAST = validwaddr_spi ? axi4if.WLAST : 1'b0;
+
+	ps2if.AWADDR = validwaddr_ps2 ? waddr : 32'dz;
+	ps2if.AWVALID = validwaddr_ps2 ? axi4if.AWVALID : 1'b0;
+	ps2if.WDATA = validwaddr_ps2 ? axi4if.WDATA : 32'dz;
+	ps2if.WSTRB = validwaddr_ps2 ? axi4if.WSTRB : 4'h0;
+	ps2if.WVALID = validwaddr_ps2 ? axi4if.WVALID : 1'b0;
+	ps2if.BREADY = validwaddr_ps2 ? axi4if.BREADY : 1'b0;
+	ps2if.WLAST = validwaddr_ps2 ? axi4if.WLAST : 1'b0;
 
 	bramif.AWADDR = validwaddr_bram ? waddr : 32'dz;
 	bramif.AWVALID = validwaddr_bram ? axi4if.AWVALID : 1'b0;
@@ -189,6 +206,11 @@ always_comb begin
 		axi4if.BRESP = spiif.BRESP;
 		axi4if.BVALID = spiif.BVALID;
 		axi4if.WREADY = spiif.WREADY;
+	end else if (validwaddr_ps2) begin
+		axi4if.AWREADY = ps2if.AWREADY;
+		axi4if.BRESP = ps2if.BRESP;
+		axi4if.BVALID = ps2if.BVALID;
+		axi4if.WREADY = ps2if.WREADY;
 	end else if (validwaddr_bram) begin
 		axi4if.AWREADY = bramif.AWREADY;
 		axi4if.BRESP = bramif.BRESP;
@@ -232,6 +254,10 @@ always_comb begin
 	spiif.ARVALID = validraddr_spi ? axi4if.ARVALID : 1'b0;
 	spiif.RREADY = validraddr_spi ? axi4if.RREADY : 1'b0;
 
+	ps2if.ARADDR = validraddr_ps2 ? raddr : 32'dz;
+	ps2if.ARVALID = validraddr_ps2 ? axi4if.ARVALID : 1'b0;
+	ps2if.RREADY = validraddr_ps2 ? axi4if.RREADY : 1'b0;
+
 	bramif.ARADDR = validraddr_bram ? raddr : 32'dz;
 	bramif.ARVALID = validraddr_bram ? axi4if.ARVALID : 1'b0;
 	bramif.RREADY = validraddr_bram ? axi4if.RREADY : 1'b0;
@@ -266,6 +292,12 @@ always_comb begin
 		axi4if.RRESP = spiif.RRESP;
 		axi4if.RVALID = spiif.RVALID;
 		axi4if.RLAST = spiif.RLAST;
+	end else if (validraddr_ps2) begin
+		axi4if.ARREADY = ps2if.ARREADY;
+		axi4if.RDATA = ps2if.RDATA;
+		axi4if.RRESP = ps2if.RRESP;
+		axi4if.RVALID = ps2if.RVALID;
+		axi4if.RLAST = ps2if.RLAST;
 	end else if (validraddr_bram) begin
 		axi4if.ARREADY = bramif.ARREADY;
 		axi4if.RDATA = bramif.RDATA;

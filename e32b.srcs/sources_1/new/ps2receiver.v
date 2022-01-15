@@ -1,12 +1,3 @@
-    PS2Receiver uut (
-        .clk(CLK50MHZ),
-        .kclk(PS2Clk),
-        .kdata(PS2Data),
-        .keycode(keycode),
-        .oflag(flag)
-    );
-    
-
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: Digilent Inc.
