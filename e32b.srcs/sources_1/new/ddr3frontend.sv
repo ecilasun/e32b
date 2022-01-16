@@ -63,6 +63,7 @@ always @(posedge axi4if.ACLK) begin
 				axi4if.BVALID <= 1'b0;
 				axi4if.AWREADY <= 1'b1;
 
+				// No simultaneous read/writes supported yet
 				if (axi4if.AWVALID) begin
 					coffset <= axi4if.AWADDR[4:2];					// Cache offset 0..7 (last 2 bits of memory address discarded, this is word offset into 256bits)
 					cline <= {axi4if.AWADDR[12:5], 1'b0};			// Cache line 0..255 (last 4 bits of memory address discarded, this is a 256-bit aligned address) (sans ifetch since this is a write)
@@ -76,9 +77,7 @@ always @(posedge axi4if.ACLK) begin
 
 					axi4if.AWREADY <= 1'b0;
 					ddr3axi4state <= DDR3AXI4WRITECHECK;
-				end
-
-				if (axi4if.ARVALID) begin
+				end else if (axi4if.ARVALID) begin
 					coffset <= axi4if.ARADDR[4:2];						// Cache offset 0..3 (last 2 bits of memory address discarded, this is word offset into 128bits)
 					cline <= {axi4if.ARADDR[12:5], ifetch};				// Cache line 0..255 (last 4 bits of memory address discarded, this is a 128-bit aligned address)
 					ctag <= axi4if.ARADDR[28:13];						// Cache tag 00000..1FFFF
@@ -94,14 +93,14 @@ always @(posedge axi4if.ACLK) begin
 				if (ctag == ptag) begin // Cache hit
 					if (axi4if.BREADY) begin
 						case (coffset)
-							3'b000: ddr3cache[cline] <= {ddr3cache[cline][255:32 ], ((~cwidemask)&ddr3cache[cline][31:0]   ) | (cwidemask&wdata)                         };
-							3'b001: ddr3cache[cline] <= {ddr3cache[cline][255:64 ], ((~cwidemask)&ddr3cache[cline][63:32]  ) | (cwidemask&wdata), ddr3cache[cline][31:0] };
-							3'b010: ddr3cache[cline] <= {ddr3cache[cline][255:96 ], ((~cwidemask)&ddr3cache[cline][95:64]  ) | (cwidemask&wdata), ddr3cache[cline][63:0] };
-							3'b011: ddr3cache[cline] <= {ddr3cache[cline][255:128], ((~cwidemask)&ddr3cache[cline][127:96] ) | (cwidemask&wdata), ddr3cache[cline][95:0] };
-							3'b100: ddr3cache[cline] <= {ddr3cache[cline][255:160], ((~cwidemask)&ddr3cache[cline][159:128]) | (cwidemask&wdata), ddr3cache[cline][127:0]};
-							3'b101: ddr3cache[cline] <= {ddr3cache[cline][255:192], ((~cwidemask)&ddr3cache[cline][191:160]) | (cwidemask&wdata), ddr3cache[cline][159:0]};
-							3'b110: ddr3cache[cline] <= {ddr3cache[cline][255:224], ((~cwidemask)&ddr3cache[cline][223:192]) | (cwidemask&wdata), ddr3cache[cline][191:0]};
-							3'b111: ddr3cache[cline] <= {                           ((~cwidemask)&ddr3cache[cline][255:224]) | (cwidemask&wdata), ddr3cache[cline][223:0]};
+							3'b000:  ddr3cache[cline] <= {ddr3cache[cline][255:32 ], ((~cwidemask)&ddr3cache[cline][31:0]   ) | (cwidemask&wdata)                         };
+							3'b001:  ddr3cache[cline] <= {ddr3cache[cline][255:64 ], ((~cwidemask)&ddr3cache[cline][63:32]  ) | (cwidemask&wdata), ddr3cache[cline][31:0] };
+							3'b010:  ddr3cache[cline] <= {ddr3cache[cline][255:96 ], ((~cwidemask)&ddr3cache[cline][95:64]  ) | (cwidemask&wdata), ddr3cache[cline][63:0] };
+							3'b011:  ddr3cache[cline] <= {ddr3cache[cline][255:128], ((~cwidemask)&ddr3cache[cline][127:96] ) | (cwidemask&wdata), ddr3cache[cline][95:0] };
+							3'b100:  ddr3cache[cline] <= {ddr3cache[cline][255:160], ((~cwidemask)&ddr3cache[cline][159:128]) | (cwidemask&wdata), ddr3cache[cline][127:0]};
+							3'b101:  ddr3cache[cline] <= {ddr3cache[cline][255:192], ((~cwidemask)&ddr3cache[cline][191:160]) | (cwidemask&wdata), ddr3cache[cline][159:0]};
+							3'b110:  ddr3cache[cline] <= {ddr3cache[cline][255:224], ((~cwidemask)&ddr3cache[cline][223:192]) | (cwidemask&wdata), ddr3cache[cline][191:0]};
+							default: ddr3cache[cline] <= {                           ((~cwidemask)&ddr3cache[cline][255:224]) | (cwidemask&wdata), ddr3cache[cline][223:0]}; //3'b111
 						endcase
 						// Mark line invalid (needs writeback)
 						ddr3valid[cline] <= 1'b0;
@@ -135,14 +134,14 @@ always @(posedge axi4if.ACLK) begin
 				if (ctag == ptag) begin // Cache hit
 					if (axi4if.RREADY) begin
 						case (coffset)
-							3'b000: axi4if.RDATA <= ddr3cache[cline][31:0];
-							3'b001: axi4if.RDATA <= ddr3cache[cline][63:32];
-							3'b010: axi4if.RDATA <= ddr3cache[cline][95:64];
-							3'b011: axi4if.RDATA <= ddr3cache[cline][127:96];
-							3'b100: axi4if.RDATA <= ddr3cache[cline][159:128];
-							3'b101: axi4if.RDATA <= ddr3cache[cline][191:160];
-							3'b110: axi4if.RDATA <= ddr3cache[cline][223:192];
-							3'b111: axi4if.RDATA <= ddr3cache[cline][255:224];
+							3'b000:  axi4if.RDATA <= ddr3cache[cline][31:0];
+							3'b001:  axi4if.RDATA <= ddr3cache[cline][63:32];
+							3'b010:  axi4if.RDATA <= ddr3cache[cline][95:64];
+							3'b011:  axi4if.RDATA <= ddr3cache[cline][127:96];
+							3'b100:  axi4if.RDATA <= ddr3cache[cline][159:128];
+							3'b101:  axi4if.RDATA <= ddr3cache[cline][191:160];
+							3'b110:  axi4if.RDATA <= ddr3cache[cline][223:192];
+							default: axi4if.RDATA <= ddr3cache[cline][255:224]; // 3'b111
 						endcase
 						// Done
 						axi4if.RVALID <= 1'b1;

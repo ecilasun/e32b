@@ -27,12 +27,12 @@ SPI_Master #(.SPI_MODE(0), .CLKS_PER_HALF_BIT(2)) SPI(
    // Control/Data Signals,
    .i_Rst_L(axi4if.ARESETn),
    .i_Clk(clocks.spibaseclock),
-   
+
    // TX (MOSI) Signals
    .i_TX_Byte(writedata),
    .i_TX_DV(we),
    .o_TX_Ready(cansend),
-   
+
    // RX (MISO) Signals
    .o_RX_DV(hasvaliddata),
    .o_RX_Byte(spiincomingdata),
@@ -190,7 +190,7 @@ always @(posedge axi4if.ACLK) begin
 			end
 			2'b10: begin
 				if (infifovalid) begin
-					axi4if.RDATA <= {24'h0, infifodout};
+					axi4if.RDATA <= {infifodout, infifodout, infifodout, infifodout};
 					axi4if.RVALID <= 1'b1;
 					raddrstate <= 2'b11; // Delay one clock for master to pull down ARVALID
 				end

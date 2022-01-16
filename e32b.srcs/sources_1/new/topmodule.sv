@@ -122,12 +122,18 @@ FPGADeviceClocks clocks(
 wire [3:0] irq;
 wire ifetch;
 
-axi4 axi4chain(
+axi4 axi4chainA(
 	.ACLK(ui_clk/*cpuclock*/),
 	.ARESETn(~devicereset) );
 
+/*axi4 axi4chainB(
+	.ACLK(ui_clk),
+	.ARESETn(~devicereset) );*/
+
+// TODO: arbitrate between A and B
+
 axi4chain AXIChain(
-	.axi4if(axi4chain),
+	.axi4if(axi4chainA),
 	.clocks(clocks),
 	.wires(wires),
 	//.gpudata(gpudata),
@@ -138,15 +144,24 @@ axi4chain AXIChain(
 
 // ----------------------------------------------------------------------------
 // Master device (CPU)
-// Reset vector points at B-RAM which contains the startup code
 // ----------------------------------------------------------------------------
 
+// Reset vector in B-RAM (ROM)
 axi4cpu #(.RESETVECTOR(32'h80000000)) HART0(
-	.axi4if(axi4chain),
+	.axi4if(axi4chainA),
 	.clocks(clocks),
 	.wires(wires),
-	.ifetch(ifetch), // High when we're requesting an instruction
+	.ifetch(ifetch),
 	.irq(irq),
 	.calib_done(calib_done) );
+
+// Reset vector: S-RAM
+/*axi4cpu #(.RESETVECTOR(32'h80010000)) HART1(
+	.axi4if(axi4chainB),
+	.clocks(clocks),
+	.wires(wires),
+	.ifetch(ifetch),
+	.irq(irq),
+	.calib_done(calib_done) );*/
 
 endmodule

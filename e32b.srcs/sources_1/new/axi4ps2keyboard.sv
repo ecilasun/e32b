@@ -83,6 +83,7 @@ always @(posedge axi4if.ACLK) begin
 				// Latch the data and byte select
 				//writedata <= axi4if.WDATA[15:0]; // Keyboard control etc? Unused for now.
 				//we <= axi4if.WSTRB;
+				//wires.ps2_clk <= 1'b0; // Hold low for send?
 				axi4if.WREADY <= 1'b1;
 				writestate <= 2'b01;
 			end
@@ -117,20 +118,20 @@ always @(posedge axi4if.ACLK) begin
 			2'b00: begin
 				if (axi4if.ARVALID) begin
 					axi4if.ARREADY <= 1'b0;
-					if (axi4if.ARADDR[3:0] == 4'h8) begin // Incoming data available?
-						axi4if.RDATA <= {31'd0, ~fifoempty};
-						axi4if.RVALID <= 1'b1;
-						raddrstate <= 2'b11; // Delay one clock for master to pull down ARVALID
-					end else begin
-						raddrstate <= 2'b01;
-					end
+					raddrstate <= 2'b01;
 				end
 			end
 			2'b01: begin
 				// Master ready to accept and fifo has incoming data
-				if (axi4if.RREADY & (~fifoempty)) begin
-					fifore <= 1'b1;
-					raddrstate <= 2'b10;
+				if (axi4if.RREADY) begin
+					if (axi4if.ARADDR[3:0] == 4'h8) begin // Incoming data available?
+						axi4if.RDATA <= {31'd0, ~fifoempty};
+						axi4if.RVALID <= 1'b1;
+						raddrstate <= 2'b11; // Delay one clock for master to pull down ARVALID
+					end else if (~fifoempty) begin
+						fifore <= 1'b1;
+						raddrstate <= 2'b10;
+					end
 				end
 			end
 			2'b10: begin
