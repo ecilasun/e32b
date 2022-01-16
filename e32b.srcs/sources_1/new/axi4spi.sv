@@ -11,7 +11,7 @@ logic [1:0] raddrstate = 2'b00;
 
 logic [7:0] writedata = 7'd0;
 wire [7:0] readdata;
-logic [3:0] we = 4'h0;
+logic we = 1'b0;
 
 // ----------------------------------------------------------------------------
 // SPI Master Device
@@ -30,7 +30,7 @@ SPI_Master #(.SPI_MODE(0), .CLKS_PER_HALF_BIT(2)) SPI(
    
    // TX (MOSI) Signals
    .i_TX_Byte(writedata),
-   .i_TX_DV( (|we) ),
+   .i_TX_DV(we),
    .o_TX_Ready(cansend),
    
    // RX (MISO) Signals
@@ -44,34 +44,69 @@ SPI_Master #(.SPI_MODE(0), .CLKS_PER_HALF_BIT(2)) SPI(
 
 assign wires.spi_cs_n = 1'b0; // Keep attached SPI device selected/powered on
 
-wire fifofull, fifoempty, fifovalid;
-logic fifowe = 1'b0, fifore = 1'b0;
-logic [7:0] fifodin = 8'h00;
-wire [7:0] fifodout;
+wire infifofull, infifoempty, infifovalid;
+logic infifowe = 1'b0, infifore = 1'b0;
+logic [7:0] infifodin = 8'h00;
+wire [7:0] infifodout;
 
 spimasterinfifo SPIInputFIFO(
 	.wr_clk(clocks.spibaseclock),
-	.full(fifofull),
-	.din(fifodin),
-	.wr_en(fifowe),
+	.full(infifofull),
+	.din(infifodin),
+	.wr_en(infifowe),
 
 	.rd_clk(axi4if.ACLK),
-	.empty(fifoempty),
-	.dout(fifodout),
-	.rd_en(fifore),
-	.valid(fifovalid),
+	.empty(infifoempty),
+	.dout(infifodout),
+	.rd_en(infifore),
+	.valid(infifovalid),
 
 	.rst(~axi4if.ARESETn),
 	.wr_rst_busy(),
 	.rd_rst_busy() );
 
 always @(posedge clocks.spibaseclock) begin
-	fifowe <= 1'b0;
+	infifowe <= 1'b0;
 
-	if (hasvaliddata & (~fifofull)) begin // Make sure to drain the fifo!
+	if (hasvaliddata & (~infifofull)) begin // Make sure to drain the fifo!
 		// Stash incoming byte in FIFO
-		fifowe <= 1'b1;
-		fifodin <= spiincomingdata;
+		infifowe <= 1'b1;
+		infifodin <= spiincomingdata;
+	end
+end
+
+wire outfifofull, outfifoempty, outfifovalid;
+logic outfifowe = 1'b0, outfifore = 1'b0;
+logic [7:0] outfifodin = 8'h00;
+wire [7:0] outfifodout;
+
+spimasterinfifo SPIOutputFIFO(
+	.wr_clk(axi4if.ACLK),
+	.full(outfifofull),
+	.din(outfifodin),
+	.wr_en(outfifowe),
+
+	.rd_clk(clocks.spibaseclock),
+	.empty(outfifoempty),
+	.dout(outfifodout),
+	.rd_en(outfifore),
+	.valid(outfifovalid),
+
+	.rst(~axi4if.ARESETn),
+	.wr_rst_busy(),
+	.rd_rst_busy() );
+
+always @(posedge clocks.spibaseclock) begin
+	outfifore <= 1'b0;
+	we <= 1'b0;
+
+	if ((~outfifoempty) & cansend) begin
+		outfifore <= 1'b1;
+	end
+
+	if (outfifovalid) begin
+		writedata <= outfifodout;
+		we <= 1'b1;
 	end
 end
 
@@ -86,7 +121,7 @@ always @(posedge axi4if.ACLK) begin
 		// Write address
 		case (waddrstate)
 			2'b00: begin
-				if (axi4if.AWVALID & cansend) begin
+				if (axi4if.AWVALID & (~outfifofull)) begin
 					//writeaddress <= axi4if.AWADDR;
 					axi4if.AWREADY <= 1'b0;
 					waddrstate <= 2'b01;
@@ -102,13 +137,12 @@ end
 
 always @(posedge axi4if.ACLK) begin
 	// Write data
-	we <= 4'h0;
+	outfifowe <= 1'b0;
 	case (writestate)
 		2'b00: begin
-			if (axi4if.WVALID & cansend) begin
-				// Latch the data and byte select
-				writedata <= axi4if.WDATA[7:0];
-				we <= axi4if.WSTRB;
+			if (axi4if.WVALID & (~outfifofull)) begin
+				outfifodin <= axi4if.WDATA[7:0];
+				outfifowe <= 1'b1; // (|axi4if.WSTRB)
 				axi4if.WREADY <= 1'b1;
 				writestate <= 2'b01;
 			end
@@ -136,7 +170,7 @@ always @(posedge axi4if.ACLK) begin
 		axi4if.RDATA <= 32'd0;
 	end else begin
 
-		fifore <= 1'b0;
+		infifore <= 1'b0;
 
 		// Read address
 		case (raddrstate)
@@ -149,14 +183,14 @@ always @(posedge axi4if.ACLK) begin
 			end
 			2'b01: begin
 				// Master ready to accept and fifo has incoming data
-				if (axi4if.RREADY & (~fifoempty)) begin
-					fifore <= 1'b1;
+				if (axi4if.RREADY & (~infifoempty)) begin
+					infifore <= 1'b1;
 					raddrstate <= 2'b10;
 				end
 			end
 			2'b10: begin
-				if (fifovalid) begin
-					axi4if.RDATA <= {24'h0, fifodout};
+				if (infifovalid) begin
+					axi4if.RDATA <= {24'h0, infifodout};
 					axi4if.RVALID <= 1'b1;
 					raddrstate <= 2'b11; // Delay one clock for master to pull down ARVALID
 				end

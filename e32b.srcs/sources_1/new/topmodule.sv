@@ -14,10 +14,10 @@ module topmodule(
 	input wire spi_cd,
 	output wire sd_poweron_n, // Always grounded to keep SDCard powered
 	// HDMI
-	output wire [2:0] hdmi_tx_p,
+	/*output wire [2:0] hdmi_tx_p,
 	output wire [2:0] hdmi_tx_n,
 	output wire hdmi_tx_clk_p,
-	output wire hdmi_tx_clk_n,
+	output wire hdmi_tx_clk_n,*/
     // DDR3
     output wire ddr3_reset_n,
     output wire [0:0] ddr3_cke,
@@ -74,11 +74,11 @@ FPGADeviceWires wires(
     .ps2_clk(ps2_clk),
     .ps2_data(ps2_data) );
 
-GPUDataOutput gpudata(
+/*GPUDataOutput gpudata(
 	.TMDSp(hdmi_tx_p),
 	.TMDSn(hdmi_tx_n),
 	.TMDSCLKp(hdmi_tx_clk_p ),
-	.TMDSCLKn(hdmi_tx_clk_n) );
+	.TMDSCLKn(hdmi_tx_clk_n) );*/
 
 // ----------------------------------------------------------------------------
 // Clock and reset generator
@@ -130,7 +130,7 @@ axi4chain AXIChain(
 	.axi4if(axi4chain),
 	.clocks(clocks),
 	.wires(wires),
-	.gpudata(gpudata),
+	//.gpudata(gpudata),
 	.ifetch(ifetch),
 	.irq(irq),
 	.calib_done(calib_done),
