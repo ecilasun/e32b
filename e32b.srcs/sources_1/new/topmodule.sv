@@ -122,18 +122,16 @@ FPGADeviceClocks clocks(
 wire [3:0] irq;
 wire ifetch;
 
-axi4 axi4chainA(
-	.ACLK(ui_clk/*cpuclock*/),
+axi4 axi4busA(
+	.ACLK(ui_clk),
 	.ARESETn(~devicereset) );
 
-/*axi4 axi4chainB(
+/*axi4 axi4busB(
 	.ACLK(ui_clk),
 	.ARESETn(~devicereset) );*/
 
-// TODO: arbitrate between A and B
-
 axi4chain AXIChain(
-	.axi4if(axi4chainA),
+	.axi4if(axi4busA),
 	.clocks(clocks),
 	.wires(wires),
 	//.gpudata(gpudata),
@@ -148,7 +146,7 @@ axi4chain AXIChain(
 
 // Reset vector in B-RAM (ROM)
 axi4cpu #(.RESETVECTOR(32'h80000000)) HART0(
-	.axi4if(axi4chainA),
+	.axi4if(axi4busA),
 	.clocks(clocks),
 	.wires(wires),
 	.ifetch(ifetch),
@@ -157,7 +155,7 @@ axi4cpu #(.RESETVECTOR(32'h80000000)) HART0(
 
 // Reset vector: S-RAM
 /*axi4cpu #(.RESETVECTOR(32'h80010000)) HART1(
-	.axi4if(axi4chainB),
+	.axi4if(axi4busB),
 	.clocks(clocks),
 	.wires(wires),
 	.ifetch(ifetch),
