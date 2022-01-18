@@ -1,16 +1,16 @@
 `timescale 1ns / 1ps
 
 module floatingpointunit(
-	// Timing
+	// timing
 	input wire clock,
 
-	// Inputs
+	// inputs
 	input wire [31:0] frval1,
 	input wire [31:0] frval2,
 	input wire [31:0] frval3,
-	input wire [31:0] rval1, // Integer input
+	input wire [31:0] rval1, // integer input
 
-	// Strobe
+	// strobe
 	input wire fmaddstrobe,
 	input wire fmsubstrobe,
 	input wire fnmsubstrobe,
@@ -28,7 +28,7 @@ module floatingpointunit(
 	input wire fltstrobe,
 	input wire flestrobe,
 
-	// Output
+	// output
 	output wire resultvalid,
 	output logic [31:0] result );
 
@@ -115,7 +115,7 @@ fp_msub floatfmsub(
 	.m_axis_result_tvalid(fmsubresultvalid) );
 
 fp_madd floatfnmsub(
-	.s_axis_a_tdata({~frval1[31], frval1[30:0]}), // -A
+	.s_axis_a_tdata({~frval1[31], frval1[30:0]}), // -a
 	.s_axis_a_tvalid(fnmsubstrobe),
 	.s_axis_b_tdata(frval2),
 	.s_axis_b_tvalid(fnmsubstrobe),
@@ -126,7 +126,7 @@ fp_madd floatfnmsub(
 	.m_axis_result_tvalid(fnmsubresultvalid) );
 
 fp_msub floatfnmadd(
-	.s_axis_a_tdata({~frval1[31], frval1[30:0]}), // -A
+	.s_axis_a_tdata({~frval1[31], frval1[30:0]}), // -a
 	.s_axis_a_tvalid(fnmaddstrobe),
 	.s_axis_b_tdata(frval2),
 	.s_axis_b_tvalid(fnmaddstrobe),
@@ -174,36 +174,36 @@ fp_div floatdiv(
 	.m_axis_result_tvalid(fdivresultvalid) );
 
 fp_i2f floati2f(
-	.s_axis_a_tdata(rval1), // Integer source
+	.s_axis_a_tdata(rval1), // integer source
 	.s_axis_a_tvalid(fi2fstrobe),
 	.aclk(clock),
 	.m_axis_result_tdata(fi2fresult),
 	.m_axis_result_tvalid(fi2fresultvalid) );
 
 fp_ui2f floatui2f(
-	.s_axis_a_tdata(rval1), // Integer source
+	.s_axis_a_tdata(rval1), // integer source
 	.s_axis_a_tvalid(fui2fstrobe),
 	.aclk(clock),
 	.m_axis_result_tdata(fui2fresult),
 	.m_axis_result_tvalid(fui2fresultvalid) );
 
 fp_f2i floatf2i(
-	.s_axis_a_tdata(frval1), // Float source
+	.s_axis_a_tdata(frval1), // float source
 	.s_axis_a_tvalid(ff2istrobe),
 	.aclk(clock),
 	.m_axis_result_tdata(ff2iresult),
 	.m_axis_result_tvalid(ff2iresultvalid) );
 
-// NOTE: Sharing same logic with f2i here, ignoring sign bit instead
+// note: sharing same logic with f2i here, ignoring sign bit instead
 fp_f2i floatf2ui(
-	.s_axis_a_tdata({1'b0,frval1[30:0]}), // abs(A) (float register is source)
+	.s_axis_a_tdata({1'b0,frval1[30:0]}), // abs(a) (float register is source)
 	.s_axis_a_tvalid(ff2uistrobe),
 	.aclk(clock),
 	.m_axis_result_tdata(ff2uiresult),
 	.m_axis_result_tvalid(ff2uiresultvalid) );
 	
 fp_sqrt floatsqrt(
-	.s_axis_a_tdata({1'b0,frval1[30:0]}), // abs(A) (float register is source)
+	.s_axis_a_tdata({1'b0,frval1[30:0]}), // abs(a) (float register is source)
 	.s_axis_a_tvalid(fsqrtstrobe),
 	.aclk(clock),
 	.m_axis_result_tdata(fsqrtresult),

@@ -1,26 +1,26 @@
 `timescale 1ns / 1ps
 
 //////////////////////////////////////////////////////////////////////////////////
-// Company: Digilent Inc.
-// Engineer: Thomas Kappenman
+// company: digilent inc.
+// engineer: thomas kappenman
 // 
-// Create Date: 03/03/2015 09:33:36 PM
-// Design Name: 
-// Module Name: PS2Receiver
-// Project Name: Nexys4DDR Keyboard Demo
-// Target Devices: Nexys4DDR
-// Tool Versions: 
-// Description: PS2 Receiver module used to shift in keycodes from a keyboard plugged into the PS2 port
+// create date: 03/03/2015 09:33:36 pm
+// design name: 
+// module name: ps2receiver
+// project name: nexys4ddr keyboard demo
+// target devices: nexys4ddr
+// tool versions: 
+// description: ps2 receiver module used to shift in keycodes from a keyboard plugged into the ps2 port
 // 
-// Dependencies: 
+// dependencies: 
 // 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
+// revision:
+// revision 0.01 - file created
+// additional comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module PS2Receiver(
+module ps2receiver(
     input clk,
     input kclk,
     input kdata,
@@ -35,26 +35,26 @@ reg [3:0] cnt = 0;
 reg flag = 0;
 
 debouncer #(
-    .COUNT_MAX(19),
-    .COUNT_WIDTH(5)
+    .count_max(19),
+    .count_width(5)
 ) db_clk(
     .clk(clk),
-    .I(kclk),
-    .O(kclkf)
+    .i(kclk),
+    .o(kclkf)
 );
 
 debouncer #(
-   .COUNT_MAX(19),
-   .COUNT_WIDTH(5)
+   .count_max(19),
+   .count_width(5)
 ) db_data(
     .clk(clk),
-    .I(kdata),
-    .O(kdataf)
+    .i(kdata),
+    .o(kdataf)
 );
     
 always@(negedge(kclkf))begin
     case(cnt)
-		0:;//Start bit
+		0:;//start bit
 		1:datacur[0]<=kdataf;
 		2:datacur[1]<=kdataf;
 		3:datacur[2]<=kdataf;

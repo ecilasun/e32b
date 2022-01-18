@@ -149,9 +149,9 @@ create_clock -period 10.000 -name sys_clk_pin -waveform {0.000 5.000} -add [get_
 #set_property -dict { PACKAGE_PIN H15   IOSTANDARD LVCMOS33 } [get_ports { xa_n[3] }]; #IO_L5N_T0_AD9N_15 Sch=xa_n[4]
 
 
-## UART - do not forget to set internal pullup resistors to 'true' here for keyboard to work correctly
-set_property -dict { PACKAGE_PIN AA19  IOSTANDARD LVCMOS33 PULLUP true} [get_ports { uart_rxd_out }]; #IO_L15P_T2_DQS_RDWR_B_14 Sch=uart_rx_out
-set_property -dict { PACKAGE_PIN V18   IOSTANDARD LVCMOS33 PULLUP true} [get_ports { uart_txd_in }]; #IO_L14P_T2_SRCC_14 Sch=uart_tx_in
+## UART
+set_property -dict { PACKAGE_PIN AA19  IOSTANDARD LVCMOS33 } [get_ports { uart_rxd_out }]; #IO_L15P_T2_DQS_RDWR_B_14 Sch=uart_rx_out
+set_property -dict { PACKAGE_PIN V18   IOSTANDARD LVCMOS33 } [get_ports { uart_txd_in }]; #IO_L14P_T2_SRCC_14 Sch=uart_tx_in
 
 
 ## Ethernet
@@ -198,8 +198,8 @@ set_property -dict { PACKAGE_PIN V18   IOSTANDARD LVCMOS33 PULLUP true} [get_por
 
 
 ## HID port
-set_property -dict { PACKAGE_PIN W17   IOSTANDARD LVCMOS33   PULLUP true } [get_ports { ps2_clk }]; #IO_L16N_T2_A15_D31_14 Sch=ps2_clk
-set_property -dict { PACKAGE_PIN N13   IOSTANDARD LVCMOS33   PULLUP true } [get_ports { ps2_data }]; #IO_L23P_T3_A03_D19_14 Sch=ps2_data
+set_property -dict { PACKAGE_PIN W17   IOSTANDARD LVCMOS33 PULLUP true } [get_ports { ps2_clk }]; #IO_L16N_T2_A15_D31_14 Sch=ps2_clk
+set_property -dict { PACKAGE_PIN N13   IOSTANDARD LVCMOS33 PULLUP true } [get_ports { ps2_data }]; #IO_L23P_T3_A03_D19_14 Sch=ps2_data
 
 
 ## QSPI
@@ -322,4 +322,4 @@ set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]
 set_property CONFIG_MODE SPIx4 [current_design]
 
 # Reset is a false path
-set_false_path -from [get_pins ClockAndResetGenerator/devicereset_reg/C]
+set_false_path -from [get_pins clockandresetgenerator/devicereset_reg/C]

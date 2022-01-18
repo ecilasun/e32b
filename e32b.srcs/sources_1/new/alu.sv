@@ -10,39 +10,39 @@ module arithmeticlogicunit(
 	input wire [31:0] val2,
 	input wire [3:0] aluop );
 	
-wire [9:0] aluOneHot = {
-	aluop == `ALU_ADD ? 1'b1:1'b0,
-	aluop == `ALU_SUB ? 1'b1:1'b0,
-	aluop == `ALU_SLL ? 1'b1:1'b0,
-	aluop == `ALU_SLT ? 1'b1:1'b0,
-	aluop == `ALU_SLTU ? 1'b1:1'b0,
-	aluop == `ALU_XOR ? 1'b1:1'b0,
-	aluop == `ALU_SRL ? 1'b1:1'b0,
-	aluop == `ALU_SRA ? 1'b1:1'b0,
-	aluop == `ALU_OR ? 1'b1:1'b0,
-	aluop == `ALU_AND ? 1'b1:1'b0 };
+wire [9:0] aluonehot = {
+	aluop == `alu_add ? 1'b1:1'b0,
+	aluop == `alu_sub ? 1'b1:1'b0,
+	aluop == `alu_sll ? 1'b1:1'b0,
+	aluop == `alu_slt ? 1'b1:1'b0,
+	aluop == `alu_sltu ? 1'b1:1'b0,
+	aluop == `alu_xor ? 1'b1:1'b0,
+	aluop == `alu_srl ? 1'b1:1'b0,
+	aluop == `alu_sra ? 1'b1:1'b0,
+	aluop == `alu_or ? 1'b1:1'b0,
+	aluop == `alu_and ? 1'b1:1'b0 };
 
-// Integer ALU
+// integer alu
 // aluout will generate a latch
 always_comb begin
 	if (enable) begin
 		case (1'b1)
-			// Integer ops
-			aluOneHot[9]: aluout = val1 + val2;
-			aluOneHot[8]: aluout = val1 + (~val2 + 32'd1); // val1 - val2;
-			aluOneHot[7]: aluout = val1 << val2[4:0];
-			aluOneHot[6]: aluout = $signed(val1) < $signed(val2) ? 32'd1 : 32'd0;
-			aluOneHot[5]: aluout = val1 < val2 ? 32'd1 : 32'd0;
-			aluOneHot[4]: aluout = val1 ^ val2;
-			aluOneHot[3]: aluout = val1 >> val2[4:0];
-			aluOneHot[2]: aluout = $signed(val1) >>> val2[4:0];
-			aluOneHot[1]: aluout = val1 | val2;
-			aluOneHot[0]: aluout = val1 & val2;
+			// integer ops
+			aluonehot[9]: aluout = val1 + val2;
+			aluonehot[8]: aluout = val1 + (~val2 + 32'd1); // val1 - val2;
+			aluonehot[7]: aluout = val1 << val2[4:0];
+			aluonehot[6]: aluout = $signed(val1) < $signed(val2) ? 32'd1 : 32'd0;
+			aluonehot[5]: aluout = val1 < val2 ? 32'd1 : 32'd0;
+			aluonehot[4]: aluout = val1 ^ val2;
+			aluonehot[3]: aluout = val1 >> val2[4:0];
+			aluonehot[2]: aluout = $signed(val1) >>> val2[4:0];
+			aluonehot[1]: aluout = val1 | val2;
+			aluonehot[0]: aluout = val1 & val2;
 			default: begin
 			end
 		endcase
 	end else begin
-		// Result is latched
+		// result is latched
 	end
 end
 

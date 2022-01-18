@@ -1,24 +1,24 @@
 `timescale 1ns / 1ps
 
 module axi4chain(
-	axi4.SLAVE axi4if,
-	FPGADeviceClocks.DEFAULT clocks,
-	FPGADeviceWires.DEFAULT wires,
-	//GPUDataOutput.DEFAULT gpudata,
+	axi4.slave axi4if,
+	fpgadeviceclocks.def clocks,
+	fpgadevicewires.def wires,
+	//gpudataoutput.def gpudata,
 	input wire ifetch,
 	output wire [3:0] irq,
 	output wire calib_done,
 	output wire ui_clk );
 
 // ------------------------------------------------------------------------------------
-// Main system memory
+// main system memory
 // ------------------------------------------------------------------------------------
 
-// DDR3 512Mbytes, sys-mem @00000000-1FFFFFFF
-wire validwaddr_ddr3 = (4'h0 == axi4if.AWADDR[31:28]) | (4'h1 == axi4if.AWADDR[31:28]);
-wire validraddr_ddr3 = (4'h0 == axi4if.ARADDR[31:28]) | (4'h1 == axi4if.ARADDR[31:28]);
-axi4 ddr3if(axi4if.ACLK, axi4if.ARESETn);
-axi4ddr3 DDR3(
+// ddr3 512mbytes, sys-mem @00000000-1fffffff
+wire validwaddr_ddr3 = axi4if.awaddr>=32'h00000000 && axi4if.awaddr<32'h20000000;
+wire validraddr_ddr3 = axi4if.araddr>=32'h00000000 && axi4if.araddr<32'h20000000;
+axi4 ddr3if(axi4if.aclk, axi4if.aresetn);
+axi4ddr3 ddr3(
 	.axi4if(ddr3if),
 	.clocks(clocks),
 	.wires(wires),
@@ -27,301 +27,260 @@ axi4ddr3 DDR3(
 	.ui_clk(ui_clk) );
 
 // ------------------------------------------------------------------------------------
-// Internal block memories
+// internal block memories
 // ------------------------------------------------------------------------------------
 
-wire validw_internalmem = (4'h8 == axi4if.AWADDR[31:28]);
-wire validr_internalmem = (4'h8 == axi4if.ARADDR[31:28]);
-
-// B-RAM (64KBytes, boot program memory ram) @80000000-8000FFFF
-wire validwaddr_bram = validw_internalmem & (axi4if.AWADDR[19:16] == 4'h0);
-wire validraddr_bram = validr_internalmem & (axi4if.ARADDR[19:16] == 4'h0);
-axi4 bramif(axi4if.ACLK, axi4if.ARESETn);
-axi4bram BRAM(
+// b-ram (64kbytes, boot program memory ram) @80000000-8000ffff
+wire validwaddr_bram = axi4if.awaddr>=32'h80000000 && axi4if.awaddr<32'h80010000;
+wire validraddr_bram = axi4if.araddr>=32'h80000000 && axi4if.araddr<32'h80010000;
+axi4 bramif(axi4if.aclk, axi4if.aresetn);
+axi4bram bram(
 	.axi4if(bramif));
 
-// S-RAM (128KBytes, scratchpad memory) @80010000-8002FFFF
-wire validwaddr_sram = validw_internalmem & (axi4if.AWADDR[19:16] != 4'h0);
-wire validraddr_sram = validr_internalmem & (axi4if.ARADDR[19:16] != 4'h0);
-axi4 sramif(axi4if.ACLK, axi4if.ARESETn);
-axi4sram SRAM(
+// s-ram (128kbytes, scratchpad memory) @80010000-8002ffff
+wire validwaddr_sram = axi4if.awaddr>=32'h80010000 && axi4if.awaddr<32'h80030000;
+wire validraddr_sram = axi4if.araddr>=32'h80010000 && axi4if.araddr<32'h80030000;
+axi4 sramif(axi4if.aclk, axi4if.aresetn);
+axi4sram sram(
 	.axi4if(sramif));
 
 // ------------------------------------------------------------------------------------
-// Memory mapped hardware
+// memory mapped hardware
 // ------------------------------------------------------------------------------------
 
-wire validw_devicemap = (4'h2 == axi4if.AWADDR[31:28]);
-wire validr_devicemap = (4'h2 == axi4if.ARADDR[31:28]);
-
-// UART (4x3 bytes, serial comm data and status i/o ports) @20000000-20000008
-wire validwaddr_uart = validw_devicemap & (4'h0 == axi4if.AWADDR[15:12]);
-wire validraddr_uart = validr_devicemap & (4'h0 == axi4if.ARADDR[15:12]);
-axi4 uartif(axi4if.ACLK, axi4if.ARESETn);
+// uart (4x3 bytes, serial comm data and status i/o ports) @20000000-20000008
+wire validwaddr_uart = axi4if.awaddr>=32'h20000000 && axi4if.awaddr<32'h20001000;
+wire validraddr_uart = axi4if.araddr>=32'h20000000 && axi4if.araddr<32'h20001000;
+axi4 uartif(axi4if.aclk, axi4if.aresetn);
 wire uartrcvempty;
-axi4uart UART(
+axi4uart uart(
 	.axi4if(uartif),
 	.clocks(clocks),
 	.wires(wires),
 	.uartrcvempty(uartrcvempty) );
 
-// SPIMaster (4 bytes, SPI i/o port) @20001000-20001000
-wire validwaddr_spi = validw_devicemap & (4'h1 == axi4if.AWADDR[15:12]);
-wire validraddr_spi = validr_devicemap & (4'h1 == axi4if.ARADDR[15:12]);
-axi4 spiif(axi4if.ACLK, axi4if.ARESETn);
-axi4spi SPIMaster(
+// spimaster (4 bytes, spi i/o port) @20001000-20001000
+wire validwaddr_spi = axi4if.awaddr>=32'h20001000 && axi4if.awaddr<32'h20002000;
+wire validraddr_spi = axi4if.araddr>=32'h20001000 && axi4if.araddr<32'h20002000;
+axi4 spiif(axi4if.aclk, axi4if.aresetn);
+axi4spi spimaster(
 	.axi4if(spiif),
 	.clocks(clocks),
 	.wires(wires) );
 
-// PS2 Keyboard (4 bytes, HID input port) @20002000-20002008
-wire validwaddr_ps2 = validw_devicemap & (4'h2 == axi4if.AWADDR[15:12]);
-wire validraddr_ps2 = validr_devicemap & (4'h2 == axi4if.ARADDR[15:12]);
-axi4 ps2if(axi4if.ACLK, axi4if.ARESETn);
-axi4ps2keyboard PS2Keyboard(
+// ps2 keyboard (4 bytes, hid input port) @20002000-20002008
+wire validwaddr_ps2 = axi4if.awaddr>=32'h20002000 && axi4if.awaddr<32'h20003000;
+wire validraddr_ps2 = axi4if.araddr>=32'h20002000 && axi4if.araddr<32'h20003000;
+axi4 ps2if(axi4if.aclk, axi4if.aresetn);
+axi4ps2keyboard ps2keyboard(
 	.axi4if(ps2if),
 	.clocks(clocks),
 	.wires(wires) );
 
 // ------------------------------------------------------------------------------------
-// GPU
+// gpu
 // ------------------------------------------------------------------------------------
 
-// GPU @40000000-4FFFFFFF
-// FB0: 40000000
-// FB1: 40020000
-// PAL: 40040000
-// CTL: 40080000
-wire validwaddr_gpu = 4'h4 == axi4if.AWADDR[31:28];
-wire validraddr_gpu = 4'h4 == axi4if.ARADDR[31:28];
-/*axi4 gpuif(axi4if.ACLK, axi4if.ARESETn);
-axi4gpu GPU(
+// gpu @40000000-4fffffff
+// fb0: 40000000
+// fb1: 40020000
+// pal: 40040000
+// ctl: 40080000
+/*wire validwaddr_gpu = axi4if.awaddr>=32'h40000000 && axi4if.awaddr<32'h40a00000;
+wire validraddr_gpu = axi4if.araddr>=32'h40000000 && axi4if.araddr<32'h40a00000;
+axi4 gpuif(axi4if.aclk, axi4if.aresetn);
+axi4gpu gpu(
 	.axi4if(gpuif),
 	.clocks(clocks),
 	.wires(wires),
 	.gpudata(gpudata));*/
 
-// NULL device active when no valid addres range is selected
-wire validwaddr_none = ~(validwaddr_sram | validwaddr_uart | validwaddr_spi | validwaddr_ps2 | validwaddr_bram | validwaddr_ddr3 | validwaddr_gpu);
-wire validraddr_none = ~(validraddr_sram | validraddr_uart | validraddr_spi | validraddr_ps2 | validraddr_bram | validraddr_ddr3 | validraddr_gpu);
-
 // ------------------------------------------------------------------------------------
-// Interrupt setup
+// interrupt setup
 // ------------------------------------------------------------------------------------
 
-// TODO: Add wires.spi_cd != oldcd as an interrupt trigger here, preferably debounced
+// todo: add wires.spi_cd != oldcd as an interrupt trigger here, preferably debounced
 assign irq = {3'b000, ~uartrcvempty};
 
 // ------------------------------------------------------------------------------------
-// Fallback dummy device
+// write router
 // ------------------------------------------------------------------------------------
 
-axi4 dummyif(axi4if.ACLK, axi4if.ARESETn);
-axi4dummy BusSink(
-	.axi4if(dummyif.SLAVE) );
-
-// ------------------------------------------------------------------------------------
-// Write router
-// ------------------------------------------------------------------------------------
-
-wire [31:0] waddr = {3'b000, axi4if.AWADDR[28:0]};
+wire [31:0] waddr = {3'b000, axi4if.awaddr[28:0]};
 
 always_comb begin
-	uartif.AWADDR = validwaddr_uart ? waddr : 32'dz;
-	uartif.AWVALID = validwaddr_uart ? axi4if.AWVALID : 1'b0;
-	uartif.WDATA = validwaddr_uart ? axi4if.WDATA : 32'dz;
-	uartif.WSTRB = validwaddr_uart ? axi4if.WSTRB : 4'h0;
-	uartif.WVALID = validwaddr_uart ? axi4if.WVALID : 1'b0;
-	uartif.BREADY = validwaddr_uart ? axi4if.BREADY : 1'b0;
-	uartif.WLAST = validwaddr_uart ? axi4if.WLAST : 1'b0;
+	uartif.awaddr = validwaddr_uart ? waddr : 32'dz;
+	uartif.awvalid = validwaddr_uart ? axi4if.awvalid : 1'b0;
+	uartif.wdata = validwaddr_uart ? axi4if.wdata : 32'dz;
+	uartif.wstrb = validwaddr_uart ? axi4if.wstrb : 4'h0;
+	uartif.wvalid = validwaddr_uart ? axi4if.wvalid : 1'b0;
+	uartif.bready = validwaddr_uart ? axi4if.bready : 1'b0;
+	uartif.wlast = validwaddr_uart ? axi4if.wlast : 1'b0;
 
-	sramif.AWADDR = validwaddr_sram ? waddr : 32'dz;
-	sramif.AWVALID = validwaddr_sram ? axi4if.AWVALID : 1'b0;
-	sramif.WDATA = validwaddr_sram ? axi4if.WDATA : 32'dz;
-	sramif.WSTRB = validwaddr_sram ? axi4if.WSTRB : 4'h0;
-	sramif.WVALID = validwaddr_sram ? axi4if.WVALID : 1'b0;
-	sramif.BREADY = validwaddr_sram ? axi4if.BREADY : 1'b0;
-	sramif.WLAST = validwaddr_sram ? axi4if.WLAST : 1'b0;
+	sramif.awaddr = validwaddr_sram ? waddr : 32'dz;
+	sramif.awvalid = validwaddr_sram ? axi4if.awvalid : 1'b0;
+	sramif.wdata = validwaddr_sram ? axi4if.wdata : 32'dz;
+	sramif.wstrb = validwaddr_sram ? axi4if.wstrb : 4'h0;
+	sramif.wvalid = validwaddr_sram ? axi4if.wvalid : 1'b0;
+	sramif.bready = validwaddr_sram ? axi4if.bready : 1'b0;
+	sramif.wlast = validwaddr_sram ? axi4if.wlast : 1'b0;
 
-	spiif.AWADDR = validwaddr_spi ? waddr : 32'dz;
-	spiif.AWVALID = validwaddr_spi ? axi4if.AWVALID : 1'b0;
-	spiif.WDATA = validwaddr_spi ? axi4if.WDATA : 32'dz;
-	spiif.WSTRB = validwaddr_spi ? axi4if.WSTRB : 4'h0;
-	spiif.WVALID = validwaddr_spi ? axi4if.WVALID : 1'b0;
-	spiif.BREADY = validwaddr_spi ? axi4if.BREADY : 1'b0;
-	spiif.WLAST = validwaddr_spi ? axi4if.WLAST : 1'b0;
+	spiif.awaddr = validwaddr_spi ? waddr : 32'dz;
+	spiif.awvalid = validwaddr_spi ? axi4if.awvalid : 1'b0;
+	spiif.wdata = validwaddr_spi ? axi4if.wdata : 32'dz;
+	spiif.wstrb = validwaddr_spi ? axi4if.wstrb : 4'h0;
+	spiif.wvalid = validwaddr_spi ? axi4if.wvalid : 1'b0;
+	spiif.bready = validwaddr_spi ? axi4if.bready : 1'b0;
+	spiif.wlast = validwaddr_spi ? axi4if.wlast : 1'b0;
 
-	ps2if.AWADDR = validwaddr_ps2 ? waddr : 32'dz;
-	ps2if.AWVALID = validwaddr_ps2 ? axi4if.AWVALID : 1'b0;
-	ps2if.WDATA = validwaddr_ps2 ? axi4if.WDATA : 32'dz;
-	ps2if.WSTRB = validwaddr_ps2 ? axi4if.WSTRB : 4'h0;
-	ps2if.WVALID = validwaddr_ps2 ? axi4if.WVALID : 1'b0;
-	ps2if.BREADY = validwaddr_ps2 ? axi4if.BREADY : 1'b0;
-	ps2if.WLAST = validwaddr_ps2 ? axi4if.WLAST : 1'b0;
+	ps2if.awaddr = validwaddr_ps2 ? waddr : 32'dz;
+	ps2if.awvalid = validwaddr_ps2 ? axi4if.awvalid : 1'b0;
+	ps2if.wdata = validwaddr_ps2 ? axi4if.wdata : 32'dz;
+	ps2if.wstrb = validwaddr_ps2 ? axi4if.wstrb : 4'h0;
+	ps2if.wvalid = validwaddr_ps2 ? axi4if.wvalid : 1'b0;
+	ps2if.bready = validwaddr_ps2 ? axi4if.bready : 1'b0;
+	ps2if.wlast = validwaddr_ps2 ? axi4if.wlast : 1'b0;
 
-	bramif.AWADDR = validwaddr_bram ? waddr : 32'dz;
-	bramif.AWVALID = validwaddr_bram ? axi4if.AWVALID : 1'b0;
-	bramif.WDATA = validwaddr_bram ? axi4if.WDATA : 32'dz;
-	bramif.WSTRB = validwaddr_bram ? axi4if.WSTRB : 4'h0;
-	bramif.WVALID = validwaddr_bram ? axi4if.WVALID : 1'b0;
-	bramif.BREADY = validwaddr_bram ? axi4if.BREADY : 1'b0;
-	bramif.WLAST = validwaddr_bram ? axi4if.WLAST : 1'b0;
+	bramif.awaddr = validwaddr_bram ? waddr : 32'dz;
+	bramif.awvalid = validwaddr_bram ? axi4if.awvalid : 1'b0;
+	bramif.wdata = validwaddr_bram ? axi4if.wdata : 32'dz;
+	bramif.wstrb = validwaddr_bram ? axi4if.wstrb : 4'h0;
+	bramif.wvalid = validwaddr_bram ? axi4if.wvalid : 1'b0;
+	bramif.bready = validwaddr_bram ? axi4if.bready : 1'b0;
+	bramif.wlast = validwaddr_bram ? axi4if.wlast : 1'b0;
 
-	ddr3if.AWADDR = validwaddr_ddr3 ? waddr : 32'dz;
-	ddr3if.AWVALID = validwaddr_ddr3 ? axi4if.AWVALID : 1'b0;
-	ddr3if.WDATA = validwaddr_ddr3 ? axi4if.WDATA : 32'dz;
-	ddr3if.WSTRB = validwaddr_ddr3 ? axi4if.WSTRB : 4'h0;
-	ddr3if.WVALID = validwaddr_ddr3 ? axi4if.WVALID : 1'b0;
-	ddr3if.BREADY = validwaddr_ddr3 ? axi4if.BREADY : 1'b0;
-	ddr3if.WLAST = validwaddr_ddr3 ? axi4if.WLAST : 1'b0;
+	ddr3if.awaddr = validwaddr_ddr3 ? waddr : 32'dz;
+	ddr3if.awvalid = validwaddr_ddr3 ? axi4if.awvalid : 1'b0;
+	ddr3if.wdata = validwaddr_ddr3 ? axi4if.wdata : 32'dz;
+	ddr3if.wstrb = validwaddr_ddr3 ? axi4if.wstrb : 4'h0;
+	ddr3if.wvalid = validwaddr_ddr3 ? axi4if.wvalid : 1'b0;
+	ddr3if.bready = validwaddr_ddr3 ? axi4if.bready : 1'b0;
+	ddr3if.wlast = validwaddr_ddr3 ? axi4if.wlast : 1'b0;
 
-	/*gpuif.AWADDR = validwaddr_gpu ? waddr : 32'dz;
-	gpuif.AWVALID = validwaddr_gpu ? axi4if.AWVALID : 1'b0;
-	gpuif.WDATA = validwaddr_gpu ? axi4if.WDATA : 32'dz;
-	gpuif.WSTRB = validwaddr_gpu ? axi4if.WSTRB : 4'h0;
-	gpuif.WVALID = validwaddr_gpu ? axi4if.WVALID : 1'b0;
-	gpuif.BREADY = validwaddr_gpu ? axi4if.BREADY : 1'b0;
-	gpuif.WLAST = validwaddr_gpu ? axi4if.WLAST : 1'b0;*/
-
-	dummyif.AWADDR = validwaddr_none ? waddr : 32'dz;
-	dummyif.AWVALID = validwaddr_none ? axi4if.AWVALID : 1'b0;
-	dummyif.WDATA = validwaddr_none ? axi4if.WDATA : 32'dz;
-	dummyif.WSTRB = validwaddr_none ? axi4if.WSTRB : 4'h0;
-	dummyif.WVALID = validwaddr_none ? axi4if.WVALID : 1'b0;
-	dummyif.BREADY = validwaddr_none ? axi4if.BREADY : 1'b0;
-	dummyif.WLAST = validwaddr_none ? axi4if.WLAST : 1'b0;
+	/*gpuif.awaddr = validwaddr_gpu ? waddr : 32'dz;
+	gpuif.awvalid = validwaddr_gpu ? axi4if.awvalid : 1'b0;
+	gpuif.wdata = validwaddr_gpu ? axi4if.wdata : 32'dz;
+	gpuif.wstrb = validwaddr_gpu ? axi4if.wstrb : 4'h0;
+	gpuif.wvalid = validwaddr_gpu ? axi4if.wvalid : 1'b0;
+	gpuif.bready = validwaddr_gpu ? axi4if.bready : 1'b0;
+	gpuif.wlast = validwaddr_gpu ? axi4if.wlast : 1'b0;*/
 
 	if (validwaddr_uart) begin
-		axi4if.AWREADY = uartif.AWREADY;
-		axi4if.BRESP = uartif.BRESP;
-		axi4if.BVALID = uartif.BVALID;
-		axi4if.WREADY = uartif.WREADY;
+		axi4if.awready = uartif.awready;
+		axi4if.bresp = uartif.bresp;
+		axi4if.bvalid = uartif.bvalid;
+		axi4if.wready = uartif.wready;
 	end else if (validwaddr_sram) begin
-		axi4if.AWREADY = sramif.AWREADY;
-		axi4if.BRESP = sramif.BRESP;
-		axi4if.BVALID = sramif.BVALID;
-		axi4if.WREADY = sramif.WREADY;
+		axi4if.awready = sramif.awready;
+		axi4if.bresp = sramif.bresp;
+		axi4if.bvalid = sramif.bvalid;
+		axi4if.wready = sramif.wready;
 	end else if (validwaddr_spi) begin
-		axi4if.AWREADY = spiif.AWREADY;
-		axi4if.BRESP = spiif.BRESP;
-		axi4if.BVALID = spiif.BVALID;
-		axi4if.WREADY = spiif.WREADY;
+		axi4if.awready = spiif.awready;
+		axi4if.bresp = spiif.bresp;
+		axi4if.bvalid = spiif.bvalid;
+		axi4if.wready = spiif.wready;
 	end else if (validwaddr_ps2) begin
-		axi4if.AWREADY = ps2if.AWREADY;
-		axi4if.BRESP = ps2if.BRESP;
-		axi4if.BVALID = ps2if.BVALID;
-		axi4if.WREADY = ps2if.WREADY;
+		axi4if.awready = ps2if.awready;
+		axi4if.bresp = ps2if.bresp;
+		axi4if.bvalid = ps2if.bvalid;
+		axi4if.wready = ps2if.wready;
 	end else if (validwaddr_bram) begin
-		axi4if.AWREADY = bramif.AWREADY;
-		axi4if.BRESP = bramif.BRESP;
-		axi4if.BVALID = bramif.BVALID;
-		axi4if.WREADY = bramif.WREADY;
-	end else if (validwaddr_ddr3) begin
-		axi4if.AWREADY = ddr3if.AWREADY;
-		axi4if.BRESP = ddr3if.BRESP;
-		axi4if.BVALID = ddr3if.BVALID;
-		axi4if.WREADY = ddr3if.WREADY;
+		axi4if.awready = bramif.awready;
+		axi4if.bresp = bramif.bresp;
+		axi4if.bvalid = bramif.bvalid;
+		axi4if.wready = bramif.wready;
+	end else begin // if (validwaddr_ddr3) begin
+		axi4if.awready = ddr3if.awready;
+		axi4if.bresp = ddr3if.bresp;
+		axi4if.bvalid = ddr3if.bvalid;
+		axi4if.wready = ddr3if.wready;
 	/*end else if (validwaddr_gpu) begin
-		axi4if.AWREADY = gpuif.AWREADY;
-		axi4if.BRESP = gpuif.BRESP;
-		axi4if.BVALID = gpuif.BVALID;
-		axi4if.WREADY = gpuif.WREADY;*/
-	end else begin
-		axi4if.AWREADY = dummyif.AWREADY;
-		axi4if.BRESP = dummyif.BRESP;
-		axi4if.BVALID = dummyif.BVALID;
-		axi4if.WREADY = dummyif.WREADY;
+		axi4if.awready = gpuif.awready;
+		axi4if.bresp = gpuif.bresp;
+		axi4if.bvalid = gpuif.bvalid;
+		axi4if.wready = gpuif.wready;*/
 	end
 end
 
 // ------------------------------------------------------------------------------------
-// Read router
+// read router
 // ------------------------------------------------------------------------------------
 
-wire [31:0] raddr = {3'b000, axi4if.ARADDR[28:0]};
+wire [31:0] raddr = {3'b000, axi4if.araddr[28:0]};
 
 always_comb begin
 
-	uartif.ARADDR = validraddr_uart ? raddr : 32'dz;
-	uartif.ARVALID = validraddr_uart ? axi4if.ARVALID : 1'b0;
-	uartif.RREADY = validraddr_uart ? axi4if.RREADY : 1'b0;
+	uartif.araddr = validraddr_uart ? raddr : 32'dz;
+	uartif.arvalid = validraddr_uart ? axi4if.arvalid : 1'b0;
+	uartif.rready = validraddr_uart ? axi4if.rready : 1'b0;
 
-	sramif.ARADDR = validraddr_sram ? raddr : 32'dz;
-	sramif.ARVALID = validraddr_sram ? axi4if.ARVALID : 1'b0;
-	sramif.RREADY = validraddr_sram ? axi4if.RREADY : 1'b0;
+	sramif.araddr = validraddr_sram ? raddr : 32'dz;
+	sramif.arvalid = validraddr_sram ? axi4if.arvalid : 1'b0;
+	sramif.rready = validraddr_sram ? axi4if.rready : 1'b0;
 
-	spiif.ARADDR = validraddr_spi ? raddr : 32'dz;
-	spiif.ARVALID = validraddr_spi ? axi4if.ARVALID : 1'b0;
-	spiif.RREADY = validraddr_spi ? axi4if.RREADY : 1'b0;
+	spiif.araddr = validraddr_spi ? raddr : 32'dz;
+	spiif.arvalid = validraddr_spi ? axi4if.arvalid : 1'b0;
+	spiif.rready = validraddr_spi ? axi4if.rready : 1'b0;
 
-	ps2if.ARADDR = validraddr_ps2 ? raddr : 32'dz;
-	ps2if.ARVALID = validraddr_ps2 ? axi4if.ARVALID : 1'b0;
-	ps2if.RREADY = validraddr_ps2 ? axi4if.RREADY : 1'b0;
+	ps2if.araddr = validraddr_ps2 ? raddr : 32'dz;
+	ps2if.arvalid = validraddr_ps2 ? axi4if.arvalid : 1'b0;
+	ps2if.rready = validraddr_ps2 ? axi4if.rready : 1'b0;
 
-	bramif.ARADDR = validraddr_bram ? raddr : 32'dz;
-	bramif.ARVALID = validraddr_bram ? axi4if.ARVALID : 1'b0;
-	bramif.RREADY = validraddr_bram ? axi4if.RREADY : 1'b0;
+	bramif.araddr = validraddr_bram ? raddr : 32'dz;
+	bramif.arvalid = validraddr_bram ? axi4if.arvalid : 1'b0;
+	bramif.rready = validraddr_bram ? axi4if.rready : 1'b0;
 
-	ddr3if.ARADDR = validraddr_ddr3 ? raddr : 32'dz;
-	ddr3if.ARVALID = validraddr_ddr3 ? axi4if.ARVALID : 1'b0;
-	ddr3if.RREADY = validraddr_ddr3 ? axi4if.RREADY : 1'b0;
+	ddr3if.araddr = validraddr_ddr3 ? raddr : 32'dz;
+	ddr3if.arvalid = validraddr_ddr3 ? axi4if.arvalid : 1'b0;
+	ddr3if.rready = validraddr_ddr3 ? axi4if.rready : 1'b0;
 
-	/*gpuif.ARADDR = validraddr_gpu ? raddr : 32'dz;
-	gpuif.ARVALID = validraddr_gpu ? axi4if.ARVALID : 1'b0;
-	gpuif.RREADY = validraddr_gpu ? axi4if.RREADY : 1'b0;*/
-
-	dummyif.ARADDR = validraddr_none ? raddr : 32'dz;
-	dummyif.ARVALID = validraddr_none ? axi4if.ARVALID : 1'b0;
-	dummyif.RREADY = validraddr_none ? axi4if.RREADY : 1'b0;
+	/*gpuif.araddr = validraddr_gpu ? raddr : 32'dz;
+	gpuif.arvalid = validraddr_gpu ? axi4if.arvalid : 1'b0;
+	gpuif.rready = validraddr_gpu ? axi4if.rready : 1'b0;*/
 
 	if (validraddr_uart) begin
-		axi4if.ARREADY = uartif.ARREADY;
-		axi4if.RDATA = uartif.RDATA;
-		axi4if.RRESP = uartif.RRESP;
-		axi4if.RVALID = uartif.RVALID;
-		axi4if.RLAST = uartif.RLAST;
+		axi4if.arready = uartif.arready;
+		axi4if.rdata = uartif.rdata;
+		axi4if.rresp = uartif.rresp;
+		axi4if.rvalid = uartif.rvalid;
+		axi4if.rlast = uartif.rlast;
 	end else if (validraddr_sram) begin
-		axi4if.ARREADY = sramif.ARREADY;
-		axi4if.RDATA = sramif.RDATA;
-		axi4if.RRESP = sramif.RRESP;
-		axi4if.RVALID = sramif.RVALID;
-		axi4if.RLAST = sramif.RLAST;
+		axi4if.arready = sramif.arready;
+		axi4if.rdata = sramif.rdata;
+		axi4if.rresp = sramif.rresp;
+		axi4if.rvalid = sramif.rvalid;
+		axi4if.rlast = sramif.rlast;
 	end else if (validraddr_spi) begin
-		axi4if.ARREADY = spiif.ARREADY;
-		axi4if.RDATA = spiif.RDATA;
-		axi4if.RRESP = spiif.RRESP;
-		axi4if.RVALID = spiif.RVALID;
-		axi4if.RLAST = spiif.RLAST;
+		axi4if.arready = spiif.arready;
+		axi4if.rdata = spiif.rdata;
+		axi4if.rresp = spiif.rresp;
+		axi4if.rvalid = spiif.rvalid;
+		axi4if.rlast = spiif.rlast;
 	end else if (validraddr_ps2) begin
-		axi4if.ARREADY = ps2if.ARREADY;
-		axi4if.RDATA = ps2if.RDATA;
-		axi4if.RRESP = ps2if.RRESP;
-		axi4if.RVALID = ps2if.RVALID;
-		axi4if.RLAST = ps2if.RLAST;
+		axi4if.arready = ps2if.arready;
+		axi4if.rdata = ps2if.rdata;
+		axi4if.rresp = ps2if.rresp;
+		axi4if.rvalid = ps2if.rvalid;
+		axi4if.rlast = ps2if.rlast;
 	end else if (validraddr_bram) begin
-		axi4if.ARREADY = bramif.ARREADY;
-		axi4if.RDATA = bramif.RDATA;
-		axi4if.RRESP = bramif.RRESP;
-		axi4if.RVALID = bramif.RVALID;
-		axi4if.RLAST = bramif.RLAST;
-	end else if (validraddr_ddr3) begin
-		axi4if.ARREADY = ddr3if.ARREADY;
-		axi4if.RDATA = ddr3if.RDATA;
-		axi4if.RRESP = ddr3if.RRESP;
-		axi4if.RVALID = ddr3if.RVALID;
-		axi4if.RLAST = ddr3if.RLAST;
+		axi4if.arready = bramif.arready;
+		axi4if.rdata = bramif.rdata;
+		axi4if.rresp = bramif.rresp;
+		axi4if.rvalid = bramif.rvalid;
+		axi4if.rlast = bramif.rlast;
+	end else begin//if (validraddr_ddr3) begin
+		axi4if.arready = ddr3if.arready;
+		axi4if.rdata = ddr3if.rdata;
+		axi4if.rresp = ddr3if.rresp;
+		axi4if.rvalid = ddr3if.rvalid;
+		axi4if.rlast = ddr3if.rlast;
 	/*end else if (validraddr_gpu) begin
-		axi4if.ARREADY = gpuif.ARREADY;
-		axi4if.RDATA = gpuif.RDATA;
-		axi4if.RRESP = gpuif.RRESP;
-		axi4if.RVALID = gpuif.RVALID;
-		axi4if.RLAST = gpuif.RLAST;*/
-	end else begin
-		axi4if.ARREADY = dummyif.ARREADY;
-		axi4if.RDATA = dummyif.RDATA;
-		axi4if.RRESP = dummyif.RRESP;
-		axi4if.RVALID = dummyif.RVALID;
-		axi4if.RLAST = dummyif.RLAST;
+		axi4if.arready = gpuif.arready;
+		axi4if.rdata = gpuif.rdata;
+		axi4if.rresp = gpuif.rresp;
+		axi4if.rvalid = gpuif.rvalid;
+		axi4if.rlast = gpuif.rlast;*/
 	end
 end
 

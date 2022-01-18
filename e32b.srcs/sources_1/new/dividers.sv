@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module DIVU(
+module divu(
     input [31:00] dividend,
     input [31:00] divisor,
     input start,
@@ -50,7 +50,7 @@ end
 
 endmodule
 
-module DIV(
+module div(
     input [31:0] dividend,
     input [31:0] divisor,
     input start,

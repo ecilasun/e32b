@@ -3,32 +3,32 @@
 `include "shared.vh"
 
 module axi4cpu #(
-	parameter RESETVECTOR=32'h00000000 ) (
-	axi4.MASTER axi4if,
-	FPGADeviceClocks.DEFAULT clocks,
-	FPGADeviceWires.DEFAULT wires,
+	parameter resetvector=32'h00000000 ) (
+	axi4.master axi4if,
+	fpgadeviceclocks.def clocks,
+	fpgadevicewires.def wires,
 	output logic ifetch = 1'b0,
 	input wire [3:0] irq,
 	input wire calib_done );
 
-// CPU states
-localparam CPUINIT = 1;
-localparam CPURETIRE = 2;
-localparam CPUFETCH = 4;
-localparam CPUDECODE = 8;
-localparam CPUEXECUTE = 16;
-localparam CPULOADWAIT = 32;
-localparam CPUSTOREWAIT = 64;
-localparam CPUIMATHWAIT = 128;
-localparam CPUFMSTALL = 256;
-localparam CPUFPUOP = 512;
-localparam CPUFSTALL = 1024;
-localparam CPUWBACK = 2048;
-localparam CPUWFI = 4096;
+// cpu states
+localparam cpuinit = 1;
+localparam cpuretire = 2;
+localparam cpufetch = 4;
+localparam cpudecode = 8;
+localparam cpuexecute = 16;
+localparam cpuloadwait = 32;
+localparam cpustorewait = 64;
+localparam cpuimathwait = 128;
+localparam cpufmstall = 256;
+localparam cpufpuop = 512;
+localparam cpufstall = 1024;
+localparam cpuwback = 2048;
+localparam cpuwfi = 4096;
 
-logic [12:0] cpustate = CPUINIT;
-logic [31:0] PC = RESETVECTOR;
-logic [31:0] adjacentPC = RESETVECTOR + 32'd4;
+logic [12:0] cpustate = cpuinit;
+logic [31:0] pc = resetvector;
+logic [31:0] adjacentpc = resetvector + 32'd4;
 logic [31:0] csrval = 32'd0;
 
 logic hwinterrupt = 1'b0;
@@ -46,17 +46,17 @@ logic [2:0] mip = 3'b000;
 logic [31:0] mtvec = 32'd0;
 
 // ------------------------------------------------------------------------------------
-// Timer unit
+// timer unit
 // ------------------------------------------------------------------------------------
 
 logic [3:0] shortcnt = 4'h0;
-logic [63:0] cpusidetrigger = 64'hFFFFFFFFFFFFFFFF;
+logic [63:0] cpusidetrigger = 64'hffffffffffffffff;
 logic [63:0] clockcounter = 64'd0;
 
-// Count in cpu clock domain
-// The ratio of wall clock to cpu clock is 1/10
+// count in cpu clock domain
+// the ratio of wall clock to cpu clock is 1/10
 // so we can increment this every 10th clock
-always @(posedge axi4if.ACLK) begin
+always @(posedge axi4if.aclk) begin
 	shortcnt <= shortcnt + 1;
 	if (shortcnt == 9) begin
 		shortcnt <= 0;
@@ -66,44 +66,44 @@ always @(posedge axi4if.ACLK) begin
 end
 
 // ------------------------------------------------------------------------------------
-// CSR
+// csr
 // ------------------------------------------------------------------------------------
 
-logic [31:0] CSRReg [0:`CSR_REGISTER_COUNT-1];
+logic [31:0] csrreg [0:`csr_register_count-1];
 wire [4:0] csrindex;
 bit csrwe = 1'b0;
 bit [31:0] csrin = 32'd0;
 bit [4:0] csrindex_l;
 
-// See https://cv32e40p.readthedocs.io/en/latest/control_status_registers/#cs-registers for defaults
+// see https://cv32e40p.readthedocs.io/en/latest/control_status_registers/#cs-registers for defaults
 initial begin
-	CSRReg[`CSR_UNUSED]		= 32'd0;
-	CSRReg[`CSR_MSTATUS]	= 32'h00001800; // MPP (machine previous priviledge mode 12:11) hardwired to 2'b11 on startup
-	CSRReg[`CSR_MIE]		= 32'd0;
-	CSRReg[`CSR_MTVEC]		= 32'd0;
-	CSRReg[`CSR_MEPC]		= 32'd0;
-	CSRReg[`CSR_MCAUSE]		= 32'd0;
-	CSRReg[`CSR_MTVAL]		= 32'd0;
-	CSRReg[`CSR_MIP]		= 32'd0;
-	CSRReg[`CSR_TIMECMPLO]	= 32'hFFFFFFFF; // timecmp = 0xFFFFFFFFFFFFFFFF
-	CSRReg[`CSR_TIMECMPHI]	= 32'hFFFFFFFF;
-	CSRReg[`CSR_CYCLELO]	= 32'd0;
-	CSRReg[`CSR_CYCLEHI]	= 32'd0;
-	CSRReg[`CSR_TIMELO]		= 32'd0;
-	CSRReg[`CSR_RETILO]		= 32'd0;
-	CSRReg[`CSR_TIMEHI]		= 32'd0;
-	CSRReg[`CSR_RETIHI]		= 32'd0;
+	csrreg[`csr_unused]		= 32'd0;
+	csrreg[`csr_mstatus]	= 32'h00001800; // mpp (machine previous priviledge mode 12:11) hardwired to 2'b11 on startup
+	csrreg[`csr_mie]		= 32'd0;
+	csrreg[`csr_mtvec]		= 32'd0;
+	csrreg[`csr_mepc]		= 32'd0;
+	csrreg[`csr_mcause]		= 32'd0;
+	csrreg[`csr_mtval]		= 32'd0;
+	csrreg[`csr_mip]		= 32'd0;
+	csrreg[`csr_timecmplo]	= 32'hffffffff; // timecmp = 0xffffffffffffffff
+	csrreg[`csr_timecmphi]	= 32'hffffffff;
+	csrreg[`csr_cyclelo]	= 32'd0;
+	csrreg[`csr_cyclehi]	= 32'd0;
+	csrreg[`csr_timelo]		= 32'd0;
+	csrreg[`csr_retilo]		= 32'd0;
+	csrreg[`csr_timehi]		= 32'd0;
+	csrreg[`csr_retihi]		= 32'd0;
 end
 
 // ------------------------------------------------------------------------------------
-// Decoder unit
+// decoder unit
 // ------------------------------------------------------------------------------------
 
-bit [31:0] instruction = {25'd0,`OPCODE_OP_IMM,2'b11}; // NOOP (addi x0,x0,0)
+bit [31:0] instruction = {25'd0,`opcode_op_imm,2'b11}; // noop (addi x0,x0,0)
 bit decen = 1'b0;
 
 wire isrecordingform;
-wire [17:0] instrOneHot;
+wire [17:0] instronehot;
 wire selectimmedasrval2;
 wire [31:0] immed;
 wire [4:0] rs1, rs2, rs3, rd;
@@ -113,26 +113,26 @@ wire [11:0] func12;
 wire [3:0] aluop;
 wire [2:0] bluop;
 
-decoder InstructionDecoder(
-	.enable(decen),								// Hold high for one clock when din is valid to decode
-	.instruction(instruction),					// Incoming instruction to decode
-	.instrOneHotOut(instrOneHot),				// One-hot form of decoded instruction
-	.isrecordingform(isrecordingform),			// High if instruction result should be saved to a register
-	.aluop(aluop),								// Arithmetic unit op
-	.bluop(bluop),								// Branch unit op
-	.func3(func3),								// Sub-function
-	.func7(func7),								// Sub-function
-	.func12(func12),							// Sub-function
-	.rs1(rs1),									// Source register 1
-	.rs2(rs2),									// Source register 2
-	.rs3(rs3),									// Source register 3 (used for fused operations)
-	.rd(rd),									// Destination register
-	.csrindex(csrindex),						// CSR register index
-	.immed(immed),								// Immediate, converted to 32 bits
-	.selectimmedasrval2(selectimmedasrval2) );	// Route to use either immed or value of source register 2 
+decoder instructiondecoder(
+	.enable(decen),								// hold high for one clock when din is valid to decode
+	.instruction(instruction),					// incoming instruction to decode
+	.instronehotout(instronehot),				// one-hot form of decoded instruction
+	.isrecordingform(isrecordingform),			// high if instruction result should be saved to a register
+	.aluop(aluop),								// arithmetic unit op
+	.bluop(bluop),								// branch unit op
+	.func3(func3),								// sub-function
+	.func7(func7),								// sub-function
+	.func12(func12),							// sub-function
+	.rs1(rs1),									// source register 1
+	.rs2(rs2),									// source register 2
+	.rs3(rs3),									// source register 3 (used for fused operations)
+	.rd(rd),									// destination register
+	.csrindex(csrindex),						// csr register index
+	.immed(immed),								// immediate, converted to 32 bits
+	.selectimmedasrval2(selectimmedasrval2) );	// route to use either immed or value of source register 2 
 
 // ------------------------------------------------------------------------------------
-// Register files
+// register files
 // ------------------------------------------------------------------------------------
 
 logic rwren = 1'b0;
@@ -142,19 +142,19 @@ logic [31:0] frdin = 32'd0;
 wire [31:0] rval1, rval2;
 wire [31:0] frval1, frval2, frval3;
 
-registerfile IntegerRegisters(
-	.clock(axi4if.ACLK),
-	.rs1(rs1),		// Source register read address
-	.rs2(rs2),		// Source register read address
-	.rd(rd),		// Destination register write address
-	.wren(rwren),	// Write enable for destination register
-	.din(rdin),		// Data to write to destination register (written at end of this clock)
-	.rval1(rval1),	// Values output from source registers (available on same clock)
+registerfile integerregisters(
+	.clock(axi4if.aclk),
+	.rs1(rs1),		// source register read address
+	.rs2(rs2),		// source register read address
+	.rd(rd),		// destination register write address
+	.wren(rwren),	// write enable for destination register
+	.din(rdin),		// data to write to destination register (written at end of this clock)
+	.rval1(rval1),	// values output from source registers (available on same clock)
 	.rval2(rval2) );
 
-// Floating point register file
-floatregisterfile FloatRegisters(
-	.clock(axi4if.ACLK),
+// floating point register file
+floatregisterfile floatregisters(
+	.clock(axi4if.aclk),
 	.rs1(rs1),
 	.rs2(rs2),
 	.rs3(rs3),
@@ -166,33 +166,33 @@ floatregisterfile FloatRegisters(
 	.rval3(frval3) );
 
 // ------------------------------------------------------------------------------------
-// ALU / BLU
+// alu / blu
 // ------------------------------------------------------------------------------------
 
 bit aluen = 1'b0;
-wire reqalu = instrOneHot[`O_H_AUIPC] | instrOneHot[`O_H_JAL] | instrOneHot[`O_H_BRANCH]; // These instructions require the first operand to be PC and second one to be the immediate
+wire reqalu = instronehot[`o_h_auipc] | instronehot[`o_h_jal] | instronehot[`o_h_branch]; // these instructions require the first operand to be pc and second one to be the immediate
 
 wire [31:0] aluout;
 
-arithmeticlogicunit ALU(
-	.enable(aluen),											// Hold high to get a result on next clock
-	.aluout(aluout),										// Result of calculation
-	.func3(func3),											// ALU sub-operation code
-	.val1(reqalu ? PC : rval1),								// Input value 1
-	.val2((selectimmedasrval2 | reqalu) ? immed : rval2),	// Input value 2
-	.aluop(reqalu ? `ALU_ADD : aluop) );					// ALU operation code (also ADD for JALR for rval1+immed)
+arithmeticlogicunit alu(
+	.enable(aluen),											// hold high to get a result on next clock
+	.aluout(aluout),										// result of calculation
+	.func3(func3),											// alu sub-operation code
+	.val1(reqalu ? pc : rval1),								// input value 1
+	.val2((selectimmedasrval2 | reqalu) ? immed : rval2),	// input value 2
+	.aluop(reqalu ? `alu_add : aluop) );					// alu operation code (also add for jalr for rval1+immed)
 
 wire branchout;
 bit branchr = 1'b0;
 
-branchlogicunit BLU(
-	.branchout(branchout),	// High when branch should be taken based on op
-	.val1(rval1),			// Input value 1
-	.val2(rval2),			// Input value 2
-	.bluop(bluop) );		// Comparison operation code
+branchlogicunit blu(
+	.branchout(branchout),	// high when branch should be taken based on op
+	.val1(rval1),			// input value 1
+	.val2(rval2),			// input value 2
+	.bluop(bluop) );		// comparison operation code
 
 // -----------------------------------------------------------------------
-// FPU
+// fpu
 // -----------------------------------------------------------------------
 
 logic fmaddstrobe = 1'b0;
@@ -212,19 +212,19 @@ logic feqstrobe = 1'b0;
 logic fltstrobe = 1'b0;
 logic flestrobe = 1'b0;
 
-wire FPUResultValid;
-wire [31:0] FPUResult;
+wire fpuresultvalid;
+wire [31:0] fpuresult;
 
-floatingpointunit FPU(
-	.clock(axi4if.ACLK),
+floatingpointunit fpu(
+	.clock(axi4if.aclk),
 
-	// Inputs
+	// inputs
 	.frval1(frval1),
 	.frval2(frval2),
 	.frval3(frval3),
 	.rval1(rval1), // i2f input
 
-	// Operation select strobe
+	// operation select strobe
 	.fmaddstrobe(fmaddstrobe),
 	.fmsubstrobe(fmsubstrobe),
 	.fnmsubstrobe(fnmsubstrobe),
@@ -242,12 +242,12 @@ floatingpointunit FPU(
 	.fltstrobe(fltstrobe),
 	.flestrobe(flestrobe),
 
-	// Output
-	.resultvalid(FPUResultValid),
-	.result(FPUResult) );
+	// output
+	.resultvalid(fpuresultvalid),
+	.result(fpuresult) );
 
 // -----------------------------------------------------------------------
-// Integer math (mul/div)
+// integer math (mul/div)
 // -----------------------------------------------------------------------
 
 logic [31:0] mout = 32'd0;
@@ -260,15 +260,15 @@ wire [31:0] quotientu;
 wire [31:0] remainder;
 wire [31:0] remainderu;
 
-wire isexecuting = (cpustate==CPUEXECUTE);
-wire isexecutingimath = isexecuting & instrOneHot[`O_H_OP];
-//wire isexecutingfloatop = isexecuting & instrOneHot[`O_H_FLOAT_OP];
+wire isexecuting = (cpustate==cpuexecute);
+wire isexecutingimath = isexecuting & instronehot[`o_h_op];
+//wire isexecutingfloatop = isexecuting & instronehot[`o_h_float_op];
 
-// Pulses to kick math operations
-wire mulstart = isexecutingimath & (aluop==`ALU_MUL);
+// pulses to kick math operations
+wire mulstart = isexecutingimath & (aluop==`alu_mul);
 multiplier themul(
-    .clk(axi4if.ACLK),
-    .reset(~axi4if.ARESETn),
+    .clk(axi4if.aclk),
+    .reset(~axi4if.aresetn),
     .start(mulstart),
     .busy(mulbusy),           // calculation in progress
     .func3(func3),
@@ -276,10 +276,10 @@ multiplier themul(
     .multiplier(rval2),
     .product(product) );
 
-wire divstart = isexecutingimath & (aluop==`ALU_DIV | aluop==`ALU_REM);
-DIVU unsigneddivider (
-	.clk(axi4if.ACLK),
-	.reset(~axi4if.ARESETn),
+wire divstart = isexecutingimath & (aluop==`alu_div | aluop==`alu_rem);
+divu unsigneddivider (
+	.clk(axi4if.aclk),
+	.reset(~axi4if.aresetn),
 	.start(divstart),		// start signal
 	.busy(divbusyu),		// calculation in progress
 	.dividend(rval1),		// dividend
@@ -288,9 +288,9 @@ DIVU unsigneddivider (
 	.remainder(remainderu)	// result: remainer
 );
 
-DIV signeddivider (
-	.clk(axi4if.ACLK),
-	.reset(~axi4if.ARESETn),
+div signeddivider (
+	.clk(axi4if.aclk),
+	.reset(~axi4if.aresetn),
 	.start(divstart),		// start signal
 	.busy(divbusy),			// calculation in progress
 	.dividend(rval1),		// dividend
@@ -299,17 +299,17 @@ DIV signeddivider (
 	.remainder(remainder)	// result: remainder
 );
 
-// Stall status
+// stall status
 wire imathstart = divstart | mulstart;
 wire imathbusy = divbusy | divbusyu | mulbusy;
 
 // ------------------------------------------------------------------------------------
-// CPU
+// cpu
 // ------------------------------------------------------------------------------------
 
 bit [31:0] loadstoreaddress = 32'd0;
 
-always @(posedge axi4if.ACLK) begin
+always @(posedge axi4if.aclk) begin
 	decen <= 1'b0;
 	aluen <= 1'b0;
 	rwren <= 1'b0;
@@ -335,199 +335,199 @@ always @(posedge axi4if.ACLK) begin
 	flestrobe <= 1'b0;
 
 	case (cpustate)
-		CPUINIT: begin
-			PC <= RESETVECTOR;
-			if (~axi4if.ARESETn)
-				cpustate <= CPUINIT;
+		cpuinit: begin
+			pc <= resetvector;
+			if (~axi4if.aresetn)
+				cpustate <= cpuinit;
 			else begin
 				if (calib_done)
-					cpustate <= CPURETIRE;
+					cpustate <= cpuretire;
 				else
-					cpustate <= CPUINIT;
+					cpustate <= cpuinit;
 			end
 		end
 
-		CPUWFI: begin
+		cpuwfi: begin
 			hwinterrupt <= (|irq) & miena & (~(|mip));
 			timerinterrupt <= trq & mtena & (~(|mip));
 
 			if (hwinterrupt | timerinterrupt) begin
-				cpustate <= CPURETIRE;
+				cpustate <= cpuretire;
 			end else begin
-				cpustate <= CPUWFI;
+				cpustate <= cpuwfi;
 			end
 		end
 
-		CPURETIRE: begin
-			// Write back to CSR register file
+		cpuretire: begin
+			// write back to csr register file
 			if (csrwe)
-				CSRReg[csrindex_l] <= csrin;
+				csrreg[csrindex_l] <= csrin;
 
-			// Ordering according to privileged ISA is: mei/msi/mti/sei/ssi/sti
+			// ordering according to privileged isa is: mei/msi/mti/sei/ssi/sti
 			if (hwinterrupt) begin // mei, external hardware interrupt
-				// Using non-vectored interrupt handlers (last 2 bits are 2'b00)
-				CSRReg[`CSR_MIP][11] <= 1'b1;
-				CSRReg[`CSR_MEPC] <= adjacentPC;
-				CSRReg[`CSR_MTVAL] <= {28'd0, irq}; // Interrupting hardware selector
-				CSRReg[`CSR_MCAUSE] <= 32'h8000000B; // [31]=1'b1(interrupt), 11->h/w
+				// using non-vectored interrupt handlers (last 2 bits are 2'b00)
+				csrreg[`csr_mip][11] <= 1'b1;
+				csrreg[`csr_mepc] <= adjacentpc;
+				csrreg[`csr_mtval] <= {28'd0, irq}; // interrupting hardware selector
+				csrreg[`csr_mcause] <= 32'h8000000b; // [31]=1'b1(interrupt), 11->h/w
 			end else if (illegalinstruction | ecall) begin // msi, exception
-				// Using non-vectored interrupt handlers (last 2 bits are 2'b00)
-				CSRReg[`CSR_MIP][3] <= 1'b1;
-				CSRReg[`CSR_MEPC] <= adjacentPC;
-				CSRReg[`CSR_MTVAL] <= instruction;
-				CSRReg[`CSR_MCAUSE] <= ecall ? 32'h0000000b : 32'h00000002; // [31]=1'b0(exception), 0xb->ecall, 0x2->illegal instruction
+				// using non-vectored interrupt handlers (last 2 bits are 2'b00)
+				csrreg[`csr_mip][3] <= 1'b1;
+				csrreg[`csr_mepc] <= adjacentpc;
+				csrreg[`csr_mtval] <= instruction;
+				csrreg[`csr_mcause] <= ecall ? 32'h0000000b : 32'h00000002; // [31]=1'b0(exception), 0xb->ecall, 0x2->illegal instruction
 			end else if (timerinterrupt) begin // mti, timer interrupt
-				CSRReg[`CSR_MIP][7] <= 1'b1;
-				CSRReg[`CSR_MEPC] <= adjacentPC;
-				CSRReg[`CSR_MTVAL] <= 32'd0;
-				CSRReg[`CSR_MCAUSE] <= 32'h80000007; // [31]=1'b1(interrupt), 7->timer
+				csrreg[`csr_mip][7] <= 1'b1;
+				csrreg[`csr_mepc] <= adjacentpc;
+				csrreg[`csr_mtval] <= 32'd0;
+				csrreg[`csr_mcause] <= 32'h80000007; // [31]=1'b1(interrupt), 7->timer
 			end
 
-			// Point at the current instruction address based on IRQ status
+			// point at the current instruction address based on irq status
 			if (hwinterrupt | illegalinstruction | timerinterrupt | ecall) begin
-				PC <= mtvec;
-				axi4if.ARADDR <= mtvec;
+				pc <= mtvec;
+				axi4if.araddr <= mtvec;
 			end else begin
-				axi4if.ARADDR <= PC;
+				axi4if.araddr <= pc;
 			end
 
-			axi4if.ARVALID <= 1'b1;
-			axi4if.RREADY <= 1'b1;	// Ready to accept
-			ifetch <= 1'b1;			// This is an instruction fetch
+			axi4if.arvalid <= 1'b1;
+			axi4if.rready <= 1'b1;	// ready to accept
+			ifetch <= 1'b1;			// this is an instruction fetch
 
-			cpustate <= CPUFETCH;
+			cpustate <= cpufetch;
 		end
 
-		CPUFETCH: begin
-			if (axi4if.ARREADY) begin
-				axi4if.ARVALID <= 1'b0; // Address handshake complete
+		cpufetch: begin
+			if (axi4if.arready) begin
+				axi4if.arvalid <= 1'b0; // address handshake complete
 			end
 
-			if (axi4if.RVALID) begin
-				axi4if.RREADY <= 1'b0; // Data read complete
+			if (axi4if.rvalid) begin
+				axi4if.rready <= 1'b0; // data read complete
 
-				// Latch instruction and enable decoder
-				instruction <= axi4if.RDATA;
+				// latch instruction and enable decoder
+				instruction <= axi4if.rdata;
 				decen <= 1'b1;
-				// This is to be used at later stages
-				adjacentPC <= PC + 32'd4;
+				// this is to be used at later stages
+				adjacentpc <= pc + 32'd4;
 
-				// Pre-read some registers to check during this instruction
-				// TODO: Only need to update these when they're changed, move to a separate stage post-CSR-write
-				{miena, msena, mtena} <= {CSRReg[`CSR_MIE][11], CSRReg[`CSR_MIE][3], CSRReg[`CSR_MIE][7]}; // interrupt enable state
-				mtvec <= {CSRReg[`CSR_MTVEC][31:2], 2'b00};
-				mip <= {CSRReg[`CSR_MIP][11], CSRReg[`CSR_MIP][3], CSRReg[`CSR_MIP][7]}; // high if interrupt pending
-				cpusidetrigger <= {CSRReg[`CSR_TIMECMPHI], CSRReg[`CSR_TIMECMPLO]}; // Latch the timecmp value
+				// pre-read some registers to check during this instruction
+				// todo: only need to update these when they're changed, move to a separate stage post-csr-write
+				{miena, msena, mtena} <= {csrreg[`csr_mie][11], csrreg[`csr_mie][3], csrreg[`csr_mie][7]}; // interrupt enable state
+				mtvec <= {csrreg[`csr_mtvec][31:2], 2'b00};
+				mip <= {csrreg[`csr_mip][11], csrreg[`csr_mip][3], csrreg[`csr_mip][7]}; // high if interrupt pending
+				cpusidetrigger <= {csrreg[`csr_timecmphi], csrreg[`csr_timecmplo]}; // latch the timecmp value
 
-				ifetch <= 1'b0; // Instruction fetch done
+				ifetch <= 1'b0; // instruction fetch done
 
-				cpustate <= CPUDECODE;
+				cpustate <= cpudecode;
 			end else begin
-				// No data yet
-				cpustate <= CPUFETCH;
+				// no data yet
+				cpustate <= cpufetch;
 			end
 		end
 
-		CPUDECODE: begin
+		cpudecode: begin
 			aluen <= 1'b1;
 
-			// Calculate base address for possible LOAD and STORE instructions
+			// calculate base address for possible load and store instructions
 			loadstoreaddress <= rval1 + immed;
 
-			// Latch branch decision
+			// latch branch decision
 			branchr <= branchout;
 
-			// Update clock
-			CSRReg[`CSR_TIMEHI] <= clockcounter[63:32];
-			CSRReg[`CSR_TIMELO] <= clockcounter[31:0];
+			// update clock
+			csrreg[`csr_timehi] <= clockcounter[63:32];
+			csrreg[`csr_timelo] <= clockcounter[31:0];
 
-			// Set traps only if respective trap bit is set and we're not already handling a trap
-			// This prevents re-entrancy in trap handlers.
+			// set traps only if respective trap bit is set and we're not already handling a trap
+			// this prevents re-entrancy in trap handlers.
 			hwinterrupt <= (|irq) & miena & (~(|mip));
-			illegalinstruction <= (~(|instrOneHot)) & msena & (~(|mip));
+			illegalinstruction <= (~(|instronehot)) & msena & (~(|mip));
 			timerinterrupt <= trq & mtena & (~(|mip));
 
-			cpustate <= CPUEXECUTE;
+			cpustate <= cpuexecute;
 		end
 
-		CPUEXECUTE: begin
-			// System operations
+		cpuexecute: begin
+			// system operations
 			ecall <= 1'b0;
 			ebreak <= 1'b0;
 			wfi <= 1'b0;
 			mret <= 1'b0;
 
-			// LOAD
-			if (instrOneHot[`O_H_FLOAT_MADD] || instrOneHot[`O_H_FLOAT_MSUB] || instrOneHot[`O_H_FLOAT_NMSUB] || instrOneHot[`O_H_FLOAT_NMADD]) begin
-				// Fused FPU operations
-				fmaddstrobe <= instrOneHot[`O_H_FLOAT_MADD];
-				fmsubstrobe <= instrOneHot[`O_H_FLOAT_MSUB];
-				fnmsubstrobe <= instrOneHot[`O_H_FLOAT_NMSUB];
-				fnmaddstrobe <= instrOneHot[`O_H_FLOAT_NMADD];
-				cpustate <= CPUFMSTALL;
-			end else if (instrOneHot[`O_H_FLOAT_OP]) begin
-				// Regular FPU operations
-				cpustate <= CPUFPUOP;
-			end else if (instrOneHot[`O_H_LOAD] | instrOneHot[`O_H_FLOAT_LDW]) begin
-				// Set up address for load
-				axi4if.ARADDR <= loadstoreaddress;
-				axi4if.ARVALID <= 1'b1;
-				axi4if.RREADY <= 1'b1; // Ready to accept
-				cpustate <= CPULOADWAIT;
-			end else if (instrOneHot[`O_H_STORE] | instrOneHot[`O_H_FLOAT_STW]) begin // STORE
-				// Byte selection/replication based on target address
+			// load
+			if (instronehot[`o_h_float_madd] || instronehot[`o_h_float_msub] || instronehot[`o_h_float_nmsub] || instronehot[`o_h_float_nmadd]) begin
+				// fused fpu operations
+				fmaddstrobe <= instronehot[`o_h_float_madd];
+				fmsubstrobe <= instronehot[`o_h_float_msub];
+				fnmsubstrobe <= instronehot[`o_h_float_nmsub];
+				fnmaddstrobe <= instronehot[`o_h_float_nmadd];
+				cpustate <= cpufmstall;
+			end else if (instronehot[`o_h_float_op]) begin
+				// regular fpu operations
+				cpustate <= cpufpuop;
+			end else if (instronehot[`o_h_load] | instronehot[`o_h_float_ldw]) begin
+				// set up address for load
+				axi4if.araddr <= loadstoreaddress;
+				axi4if.arvalid <= 1'b1;
+				axi4if.rready <= 1'b1; // ready to accept
+				cpustate <= cpuloadwait;
+			end else if (instronehot[`o_h_store] | instronehot[`o_h_float_stw]) begin // store
+				// byte selection/replication based on target address
 				case (func3)
 					3'b000: begin // 8 bit
-						axi4if.WDATA <= {rval2[7:0], rval2[7:0], rval2[7:0], rval2[7:0]};
+						axi4if.wdata <= {rval2[7:0], rval2[7:0], rval2[7:0], rval2[7:0]};
 						case (loadstoreaddress[1:0])
-							2'b11: axi4if.WSTRB <= 4'h8;
-							2'b10: axi4if.WSTRB <= 4'h4;
-							2'b01: axi4if.WSTRB <= 4'h2;
-							2'b00: axi4if.WSTRB <= 4'h1;
+							2'b11: axi4if.wstrb <= 4'h8;
+							2'b10: axi4if.wstrb <= 4'h4;
+							2'b01: axi4if.wstrb <= 4'h2;
+							2'b00: axi4if.wstrb <= 4'h1;
 						endcase
 					end
 					3'b001: begin // 16 bit
-						axi4if.WDATA <= {rval2[15:0], rval2[15:0]};
+						axi4if.wdata <= {rval2[15:0], rval2[15:0]};
 						case (loadstoreaddress[1])
-							1'b1: axi4if.WSTRB <= 4'hC;
-							1'b0: axi4if.WSTRB <= 4'h3;
+							1'b1: axi4if.wstrb <= 4'hc;
+							1'b0: axi4if.wstrb <= 4'h3;
 						endcase
 					end
 					3'b010: begin // 32 bit
-						axi4if.WDATA <= (instrOneHot[`O_H_FLOAT_STW]) ? frval2 : rval2;
-						axi4if.WSTRB <= 4'hF;
+						axi4if.wdata <= (instronehot[`o_h_float_stw]) ? frval2 : rval2;
+						axi4if.wstrb <= 4'hf;
 					end
 					default: begin
-						axi4if.WDATA <= 32'd0;
-						axi4if.WSTRB <= 4'h0;
+						axi4if.wdata <= 32'd0;
+						axi4if.wstrb <= 4'h0;
 					end
 				endcase
 
-				// Set up address for store...
-				axi4if.AWADDR <= loadstoreaddress;
-				axi4if.AWVALID <= 1'b1;
+				// set up address for store...
+				axi4if.awaddr <= loadstoreaddress;
+				axi4if.awvalid <= 1'b1;
 				// ...while also driving the data output and also assert ready
-				axi4if.WVALID <= 1'b1;
-				// Ready for a response
-				axi4if.BREADY <= 1'b1;
-				cpustate <= CPUSTOREWAIT;
+				axi4if.wvalid <= 1'b1;
+				// ready for a response
+				axi4if.bready <= 1'b1;
+				cpustate <= cpustorewait;
 			end else if (imathstart) begin
-				// Interger math operation pending
-				cpustate <= CPUIMATHWAIT;
+				// interger math operation pending
+				cpustate <= cpuimathwait;
 			end else begin
-				case ({instrOneHot[`O_H_SYSTEM], func3})
-					4'b1_000: begin // SYS
+				case ({instronehot[`o_h_system], func3})
+					4'b1_000: begin // sys
 						case (func12)
-							12'b0000000_00000: begin	// Sys call
+							12'b0000000_00000: begin	// sys call
 								ecall <= msena;
 							end
-							12'b0000000_00001: begin	// Software breakpoint
+							12'b0000000_00001: begin	// software breakpoint
 								ebreak <= msena;
 							end
-							12'b0001000_00101: begin	// Wait for interrupt
-								wfi <= miena | msena | mtena;	// Use individual interrupt enable bits, ignore global interrupt enable
+							12'b0001000_00101: begin	// wait for interrupt
+								wfi <= miena | msena | mtena;	// use individual interrupt enable bits, ignore global interrupt enable
 							end
-							12'b0011000_00010: begin	// Return from interrupt
+							12'b0011000_00010: begin	// return from interrupt
 								mret <= 1'b1;
 							end
 							default: begin
@@ -535,241 +535,241 @@ always @(posedge axi4if.ACLK) begin
 							end
 						endcase
 					end
-					4'b1_010, // CSRRS
-					4'b1_110, // CSRRSI
-					4'b1_011, // CSSRRC
-					4'b1_111: begin // CSRRCI
-						csrval <= CSRReg[csrindex];
+					4'b1_010, // csrrs
+					4'b1_110, // csrrsi
+					4'b1_011, // cssrrc
+					4'b1_111: begin // csrrci
+						csrval <= csrreg[csrindex];
 					end
 					default: begin
 						csrval <= 32'd0;
 					end
 				endcase
-				cpustate <= CPUWBACK;
+				cpustate <= cpuwback;
 			end
 		end
 
-		CPULOADWAIT: begin
-			if (axi4if.ARREADY) begin
-				axi4if.ARVALID <= 1'b0; // Address handshake complete
+		cpuloadwait: begin
+			if (axi4if.arready) begin
+				axi4if.arvalid <= 1'b0; // address handshake complete
 			end
 
-			if (axi4if.RVALID) begin
-				axi4if.RREADY <= 1'b0; // Data read complete
+			if (axi4if.rvalid) begin
+				axi4if.rready <= 1'b0; // data read complete
 
 				case (func3)
-					3'b000: begin // BYTE with sign extension
+					3'b000: begin // byte with sign extension
 						case (loadstoreaddress[1:0])
-							2'b11: begin rdin <= {{24{axi4if.RDATA[31]}}, axi4if.RDATA[31:24]}; end
-							2'b10: begin rdin <= {{24{axi4if.RDATA[23]}}, axi4if.RDATA[23:16]}; end
-							2'b01: begin rdin <= {{24{axi4if.RDATA[15]}}, axi4if.RDATA[15:8]}; end
-							2'b00: begin rdin <= {{24{axi4if.RDATA[7]}},  axi4if.RDATA[7:0]}; end
+							2'b11: begin rdin <= {{24{axi4if.rdata[31]}}, axi4if.rdata[31:24]}; end
+							2'b10: begin rdin <= {{24{axi4if.rdata[23]}}, axi4if.rdata[23:16]}; end
+							2'b01: begin rdin <= {{24{axi4if.rdata[15]}}, axi4if.rdata[15:8]}; end
+							2'b00: begin rdin <= {{24{axi4if.rdata[7]}},  axi4if.rdata[7:0]}; end
 						endcase
 					end
-					3'b001: begin // WORD with sign extension
+					3'b001: begin // word with sign extension
 						case (loadstoreaddress[1])
-							1'b1: begin rdin <= {{16{axi4if.RDATA[31]}}, axi4if.RDATA[31:16]}; end
-							1'b0: begin rdin <= {{16{axi4if.RDATA[15]}}, axi4if.RDATA[15:0]}; end
+							1'b1: begin rdin <= {{16{axi4if.rdata[31]}}, axi4if.rdata[31:16]}; end
+							1'b0: begin rdin <= {{16{axi4if.rdata[15]}}, axi4if.rdata[15:0]}; end
 						endcase
 					end
-					3'b010: begin // DWORD
-						if (instrOneHot[`O_H_FLOAT_LDW]) begin
+					3'b010: begin // dword
+						if (instronehot[`o_h_float_ldw]) begin
 							frwe <= 1'b1;
-							frdin <= axi4if.RDATA[31:0];
+							frdin <= axi4if.rdata[31:0];
 						end else begin
-							rdin <= axi4if.RDATA[31:0];
+							rdin <= axi4if.rdata[31:0];
 						end
 					end
-					3'b100: begin // BYTE with zero extension
+					3'b100: begin // byte with zero extension
 						case (loadstoreaddress[1:0])
-							2'b11: begin rdin <= {24'd0, axi4if.RDATA[31:24]}; end
-							2'b10: begin rdin <= {24'd0, axi4if.RDATA[23:16]}; end
-							2'b01: begin rdin <= {24'd0, axi4if.RDATA[15:8]}; end
-							2'b00: begin rdin <= {24'd0, axi4if.RDATA[7:0]}; end
+							2'b11: begin rdin <= {24'd0, axi4if.rdata[31:24]}; end
+							2'b10: begin rdin <= {24'd0, axi4if.rdata[23:16]}; end
+							2'b01: begin rdin <= {24'd0, axi4if.rdata[15:8]}; end
+							2'b00: begin rdin <= {24'd0, axi4if.rdata[7:0]}; end
 						endcase
 					end
-					/*3'b101*/ default: begin // WORD with zero extension
+					/*3'b101*/ default: begin // word with zero extension
 						case (loadstoreaddress[1])
-							1'b1: begin rdin <= {16'd0, axi4if.RDATA[31:16]}; end
-							1'b0: begin rdin <= {16'd0, axi4if.RDATA[15:0]}; end
+							1'b1: begin rdin <= {16'd0, axi4if.rdata[31:16]}; end
+							1'b0: begin rdin <= {16'd0, axi4if.rdata[15:0]}; end
 						endcase
 					end
 				endcase
 
-				cpustate <= CPUWBACK;
+				cpustate <= cpuwback;
 			end else begin
-				// No data yet
-				cpustate <= CPULOADWAIT;
+				// no data yet
+				cpustate <= cpuloadwait;
 			end
 		end
 
-		CPUSTOREWAIT: begin // Might be able to get rid of this stage as we don't really need to wait until we have to read
-			if (axi4if.AWREADY) begin
-				axi4if.AWVALID <= 1'b0; // Address handshake complete
+		cpustorewait: begin // might be able to get rid of this stage as we don't really need to wait until we have to read
+			if (axi4if.awready) begin
+				axi4if.awvalid <= 1'b0; // address handshake complete
 			end
 
-			if (axi4if.WREADY) begin
-				axi4if.WVALID <= 1'b0;
-				axi4if.WSTRB <= 4'h0;
+			if (axi4if.wready) begin
+				axi4if.wvalid <= 1'b0;
+				axi4if.wstrb <= 4'h0;
 			end
 
-			if (axi4if.BVALID) begin
-				axi4if.BREADY <= 1'b0; // Data write complete
-				cpustate <= CPUWBACK;
+			if (axi4if.bvalid) begin
+				axi4if.bready <= 1'b0; // data write complete
+				cpustate <= cpuwback;
 			end else begin
-				// Didn't store yet
-				cpustate <= CPUSTOREWAIT;
+				// didn't store yet
+				cpustate <= cpustorewait;
 			end
 		end
 		
-		CPUIMATHWAIT: begin
+		cpuimathwait: begin
 			if (imathbusy) begin
-				cpustate <= CPUIMATHWAIT;
+				cpustate <= cpuimathwait;
 			end else begin
 				case (aluop)
-					`ALU_MUL: begin
+					`alu_mul: begin
 						mout <= product;
 					end
-					`ALU_DIV: begin
-						mout <= func3==`F3_DIV ? quotient : quotientu;
+					`alu_div: begin
+						mout <= func3==`f3_div ? quotient : quotientu;
 					end
-					`ALU_REM: begin
-						mout <= func3==`F3_REM ? remainder : remainderu;
+					`alu_rem: begin
+						mout <= func3==`f3_rem ? remainder : remainderu;
 					end
 					default: begin
 						mout <= 32'd0;
 					end
 				endcase
 				mwrite <= 1'b1;
-				cpustate <= CPUWBACK;
+				cpustate <= cpuwback;
 			end
 		end
 
-		CPUFMSTALL: begin
-			if (FPUResultValid) begin
+		cpufmstall: begin
+			if (fpuresultvalid) begin
 				frwe <= 1'b1;
-				frdin <= FPUResult;
-				cpustate <= CPUWBACK;
+				frdin <= fpuresult;
+				cpustate <= cpuwback;
 			end else begin
-				cpustate <= CPUFMSTALL; // Stall further for fused float
+				cpustate <= cpufmstall; // stall further for fused float
 			end
 		end
 		
-		CPUFPUOP: begin
+		cpufpuop: begin
 			case (func7)
-				`F7_FSGNJ: begin
+				`f7_fsgnj: begin
 					frwe <= 1'b1;
 					case(func3)
-						3'b000: begin // FSGNJ
+						3'b000: begin // fsgnj
 							frdin <= {frval2[31], frval1[30:0]}; 
 						end
-						3'b001: begin  // FSGNJN
+						3'b001: begin  // fsgnjn
 							frdin <= {~frval2[31], frval1[30:0]};
 						end
-						3'b010: begin  // FSGNJX
+						3'b010: begin  // fsgnjx
 							frdin <= {frval1[31]^frval2[31], frval1[30:0]};
 						end
 					endcase
-					cpustate <= CPUWBACK;
+					cpustate <= cpuwback;
 				end
-				`F7_FMVXW: begin
+				`f7_fmvxw: begin
 					rwren <= 1'b1;
-					if (func3 == 3'b000) // FMVXW
+					if (func3 == 3'b000) // fmvxw
 						rdin <= frval1;
-					else // FCLASS
-						rdin <= 32'd0; // TODO: classify the float
-					cpustate <= CPUWBACK;
+					else // fclass
+						rdin <= 32'd0; // todo: classify the float
+					cpustate <= cpuwback;
 				end
-				`F7_FMVWX: begin
+				`f7_fmvwx: begin
 					frwe <= 1'b1;
 					frdin <= rval1;
-					cpustate <= CPUWBACK;
+					cpustate <= cpuwback;
 				end
-				`F7_FADD: begin
+				`f7_fadd: begin
 					faddstrobe <= 1'b1;
-					cpustate <= CPUFSTALL;
+					cpustate <= cpufstall;
 				end
-				`F7_FSUB: begin
+				`f7_fsub: begin
 					fsubstrobe <= 1'b1;
-					cpustate <= CPUFSTALL;
+					cpustate <= cpufstall;
 				end	
-				`F7_FMUL: begin
+				`f7_fmul: begin
 					fmulstrobe <= 1'b1;
-					cpustate <= CPUFSTALL;
+					cpustate <= cpufstall;
 				end	
-				`F7_FDIV: begin
+				`f7_fdiv: begin
 					fdivstrobe <= 1'b1;
-					cpustate <= CPUFSTALL;
+					cpustate <= cpufstall;
 				end
-				`F7_FCVTSW: begin	
-					fi2fstrobe <= (rs2==5'b00000) ? 1'b1:1'b0; // Signed
-					fui2fstrobe <= (rs2==5'b00001) ? 1'b1:1'b0; // Unsigned
-					cpustate <= CPUFSTALL;
+				`f7_fcvtsw: begin	
+					fi2fstrobe <= (rs2==5'b00000) ? 1'b1:1'b0; // signed
+					fui2fstrobe <= (rs2==5'b00001) ? 1'b1:1'b0; // unsigned
+					cpustate <= cpufstall;
 				end
-				`F7_FCVTWS: begin
-					ff2istrobe <= (rs2==5'b00000) ? 1'b1:1'b0; // Signed
-					ff2uistrobe <= (rs2==5'b00001) ? 1'b1:1'b0; // Unsigned
-					cpustate <= CPUFSTALL;
+				`f7_fcvtws: begin
+					ff2istrobe <= (rs2==5'b00000) ? 1'b1:1'b0; // signed
+					ff2uistrobe <= (rs2==5'b00001) ? 1'b1:1'b0; // unsigned
+					cpustate <= cpufstall;
 				end
-				`F7_FSQRT: begin
+				`f7_fsqrt: begin
 					fsqrtstrobe <= 1'b1;
-					cpustate <= CPUFSTALL;
+					cpustate <= cpufstall;
 				end
-				`F7_FEQ: begin
-					feqstrobe <= (func3==3'b010) ? 1'b1:1'b0; // FEQ
-					fltstrobe <= (func3==3'b001) ? 1'b1:1'b0; // FLT
-					flestrobe <= (func3==3'b000) ? 1'b1:1'b0; // FLE
-					cpustate <= CPUFSTALL;
+				`f7_feq: begin
+					feqstrobe <= (func3==3'b010) ? 1'b1:1'b0; // feq
+					fltstrobe <= (func3==3'b001) ? 1'b1:1'b0; // flt
+					flestrobe <= (func3==3'b000) ? 1'b1:1'b0; // fle
+					cpustate <= cpufstall;
 				end
-				`F7_FMAX: begin
-					fltstrobe <= 1'b1; // FLT
-					cpustate <= CPUFSTALL;
+				`f7_fmax: begin
+					fltstrobe <= 1'b1; // flt
+					cpustate <= cpufstall;
 				end
 				default: begin
-					cpustate <= CPUWBACK;
+					cpustate <= cpuwback;
 				end
 			endcase
 		end
 
-		CPUFSTALL: begin
-			if (FPUResultValid) begin
+		cpufstall: begin
+			if (fpuresultvalid) begin
 				case (func7)
-					`F7_FADD, `F7_FSUB, `F7_FMUL, `F7_FDIV, `F7_FSQRT,`F7_FCVTSW: begin
+					`f7_fadd, `f7_fsub, `f7_fmul, `f7_fdiv, `f7_fsqrt,`f7_fcvtsw: begin
 						frwe <= 1'b1;
-						frdin <= FPUResult;
+						frdin <= fpuresult;
 					end
-					`F7_FCVTWS: begin
+					`f7_fcvtws: begin
 						rwren <= 1'b1;
-						rdin <= FPUResult;
+						rdin <= fpuresult;
 					end
-					`F7_FEQ: begin
+					`f7_feq: begin
 						rwren <= 1'b1;
-						rdin <= {31'd0, FPUResult[0]};
+						rdin <= {31'd0, fpuresult[0]};
 					end
-					`F7_FMIN: begin
+					`f7_fmin: begin
 						frwe <= 1'b1;
-						if (func3==3'b000) // FMIN
-							frdin <= FPUResult[0] ? frval1 : frval2;
-						else // FMAX
-							frdin <= FPUResult[0] ? frval2 : frval1;
+						if (func3==3'b000) // fmin
+							frdin <= fpuresult[0] ? frval1 : frval2;
+						else // fmax
+							frdin <= fpuresult[0] ? frval2 : frval1;
 					end
 				endcase
-				cpustate <= CPUWBACK;
+				cpustate <= cpuwback;
 			end else begin
-				cpustate <= CPUFSTALL; // Stall further for float op
+				cpustate <= cpufstall; // stall further for float op
 			end
 		end
 
-		default: begin // CPUWBACK
+		default: begin // cpuwback
 			case (1'b1)
-				instrOneHot[`O_H_LUI]:		rdin <= immed;
-				instrOneHot[`O_H_JAL],
-				instrOneHot[`O_H_JALR],
-				instrOneHot[`O_H_BRANCH]:	rdin <= adjacentPC;
-				instrOneHot[`O_H_OP],
-				instrOneHot[`O_H_OP_IMM],
-				instrOneHot[`O_H_AUIPC]:	rdin <= mwrite ? mout : aluout;
-				instrOneHot[`O_H_SYSTEM]: begin
+				instronehot[`o_h_lui]:		rdin <= immed;
+				instronehot[`o_h_jal],
+				instronehot[`o_h_jalr],
+				instronehot[`o_h_branch]:	rdin <= adjacentpc;
+				instronehot[`o_h_op],
+				instronehot[`o_h_op_imm],
+				instronehot[`o_h_auipc]:	rdin <= mwrite ? mout : aluout;
+				instronehot[`o_h_system]: begin
 					rdin <= csrval;
 					csrin <= csrval;
 					csrwe <= 1'b1;
@@ -777,22 +777,22 @@ always @(posedge axi4if.ACLK) begin
 						/*3'b000*/ default: begin
 							csrwe <= 1'b0;
 						end
-						3'b001: begin // CSRRW
+						3'b001: begin // csrrw
 							csrin <= rval1;
 						end
-						3'b101: begin // CSRRWI
+						3'b101: begin // csrrwi
 							csrin <= immed;
 						end
-						3'b010: begin // CSRRS
+						3'b010: begin // csrrs
 							csrin <= csrval | rval1;
 						end
-						3'b110: begin // CSRRSI
+						3'b110: begin // csrrsi
 							csrin <= csrval | immed;
 						end
-						3'b011: begin // CSSRRC
+						3'b011: begin // cssrrc
 							csrin <= csrval & (~rval1);
 						end
-						3'b111: begin // CSRRCI
+						3'b111: begin // csrrci
 							csrin <= csrval & (~immed);
 						end
 					endcase
@@ -802,34 +802,34 @@ always @(posedge axi4if.ACLK) begin
 			rwren <= isrecordingform;
 			csrindex_l <= csrindex;
 
-			if (mret) begin // MRET returns us to mepc
-				PC <= CSRReg[`CSR_MEPC];
-				// Clear handled bit with correct priority
+			if (mret) begin // mret returns us to mepc
+				pc <= csrreg[`csr_mepc];
+				// clear handled bit with correct priority
 				if (mip[2])
-					CSRReg[`CSR_MIP][11] <= 1'b0;
+					csrreg[`csr_mip][11] <= 1'b0;
 				else if(mip[1])
-					CSRReg[`CSR_MIP][3] <= 1'b0;
+					csrreg[`csr_mip][3] <= 1'b0;
 				else if(mip[0])
-					CSRReg[`CSR_MIP][7] <= 1'b0;
+					csrreg[`csr_mip][7] <= 1'b0;
 			end else /*if (ecall) begin
-				// NOOP here
+				// noop here
 			end else*/ if (ebreak) begin
-				// Keep PC on same address, we'll be repeating this instuction
+				// keep pc on same address, we'll be repeating this instuction
 				// until software overwrites it with something else
-				//PC <= PC;
+				//pc <= pc;
 			end else begin
 				case (1'b1)
-					instrOneHot[`O_H_JAL],
-					instrOneHot[`O_H_JALR]:		PC <= aluout;
-					instrOneHot[`O_H_BRANCH]:	PC <= branchr ? aluout : adjacentPC;
-					default:					PC <= adjacentPC;
+					instronehot[`o_h_jal],
+					instronehot[`o_h_jalr]:		pc <= aluout;
+					instronehot[`o_h_branch]:	pc <= branchr ? aluout : adjacentpc;
+					default:					pc <= adjacentpc;
 				endcase
 			end
 
 			if (wfi)
-				cpustate <= CPUWFI;
+				cpustate <= cpuwfi;
 			else
-				cpustate <= CPURETIRE;
+				cpustate <= cpuretire;
 		end
 	endcase
 end

@@ -1,24 +1,24 @@
 `timescale 1ns / 1ps
 
 module topmodule(
-	// FPGA external clock
+	// fpga external clock
 	input wire sys_clock,
-	// Device wires
+	// device wires
 	output wire uart_rxd_out,
 	input  wire uart_txd_in,
-	// SPI (SDCard)
+	// spi (sdcard)
 	output wire spi_cs_n,
 	output wire spi_mosi,
 	input wire spi_miso,
 	output wire spi_sck,
 	input wire spi_cd,
-	output wire sd_poweron_n, // Always grounded to keep SDCard powered
-	// HDMI
+	output wire sd_poweron_n, // always grounded to keep sdcard powered
+	// hdmi
 	/*output wire [2:0] hdmi_tx_p,
 	output wire [2:0] hdmi_tx_n,
 	output wire hdmi_tx_clk_p,
 	output wire hdmi_tx_clk_n,*/
-    // DDR3
+    // ddr3
     output wire ddr3_reset_n,
     output wire [0:0] ddr3_cke,
     output wire [0:0] ddr3_ck_p, 
@@ -33,21 +33,21 @@ module topmodule(
     inout wire [1:0] ddr3_dqs_p,
     inout wire [1:0] ddr3_dqs_n,
     inout wire [15:0] ddr3_dq,
-    // HID
+    // hid
     input wire ps2_clk,
     input wire ps2_data );
 
 // ----------------------------------------------------------------------------
-// Device wire interface
+// device wire interface
 // ----------------------------------------------------------------------------
 
-// Keep SDCard powered on
-// TODO: Tie to axi4-lite control
+// keep sdcard powered on
+// todo: tie to axi4-lite control
 assign sd_poweron_n = 1'b0;
 
 wire ui_clk;
 
-FPGADeviceWires wires(
+fpgadevicewires wires(
 	.uart_txd_in(uart_txd_in),
 	.uart_rxd_out(uart_rxd_out),
 	.spi_cs_n(spi_cs_n),
@@ -55,7 +55,7 @@ FPGADeviceWires wires(
 	.spi_miso(spi_miso),
 	.spi_sck(spi_sck),
 	.spi_cd(spi_cd),
-    // DDR3
+    // ddr3
     .ddr3_reset_n(ddr3_reset_n),
     .ddr3_cke(ddr3_cke),
     .ddr3_ck_p(ddr3_ck_p), 
@@ -70,18 +70,18 @@ FPGADeviceWires wires(
     .ddr3_dqs_p(ddr3_dqs_p),
     .ddr3_dqs_n(ddr3_dqs_n),
     .ddr3_dq(ddr3_dq),
-    // HID
+    // hid
     .ps2_clk(ps2_clk),
     .ps2_data(ps2_data) );
 
-/*GPUDataOutput gpudata(
-	.TMDSp(hdmi_tx_p),
-	.TMDSn(hdmi_tx_n),
-	.TMDSCLKp(hdmi_tx_clk_p ),
-	.TMDSCLKn(hdmi_tx_clk_n) );*/
+/*gpudataoutput gpudata(
+	.tmdsp(hdmi_tx_p),
+	.tmdsn(hdmi_tx_n),
+	.tmdsclkp(hdmi_tx_clk_p ),
+	.tmdsclkn(hdmi_tx_clk_n) );*/
 
 // ----------------------------------------------------------------------------
-// Clock and reset generator
+// clock and reset generator
 // ----------------------------------------------------------------------------
 
 wire wallclock, cpuclock, uartbaseclock, spibaseclock;
@@ -89,7 +89,7 @@ wire clk_sys_i, clk_ref_i;
 wire gpubaseclock, videoclock, clk50mhz;
 wire devicereset, calib_done;
 
-clockandresetgen ClockAndResetGenerator(
+clockandresetgen clockandresetgenerator(
 	.sys_clock_i(sys_clock),
 	.wallclock(wallclock),
 	.cpuclock(ui_clock/*cpuclock*/),
@@ -102,9 +102,9 @@ clockandresetgen ClockAndResetGenerator(
 	.clk_ref_i(clk_ref_i),
 	.devicereset(devicereset) );
 
-FPGADeviceClocks clocks(
+fpgadeviceclocks clocks(
 	.calib_done(calib_done),
-	.cpuclock(cpuclock), // Bus/CPU clock taken over by DDR3 generated clock
+	.cpuclock(cpuclock), // bus/cpu clock taken over by ddr3 generated clock
 	.wallclock(wallclock),
 	.uartbaseclock(uartbaseclock),
 	.spibaseclock(spibaseclock),
@@ -116,22 +116,22 @@ FPGADeviceClocks clocks(
 	.devicereset(devicereset) );
 
 // ----------------------------------------------------------------------------
-// AXI4 chain
+// axi4 chain
 // ----------------------------------------------------------------------------
 
 wire [3:0] irq;
 wire ifetch;
 
-axi4 axi4busA(
-	.ACLK(ui_clk),
-	.ARESETn(~devicereset) );
+axi4 axi4busa(
+	.aclk(ui_clk),
+	.aresetn(~devicereset) );
 
-/*axi4 axi4busB(
-	.ACLK(ui_clk),
-	.ARESETn(~devicereset) );*/
+/*axi4 axi4busb(
+	.aclk(ui_clk),
+	.aresetn(~devicereset) );*/
 
-axi4chain AXIChain(
-	.axi4if(axi4busA),
+axi4chain axichain(
+	.axi4if(axi4busa),
 	.clocks(clocks),
 	.wires(wires),
 	//.gpudata(gpudata),
@@ -141,21 +141,21 @@ axi4chain AXIChain(
 	.ui_clk(ui_clk) );
 
 // ----------------------------------------------------------------------------
-// Master device (CPU)
+// master device (cpu)
 // ----------------------------------------------------------------------------
 
-// Reset vector in B-RAM (ROM)
-axi4cpu #(.RESETVECTOR(32'h80000000)) HART0(
-	.axi4if(axi4busA),
+// reset vector in b-ram (rom)
+axi4cpu #(.resetvector(32'h80000000)) hart0(
+	.axi4if(axi4busa),
 	.clocks(clocks),
 	.wires(wires),
 	.ifetch(ifetch),
 	.irq(irq),
 	.calib_done(calib_done) );
 
-// Reset vector: S-RAM
-/*axi4cpu #(.RESETVECTOR(32'h80010000)) HART1(
-	.axi4if(axi4busB),
+// reset vector: s-ram
+/*axi4cpu #(.resetvector(32'h80010000)) hart1(
+	.axi4if(axi4busb),
 	.clocks(clocks),
 	.wires(wires),
 	.ifetch(ifetch),

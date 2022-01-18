@@ -1,4 +1,4 @@
-interface FPGADeviceWires (
+interface fpgadevicewires (
 		output uart_rxd_out,
 		input uart_txd_in,
 		output spi_cs_n,
@@ -6,7 +6,7 @@ interface FPGADeviceWires (
 		input spi_miso,
 		output spi_sck,
 		input spi_cd,
-		// DDR3
+		// ddr3
 		output ddr3_reset_n,
 		output [0:0] ddr3_cke,
 		output [0:0] ddr3_ck_p, 
@@ -21,11 +21,11 @@ interface FPGADeviceWires (
 		inout [1:0] ddr3_dqs_p,
 		inout [1:0] ddr3_dqs_n,
 		inout [15:0] ddr3_dq,
-		// HID
+		// hid
 		input ps2_clk,
 		input ps2_data );
 
-	modport DEFAULT (
+	modport def (
 		output uart_rxd_out,
 		input uart_txd_in,
 		output spi_cs_n,
@@ -47,14 +47,14 @@ interface FPGADeviceWires (
 		inout ddr3_dqs_p,
 		inout ddr3_dqs_n,
 		inout ddr3_dq,
-		// HID
+		// hid
 		input ps2_clk,
 		input ps2_data );
 
 endinterface
 
 
-interface FPGADeviceClocks (
+interface fpgadeviceclocks (
 		input calib_done,
 		input cpuclock,
 		input wallclock,
@@ -67,7 +67,7 @@ interface FPGADeviceClocks (
 		input clk_ref_i,
 		input devicereset );
 
-	modport DEFAULT (
+	modport def (
 		input calib_done,
 		input cpuclock,
 		input wallclock,
@@ -82,17 +82,17 @@ interface FPGADeviceClocks (
 
 endinterface
 
-interface GPUDataOutput(
-	// HDMI
-	output [2:0] TMDSp,
-	output [2:0] TMDSn,
-	output TMDSCLKp,
-	output TMDSCLKn );
+interface gpudataoutput(
+	// hdmi
+	output [2:0] tmdsp,
+	output [2:0] tmdsn,
+	output tmdsclkp,
+	output tmdsclkn );
 
-	modport DEFAULT (
-		output TMDSp,
-		output TMDSn,
-		output TMDSCLKp,
-		output TMDSCLKn );
+	modport def (
+		output tmdsp,
+		output tmdsn,
+		output tmdsclkp,
+		output tmdsclkn );
 
 endinterface

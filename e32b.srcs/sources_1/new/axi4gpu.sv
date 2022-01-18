@@ -1,10 +1,10 @@
 `timescale 1ns / 1ps
 
 module axi4gpu(
-	axi4.SLAVE axi4if,
-	FPGADeviceWires.DEFAULT wires,
-	FPGADeviceClocks.DEFAULT clocks,
-	GPUDataOutput.DEFAULT gpudata );
+	axi4.slave axi4if,
+	fpgadevicewires.default wires,
+	fpgadeviceclocks.default clocks,
+	gpudataoutput.default gpudata );
 
 logic [1:0] waddrstate = 2'b00;
 logic [1:0] writestate = 2'b00;
@@ -14,83 +14,83 @@ logic [31:0] writeaddress = 32'd0;
 logic [7:0] din = 8'h00;
 logic [3:0] we = 4'h0;
 logic re = 1'b0;
-wire [31:0] dout = 32'hFFFFFFFF;
+wire [31:0] dout = 32'hffffffff;
 
-always @(posedge axi4if.ACLK) begin
-	// Write address
+always @(posedge axi4if.aclk) begin
+	// write address
 	case (waddrstate)
 		2'b00: begin
-			if (axi4if.AWVALID) begin
-				writeaddress <= axi4if.AWADDR;
-				axi4if.AWREADY <= 1'b1;
+			if (axi4if.awvalid) begin
+				writeaddress <= axi4if.awaddr;
+				axi4if.awready <= 1'b1;
 				waddrstate <= 2'b01;
 			end
 		end
 		default/*2'b01*/: begin
-			axi4if.AWREADY <= 1'b0;
+			axi4if.awready <= 1'b0;
 			waddrstate <= 2'b00;
 		end
 	endcase
 end
 
-always @(posedge axi4if.ACLK) begin
-	// Write data
+always @(posedge axi4if.aclk) begin
+	// write data
 	we <= 4'h0;
 	case (writestate)
 		2'b00: begin
-			if (axi4if.WVALID /*& canActuallyWrite*/) begin
-				// Latch the data and byte select
-				din <= axi4if.WDATA[7:0];
-				we <= axi4if.WSTRB;
-				axi4if.WREADY <= 1'b1;
+			if (axi4if.wvalid /*& canactuallywrite*/) begin
+				// latch the data and byte select
+				din <= axi4if.wdata[7:0];
+				we <= axi4if.wstrb;
+				axi4if.wready <= 1'b1;
 				writestate <= 2'b01;
 			end
 		end
 		2'b01: begin
-			axi4if.WREADY <= 1'b0;
-			if(axi4if.BREADY) begin
-				axi4if.BVALID <= 1'b1;
-				axi4if.BRESP = 2'b00; // OKAY
+			axi4if.wready <= 1'b0;
+			if(axi4if.bready) begin
+				axi4if.bvalid <= 1'b1;
+				axi4if.bresp = 2'b00; // okay
 				writestate <= 2'b10;
 			end
 		end
 		default/*2'b10*/: begin
-			axi4if.BVALID <= 1'b0;
+			axi4if.bvalid <= 1'b0;
 			writestate <= 2'b00;
 		end
 	endcase
 end
 
-always @(posedge axi4if.ACLK) begin
-	if (~axi4if.ARESETn) begin
-		axi4if.ARREADY <= 1'b0;
-		axi4if.RVALID <= 1'b0;
-		axi4if.RRESP <= 2'b00;
+always @(posedge axi4if.aclk) begin
+	if (~axi4if.aresetn) begin
+		axi4if.arready <= 1'b0;
+		axi4if.rvalid <= 1'b0;
+		axi4if.rresp <= 2'b00;
 	end else begin
-		// Read address
+		// read address
 		re <= 1'b0;
 		case (raddrstate)
 			2'b00: begin
-				if (axi4if.ARVALID) begin
-					axi4if.ARREADY <= 1'b1;
+				if (axi4if.arvalid) begin
+					axi4if.arready <= 1'b1;
 					re <= 1'b1;
 					raddrstate <= 2'b01;
 				end
 			end
 			2'b01: begin
-				axi4if.ARREADY <= 1'b0;
-				// Master ready to accept
-				if (axi4if.RREADY /*& dataActuallyRead*/) begin
-					axi4if.RDATA <= dout;
-					axi4if.RVALID <= 1'b1;
-					//axi4if.RLAST <= 1'b1; // Last in burst
-					raddrstate <= 2'b10; // Delay one clock for master to pull down ARVALID
+				axi4if.arready <= 1'b0;
+				// master ready to accept
+				if (axi4if.rready /*& dataactuallyread*/) begin
+					axi4if.rdata <= dout;
+					axi4if.rvalid <= 1'b1;
+					//axi4if.rlast <= 1'b1; // last in burst
+					raddrstate <= 2'b10; // delay one clock for master to pull down arvalid
 				end
 			end
 			default/*2'b10*/: begin
-				// At this point master should have responded properly with ARVALID=0
-				axi4if.RVALID <= 1'b0;
-				//axi4if.RLAST <= 1'b0;
+				// at this point master should have responded properly with arvalid=0
+				axi4if.rvalid <= 1'b0;
+				//axi4if.rlast <= 1'b0;
 				raddrstate <= 2'b00;
 			end
 		endcase
