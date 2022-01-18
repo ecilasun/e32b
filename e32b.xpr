@@ -63,20 +63,20 @@
     <Option Name="IPStaticSourceDir" Val="$PIPUSERFILESDIR/ipstatic"/>
     <Option Name="EnableBDX" Val="FALSE"/>
     <Option Name="DSABoardId" Val="nexys_video"/>
-    <Option Name="WTXSimLaunchSim" Val="125"/>
+    <Option Name="WTXSimLaunchSim" Val="129"/>
     <Option Name="WTModelSimLaunchSim" Val="0"/>
     <Option Name="WTQuestaLaunchSim" Val="0"/>
     <Option Name="WTIesLaunchSim" Val="0"/>
     <Option Name="WTVcsLaunchSim" Val="0"/>
     <Option Name="WTRivieraLaunchSim" Val="0"/>
     <Option Name="WTActivehdlLaunchSim" Val="0"/>
-    <Option Name="WTXSimExportSim" Val="257"/>
-    <Option Name="WTModelSimExportSim" Val="257"/>
-    <Option Name="WTQuestaExportSim" Val="257"/>
-    <Option Name="WTIesExportSim" Val="257"/>
-    <Option Name="WTVcsExportSim" Val="257"/>
-    <Option Name="WTRivieraExportSim" Val="257"/>
-    <Option Name="WTActivehdlExportSim" Val="257"/>
+    <Option Name="WTXSimExportSim" Val="262"/>
+    <Option Name="WTModelSimExportSim" Val="262"/>
+    <Option Name="WTQuestaExportSim" Val="262"/>
+    <Option Name="WTIesExportSim" Val="262"/>
+    <Option Name="WTVcsExportSim" Val="262"/>
+    <Option Name="WTRivieraExportSim" Val="262"/>
+    <Option Name="WTActivehdlExportSim" Val="262"/>
     <Option Name="GenerateIPUpgradeLog" Val="TRUE"/>
     <Option Name="XSimRadix" Val="hex"/>
     <Option Name="XSimTimeUnit" Val="ns"/>
@@ -94,6 +94,13 @@
     <FileSet Name="sources_1" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1" RelGenDir="$PGENDIR/sources_1">
       <Filter Type="Srcs"/>
       <File Path="$PSRCDIR/sources_1/ip/mul_SS/mul_SS.xci">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/ip/fpufifo/fpufifo.xci">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -275,6 +282,13 @@
         </FileInfo>
       </File>
       <File Path="$PSRCDIR/sources_1/new/axi4ddr3.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/new/axi4fpu.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>

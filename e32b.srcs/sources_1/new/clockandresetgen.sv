@@ -3,7 +3,6 @@
 module clockandresetgen(
 	input wire sys_clock_i,
 	output wire wallclock,
-	output wire cpuclock,
 	output wire uartbaseclock,
 	output wire spibaseclock,
 	output wire gpubaseclock,
@@ -18,7 +17,6 @@ wire centralclocklocked, ddr3clklocked, videoclklocked;
 centralclockgen centralclock(
 	.clk_in1(sys_clock_i),
 	.wallclock(wallclock),
-	.cpuclock(cpuclock),
 	.uartbaseclock(uartbaseclock),
 	.spibaseclock(spibaseclock),
 	.clk50mhz(clk50mhz),

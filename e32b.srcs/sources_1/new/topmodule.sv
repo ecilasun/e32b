@@ -84,7 +84,7 @@ fpgadevicewires wires(
 // clock and reset generator
 // ----------------------------------------------------------------------------
 
-wire wallclock, cpuclock, uartbaseclock, spibaseclock;
+wire wallclock, uartbaseclock, spibaseclock;
 wire clk_sys_i, clk_ref_i;
 wire gpubaseclock, videoclock, clk50mhz;
 wire devicereset, calib_done;
@@ -92,7 +92,6 @@ wire devicereset, calib_done;
 clockandresetgen clockandresetgenerator(
 	.sys_clock_i(sys_clock),
 	.wallclock(wallclock),
-	.cpuclock(ui_clock/*cpuclock*/),
 	.uartbaseclock(uartbaseclock),
 	.spibaseclock(spibaseclock),
 	.gpubaseclock(gpubaseclock),
@@ -104,7 +103,7 @@ clockandresetgen clockandresetgenerator(
 
 fpgadeviceclocks clocks(
 	.calib_done(calib_done),
-	.cpuclock(cpuclock), // bus/cpu clock taken over by ddr3 generated clock
+	.cpuclock(ui_clk), // bus/cpu clock taken over by ddr3 generated clock
 	.wallclock(wallclock),
 	.uartbaseclock(uartbaseclock),
 	.spibaseclock(spibaseclock),

@@ -27,6 +27,7 @@ wire [1:0]   ddr3_dm;
 wire [1:0]   ddr3_dqs_p;
 wire [1:0]   ddr3_dqs_n;
 wire [15:0]  ddr3_dq;
+wire ps2_clk, ps2_data;
 
 ddr3_model ddr3simmod(
     .rst_n(ddr3_reset_n),
@@ -55,6 +56,9 @@ assign uart_txd_in = 1'b1;//uart_rxd_out;
 // Loopback the SPI data
 assign spi_miso = spi_mosi;
 
+// Hold high
+assign ps2_clk = 1'b1;
+
 topmodule topmoduleinstance(
 	.sys_clock(sys_clock),
 	.uart_rxd_out(uart_rxd_out),
@@ -77,7 +81,9 @@ topmodule topmoduleinstance(
     .ddr3_dm(ddr3_dm),
     .ddr3_dqs_p(ddr3_dqs_p),
     .ddr3_dqs_n(ddr3_dqs_n),
-    .ddr3_dq(ddr3_dq) );
+    .ddr3_dq(ddr3_dq),
+    .ps2_clk(ps2_clk),
+    .ps2_data(ps2_data) );
 
 always #10 sys_clock = ~sys_clock; // 100MHz
 
