@@ -394,25 +394,39 @@ always @(posedge axi4if.aclk) begin
 				// write these values to successive 4 byte aligned FPU addresses:
 				// frval1, frval2, frval3, rval1, strobe
 				// Once strobe is written, result can be read back from any 4 byte aligned FPU mapped address.
-				fpustrobe <= {
-					instronehot[`o_h_float_madd],
-					instronehot[`o_h_float_msub],
-					instronehot[`o_h_float_nmsub],
-					instronehot[`o_h_float_nmadd],
-					(func7 == `f7_fadd),
-					(func7 == `f7_fsub),
-					(func7 == `f7_fmul),
-					(func7 == `f7_fdiv),
-					(func7 == `f7_fcvtsw) && (rs2==5'b00000) ? 1'b1:1'b0,			// signed
-					(func7 == `f7_fcvtsw) && (rs2==5'b00001) ? 1'b1:1'b0,			// unsigned
-					(func7 == `f7_fcvtws) && (rs2==5'b00000) ? 1'b1:1'b0,			// signed
-					(func7 == `f7_fcvtws) && (rs2==5'b00001) ? 1'b1:1'b0,			// unsigned
-					(func7 == `f7_fsqrt),
-					(func7 == `f7_feq) && (func3==3'b010),							// eq
-					(func7 == `f7_flt) && (func3==3'b001) || (func7 == `f7_fmax),	// lt
-					(func7 == `f7_fle) && (func3==3'b000) };						// le
-				fpuwritecount <= 5;
 				cpustate <= cpufpuop;
+				case (1'b1)
+					instronehot[`o_h_float_madd]:	fpustrobe <=		16'b1000_0000_0000_0000;
+					instronehot[`o_h_float_msub]:	fpustrobe <=		16'b0100_0000_0000_0000;
+					instronehot[`o_h_float_nmsub]:	fpustrobe <=		16'b0010_0000_0000_0000;
+					instronehot[`o_h_float_nmadd]:	fpustrobe <=		16'b0001_0000_0000_0000;
+					instronehot[`o_h_float_op] : begin
+						case (func7)
+							`f7_fadd:	fpustrobe <=					16'b0000_1000_0000_0000;
+							`f7_fsub:	fpustrobe <=					16'b0000_0100_0000_0000;
+							`f7_fmul:	fpustrobe <=					16'b0000_0010_0000_0000;
+							`f7_fdiv:	fpustrobe <=					16'b0000_0001_0000_0000;
+							`f7_fcvtsw:	fpustrobe <= (rs2==5'b00000) ?	16'b0000_0000_1000_0000 :	// signed
+																		16'b0000_0000_0100_0000;	// unsigned
+							`f7_fcvtws:	fpustrobe <= (rs2==5'b00000) ?	16'b0000_0000_0010_0000 :	// signed
+																		16'b0000_0000_0001_0000;	// unsigned
+							`f7_fsqrt:	fpustrobe <=					16'b0000_0000_0000_1000;
+							`f7_feq: begin
+								case (func3)
+									3'b010: fpustrobe <=				16'b0000_0000_0000_0100; // feq
+									3'b001: fpustrobe <=				16'b0000_0000_0000_0010; // flt
+									3'b000: fpustrobe <=				16'b0000_0000_0000_0001; // fle
+								endcase
+								if (func7 == `f7_fmax) fpustrobe <=		16'b0000_0000_0000_0010; // min/max (same as flt)
+							end
+						endcase
+					end
+					default: begin
+						cpustate <= cpuwback;
+						fpustrobe <=									16'b0000_0000_0000_0000; // none
+					end
+				endcase
+				fpuwritecount <= 5;
 			end else if (instronehot[`o_h_load] | instronehot[`o_h_float_ldw]) begin
 				// set up address for load
 				axi4if.araddr <= loadstoreaddress;
