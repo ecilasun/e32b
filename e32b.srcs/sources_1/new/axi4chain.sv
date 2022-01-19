@@ -4,7 +4,7 @@ module axi4chain(
 	axi4.slave axi4if,
 	fpgadeviceclocks.def clocks,
 	fpgadevicewires.def wires,
-	//gpudataoutput.def gpudata,
+	gpudataoutput.def gpudata,
 	input wire ifetch,
 	output wire [3:0] irq,
 	output wire calib_done,
@@ -86,23 +86,18 @@ axi4fpu floatingpointunit(
 	.clocks(clocks),
 	.wires(wires) );
 
-// ------------------------------------------------------------------------------------
-// gpu
-// ------------------------------------------------------------------------------------
-
-// gpu @40000000-4fffffff
-// fb0: 40000000
-// fb1: 40020000
-// pal: 40040000
-// ctl: 40080000
-/*wire validwaddr_gpu = axi4if.awaddr>=32'h40000000 && axi4if.awaddr<32'h40a00000;
-wire validraddr_gpu = axi4if.araddr>=32'h40000000 && axi4if.araddr<32'h40a00000;
+// fb0: @40000000
+// fb1: @40020000
+// pal: @40040000
+// ctl: @40080000
+wire validwaddr_gpu = axi4if.awaddr>=32'h40000000 && axi4if.awaddr<32'h40090000;
+wire validraddr_gpu = axi4if.araddr>=32'h40000000 && axi4if.araddr<32'h40090000;
 axi4 gpuif(axi4if.aclk, axi4if.aresetn);
 axi4gpu gpu(
 	.axi4if(gpuif),
 	.clocks(clocks),
 	.wires(wires),
-	.gpudata(gpudata));*/
+	.gpudata(gpudata) );
 
 // ------------------------------------------------------------------------------------
 // interrupt setup
@@ -174,13 +169,13 @@ always_comb begin
 	ddr3if.bready = validwaddr_ddr3 ? axi4if.bready : 1'b0;
 	ddr3if.wlast = validwaddr_ddr3 ? axi4if.wlast : 1'b0;
 
-	/*gpuif.awaddr = validwaddr_gpu ? waddr : 32'dz;
+	gpuif.awaddr = validwaddr_gpu ? waddr : 32'dz;
 	gpuif.awvalid = validwaddr_gpu ? axi4if.awvalid : 1'b0;
 	gpuif.wdata = validwaddr_gpu ? axi4if.wdata : 32'dz;
 	gpuif.wstrb = validwaddr_gpu ? axi4if.wstrb : 4'h0;
 	gpuif.wvalid = validwaddr_gpu ? axi4if.wvalid : 1'b0;
 	gpuif.bready = validwaddr_gpu ? axi4if.bready : 1'b0;
-	gpuif.wlast = validwaddr_gpu ? axi4if.wlast : 1'b0;*/
+	gpuif.wlast = validwaddr_gpu ? axi4if.wlast : 1'b0;
 
 	if (validwaddr_uart) begin
 		axi4if.awready = uartif.awready;
@@ -212,16 +207,16 @@ always_comb begin
 		axi4if.bresp = bramif.bresp;
 		axi4if.bvalid = bramif.bvalid;
 		axi4if.wready = bramif.wready;
-	end else begin // if (validwaddr_ddr3) begin
+	end else if (validwaddr_ddr3) begin
 		axi4if.awready = ddr3if.awready;
 		axi4if.bresp = ddr3if.bresp;
 		axi4if.bvalid = ddr3if.bvalid;
 		axi4if.wready = ddr3if.wready;
-	/*end else if (validwaddr_gpu) begin
+	end else begin //if (validwaddr_gpu) begin
 		axi4if.awready = gpuif.awready;
 		axi4if.bresp = gpuif.bresp;
 		axi4if.bvalid = gpuif.bvalid;
-		axi4if.wready = gpuif.wready;*/
+		axi4if.wready = gpuif.wready;
 	end
 end
 
@@ -261,9 +256,9 @@ always_comb begin
 	ddr3if.arvalid = validraddr_ddr3 ? axi4if.arvalid : 1'b0;
 	ddr3if.rready = validraddr_ddr3 ? axi4if.rready : 1'b0;
 
-	/*gpuif.araddr = validraddr_gpu ? raddr : 32'dz;
+	gpuif.araddr = validraddr_gpu ? raddr : 32'dz;
 	gpuif.arvalid = validraddr_gpu ? axi4if.arvalid : 1'b0;
-	gpuif.rready = validraddr_gpu ? axi4if.rready : 1'b0;*/
+	gpuif.rready = validraddr_gpu ? axi4if.rready : 1'b0;
 
 	if (validraddr_uart) begin
 		axi4if.arready = uartif.arready;
@@ -301,18 +296,18 @@ always_comb begin
 		axi4if.rresp = bramif.rresp;
 		axi4if.rvalid = bramif.rvalid;
 		axi4if.rlast = bramif.rlast;
-	end else begin//if (validraddr_ddr3) begin
+	end else if (validraddr_ddr3) begin
 		axi4if.arready = ddr3if.arready;
 		axi4if.rdata = ddr3if.rdata;
 		axi4if.rresp = ddr3if.rresp;
 		axi4if.rvalid = ddr3if.rvalid;
 		axi4if.rlast = ddr3if.rlast;
-	/*end else if (validraddr_gpu) begin
+	end else begin //if (validraddr_gpu) begin
 		axi4if.arready = gpuif.arready;
 		axi4if.rdata = gpuif.rdata;
 		axi4if.rresp = gpuif.rresp;
 		axi4if.rvalid = gpuif.rvalid;
-		axi4if.rlast = gpuif.rlast;*/
+		axi4if.rlast = gpuif.rlast;
 	end
 end
 

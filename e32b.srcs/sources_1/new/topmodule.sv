@@ -14,10 +14,10 @@ module topmodule(
 	input wire spi_cd,
 	output wire sd_poweron_n, // always grounded to keep sdcard powered
 	// hdmi
-	/*output wire [2:0] hdmi_tx_p,
+	output wire [2:0] hdmi_tx_p,
 	output wire [2:0] hdmi_tx_n,
 	output wire hdmi_tx_clk_p,
-	output wire hdmi_tx_clk_n,*/
+	output wire hdmi_tx_clk_n,
     // ddr3
     output wire ddr3_reset_n,
     output wire [0:0] ddr3_cke,
@@ -74,11 +74,11 @@ fpgadevicewires wires(
     .ps2_clk(ps2_clk),
     .ps2_data(ps2_data) );
 
-/*gpudataoutput gpudata(
+gpudataoutput gpudata(
 	.tmdsp(hdmi_tx_p),
 	.tmdsn(hdmi_tx_n),
 	.tmdsclkp(hdmi_tx_clk_p ),
-	.tmdsclkn(hdmi_tx_clk_n) );*/
+	.tmdsclkn(hdmi_tx_clk_n) );
 
 // ----------------------------------------------------------------------------
 // clock and reset generator
@@ -86,7 +86,7 @@ fpgadevicewires wires(
 
 wire wallclock, uartbaseclock, spibaseclock;
 wire clk_sys_i, clk_ref_i;
-wire gpubaseclock, videoclock, clk50mhz;
+wire gpubaseclock, pixelclock, videoclock, clk50mhz;
 wire devicereset, calib_done;
 
 clockandresetgen clockandresetgenerator(
@@ -95,6 +95,7 @@ clockandresetgen clockandresetgenerator(
 	.uartbaseclock(uartbaseclock),
 	.spibaseclock(spibaseclock),
 	.gpubaseclock(gpubaseclock),
+	.pixelclock(pixelclock),
 	.videoclock(videoclock),
 	.clk50mhz(clk50mhz),
 	.clk_sys_i(clk_sys_i),
@@ -108,6 +109,7 @@ fpgadeviceclocks clocks(
 	.uartbaseclock(uartbaseclock),
 	.spibaseclock(spibaseclock),
 	.gpubaseclock(gpubaseclock),
+	.pixelclock(pixelclock),
 	.videoclock(videoclock),
 	.clk50mhz(clk50mhz),
 	.clk_sys_i(clk_sys_i),
@@ -133,7 +135,7 @@ axi4chain axichain(
 	.axi4if(axi4busa),
 	.clocks(clocks),
 	.wires(wires),
-	//.gpudata(gpudata),
+	.gpudata(gpudata),
 	.ifetch(ifetch),
 	.irq(irq),
 	.calib_done(calib_done),

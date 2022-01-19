@@ -6,6 +6,7 @@ module clockandresetgen(
 	output wire uartbaseclock,
 	output wire spibaseclock,
 	output wire gpubaseclock,
+	output wire pixelclock,
 	output wire videoclock,
 	output wire clk50mhz,
 	output wire clk_sys_i,
@@ -31,6 +32,7 @@ ddr3clk ddr3memoryclock(
 videoclocks graphicsclock(
 	.clk_in1(sys_clock_i),
 	.gpubaseclock(gpubaseclock),
+	.pixelclock(pixelclock),
 	.videoclock(videoclock),
 	.locked(videoclklocked) );
 
