@@ -11,7 +11,7 @@ logic fifowe = 1'b0, fifore = 1'b0;
 logic [4:0] fifodin = 5'd0;
 wire [4:0] fifodout;
 
-buttonfifo ps2inputfifo(
+buttonfifo buttoninputfifo(
 	.wr_clk(clocks.wallclock),
 	.full(fifofull),
 	.din(fifodin),
@@ -23,7 +23,10 @@ buttonfifo ps2inputfifo(
 	.rd_en(fifore),
 	.valid(fifovalid),
 
-	.rst(~axi4if.aresetn) );
+	.rst(~axi4if.aresetn),
+	
+	.wr_rst_busy(),
+	.rd_rst_busy() );
 
 // State tracking in wall clock domain
 logic [4:0] oldbuttons = 5'd0;
