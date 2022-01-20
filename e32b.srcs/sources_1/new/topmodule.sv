@@ -35,7 +35,9 @@ module topmodule(
     inout wire [15:0] ddr3_dq,
     // hid
     input wire ps2_clk,
-    input wire ps2_data );
+    input wire ps2_data,
+    // buttons
+    input wire [4:0] buttons );
 
 // ----------------------------------------------------------------------------
 // device wire interface
@@ -72,7 +74,9 @@ fpgadevicewires wires(
     .ddr3_dq(ddr3_dq),
     // hid
     .ps2_clk(ps2_clk),
-    .ps2_data(ps2_data) );
+    .ps2_data(ps2_data),
+    // buttons
+    .buttons(buttons) );
 
 gpudataoutput gpudata(
 	.tmdsp(hdmi_tx_p),

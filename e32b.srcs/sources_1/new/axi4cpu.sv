@@ -406,9 +406,9 @@ always @(posedge axi4if.aclk) begin
 							`f7_fsub:	fpustrobe <=					16'b0000_0100_0000_0000;
 							`f7_fmul:	fpustrobe <=					16'b0000_0010_0000_0000;
 							`f7_fdiv:	fpustrobe <=					16'b0000_0001_0000_0000;
-							`f7_fcvtsw:	fpustrobe <= (rs2==5'b00000) ?	16'b0000_0000_1000_0000 :	// signed
+							`f7_fcvtsw:	fpustrobe <= (rs2==5'b00000) ?	16'b0000_0000_1000_0000:	// signed
 																		16'b0000_0000_0100_0000;	// unsigned
-							`f7_fcvtws:	fpustrobe <= (rs2==5'b00000) ?	16'b0000_0000_0010_0000 :	// signed
+							`f7_fcvtws:	fpustrobe <= (rs2==5'b00000) ?	16'b0000_0000_0010_0000:	// signed
 																		16'b0000_0000_0001_0000;	// unsigned
 							`f7_fsqrt:	fpustrobe <=					16'b0000_0000_0000_1000;
 							`f7_feq: begin
@@ -417,8 +417,8 @@ always @(posedge axi4if.aclk) begin
 									3'b001: fpustrobe <=				16'b0000_0000_0000_0010; // flt
 									3'b000: fpustrobe <=				16'b0000_0000_0000_0001; // fle
 								endcase
-								if (func7 == `f7_fmax) fpustrobe <=		16'b0000_0000_0000_0010; // min/max (same as flt)
 							end
+							`f7_fmax: fpustrobe <=						16'b0000_0000_0000_0010; // min/max (same as flt)
 						endcase
 					end
 					default: begin
@@ -580,7 +580,7 @@ always @(posedge axi4if.aclk) begin
 				cpustate <= cpustorewait;
 			end
 		end
-		
+
 		cpuimathwait: begin
 			if (imathbusy) begin
 				cpustate <= cpuimathwait;
@@ -668,16 +668,15 @@ always @(posedge axi4if.aclk) begin
 							axi4if.awaddr <= 32'h20003010;
 							axi4if.wdata <= {16'd0, fpustrobe};
 						end
-						0: begin
+						default/*0*/: begin
 							// done, we're going to read state now
 						end
 					endcase
-					
 					fpuwritecount <= fpuwritecount - 1;
 				end
 			endcase
 		end
-		
+
 		cpufpuwritewait: begin
 			if (axi4if.awready) begin
 				axi4if.awvalid <= 1'b0;

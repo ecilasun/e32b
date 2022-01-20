@@ -69,13 +69,13 @@ axi4spi spimaster(
 	.wires(wires) );
 
 // ps2 keyboard @20002000
-wire validwaddr_ps2 = axi4if.awaddr>=32'h20002000 && axi4if.awaddr<32'h20003000;
+/*wire validwaddr_ps2 = axi4if.awaddr>=32'h20002000 && axi4if.awaddr<32'h20003000;
 wire validraddr_ps2 = axi4if.araddr>=32'h20002000 && axi4if.araddr<32'h20003000;
 axi4 ps2if(axi4if.aclk, axi4if.aresetn);
 axi4ps2keyboard ps2keyboard(
 	.axi4if(ps2if),
 	.clocks(clocks),
-	.wires(wires) );
+	.wires(wires) );*/
 
 // fpu @20003000
 wire validwaddr_fpu = axi4if.awaddr>=32'h20003000 && axi4if.awaddr<32'h20004000;
@@ -85,6 +85,17 @@ axi4fpu floatingpointunit(
 	.axi4if(fpuif),
 	.clocks(clocks),
 	.wires(wires) );
+
+// buttons @20004000
+wire validwaddr_button = axi4if.awaddr>=32'h20004000 && axi4if.awaddr<32'h20005000;
+wire validraddr_button = axi4if.araddr>=32'h20004000 && axi4if.araddr<32'h20005000;
+axi4 buttonif(axi4if.aclk, axi4if.aresetn);
+wire buttonfifoempty;
+axi4buttons devicebuttons(
+	.axi4if(buttonif),
+	.clocks(clocks),
+	.wires(wires),
+	.buttonfifoempty(buttonfifoempty) );
 
 // fb0: @40000000
 // fb1: @40020000
@@ -104,7 +115,7 @@ axi4gpu gpu(
 // ------------------------------------------------------------------------------------
 
 // todo: add wires.spi_cd != oldcd as an interrupt trigger here, preferably debounced
-assign irq = {3'b000, ~uartrcvempty};
+assign irq = {2'b00, ~buttonfifoempty, ~uartrcvempty};
 
 // ------------------------------------------------------------------------------------
 // write router
@@ -137,13 +148,13 @@ always_comb begin
 	spiif.bready = validwaddr_spi ? axi4if.bready : 1'b0;
 	spiif.wlast = validwaddr_spi ? axi4if.wlast : 1'b0;
 
-	ps2if.awaddr = validwaddr_ps2 ? waddr : 32'dz;
+	/*ps2if.awaddr = validwaddr_ps2 ? waddr : 32'dz;
 	ps2if.awvalid = validwaddr_ps2 ? axi4if.awvalid : 1'b0;
 	ps2if.wdata = validwaddr_ps2 ? axi4if.wdata : 32'dz;
 	ps2if.wstrb = validwaddr_ps2 ? axi4if.wstrb : 4'h0;
 	ps2if.wvalid = validwaddr_ps2 ? axi4if.wvalid : 1'b0;
 	ps2if.bready = validwaddr_ps2 ? axi4if.bready : 1'b0;
-	ps2if.wlast = validwaddr_ps2 ? axi4if.wlast : 1'b0;
+	ps2if.wlast = validwaddr_ps2 ? axi4if.wlast : 1'b0;*/
 
 	fpuif.awaddr = validwaddr_fpu ? waddr : 32'dz;
 	fpuif.awvalid = validwaddr_fpu ? axi4if.awvalid : 1'b0;
@@ -177,6 +188,14 @@ always_comb begin
 	gpuif.bready = validwaddr_gpu ? axi4if.bready : 1'b0;
 	gpuif.wlast = validwaddr_gpu ? axi4if.wlast : 1'b0;
 
+	buttonif.awaddr = validwaddr_button ? waddr : 32'dz;
+	buttonif.awvalid = validwaddr_button ? axi4if.awvalid : 1'b0;
+	buttonif.wdata = validwaddr_button ? axi4if.wdata : 32'dz;
+	buttonif.wstrb = validwaddr_button ? axi4if.wstrb : 4'h0;
+	buttonif.wvalid = validwaddr_button ? axi4if.wvalid : 1'b0;
+	buttonif.bready = validwaddr_button ? axi4if.bready : 1'b0;
+	buttonif.wlast = validwaddr_button ? axi4if.wlast : 1'b0;
+
 	if (validwaddr_uart) begin
 		axi4if.awready = uartif.awready;
 		axi4if.bresp = uartif.bresp;
@@ -192,11 +211,11 @@ always_comb begin
 		axi4if.bresp = spiif.bresp;
 		axi4if.bvalid = spiif.bvalid;
 		axi4if.wready = spiif.wready;
-	end else if (validwaddr_ps2) begin
+	/*end else if (validwaddr_ps2) begin
 		axi4if.awready = ps2if.awready;
 		axi4if.bresp = ps2if.bresp;
 		axi4if.bvalid = ps2if.bvalid;
-		axi4if.wready = ps2if.wready;
+		axi4if.wready = ps2if.wready;*/
 	end else if (validwaddr_fpu) begin
 		axi4if.awready = fpuif.awready;
 		axi4if.bresp = fpuif.bresp;
@@ -212,11 +231,16 @@ always_comb begin
 		axi4if.bresp = ddr3if.bresp;
 		axi4if.bvalid = ddr3if.bvalid;
 		axi4if.wready = ddr3if.wready;
-	end else begin //if (validwaddr_gpu) begin
+	end else if (validwaddr_gpu) begin
 		axi4if.awready = gpuif.awready;
 		axi4if.bresp = gpuif.bresp;
 		axi4if.bvalid = gpuif.bvalid;
 		axi4if.wready = gpuif.wready;
+	end else begin //if (validwaddr_button) begin
+		axi4if.awready = buttonif.awready;
+		axi4if.bresp = buttonif.bresp;
+		axi4if.bvalid = buttonif.bvalid;
+		axi4if.wready = buttonif.wready;
 	end
 end
 
@@ -240,9 +264,9 @@ always_comb begin
 	spiif.arvalid = validraddr_spi ? axi4if.arvalid : 1'b0;
 	spiif.rready = validraddr_spi ? axi4if.rready : 1'b0;
 
-	ps2if.araddr = validraddr_ps2 ? raddr : 32'dz;
+	/*ps2if.araddr = validraddr_ps2 ? raddr : 32'dz;
 	ps2if.arvalid = validraddr_ps2 ? axi4if.arvalid : 1'b0;
-	ps2if.rready = validraddr_ps2 ? axi4if.rready : 1'b0;
+	ps2if.rready = validraddr_ps2 ? axi4if.rready : 1'b0;*/
 
 	fpuif.araddr = validraddr_fpu ? raddr : 32'dz;
 	fpuif.arvalid = validraddr_fpu ? axi4if.arvalid : 1'b0;
@@ -259,6 +283,10 @@ always_comb begin
 	gpuif.araddr = validraddr_gpu ? raddr : 32'dz;
 	gpuif.arvalid = validraddr_gpu ? axi4if.arvalid : 1'b0;
 	gpuif.rready = validraddr_gpu ? axi4if.rready : 1'b0;
+
+	buttonif.araddr = validraddr_button ? raddr : 32'dz;
+	buttonif.arvalid = validraddr_button ? axi4if.arvalid : 1'b0;
+	buttonif.rready = validraddr_button ? axi4if.rready : 1'b0;
 
 	if (validraddr_uart) begin
 		axi4if.arready = uartif.arready;
@@ -278,12 +306,12 @@ always_comb begin
 		axi4if.rresp = spiif.rresp;
 		axi4if.rvalid = spiif.rvalid;
 		axi4if.rlast = spiif.rlast;
-	end else if (validraddr_ps2) begin
+	/*end else if (validraddr_ps2) begin
 		axi4if.arready = ps2if.arready;
 		axi4if.rdata = ps2if.rdata;
 		axi4if.rresp = ps2if.rresp;
 		axi4if.rvalid = ps2if.rvalid;
-		axi4if.rlast = ps2if.rlast;
+		axi4if.rlast = ps2if.rlast;*/
 	end else if (validraddr_fpu) begin
 		axi4if.arready = fpuif.arready;
 		axi4if.rdata = fpuif.rdata;
@@ -302,12 +330,18 @@ always_comb begin
 		axi4if.rresp = ddr3if.rresp;
 		axi4if.rvalid = ddr3if.rvalid;
 		axi4if.rlast = ddr3if.rlast;
-	end else begin //if (validraddr_gpu) begin
+	end else if (validraddr_gpu) begin
 		axi4if.arready = gpuif.arready;
 		axi4if.rdata = gpuif.rdata;
 		axi4if.rresp = gpuif.rresp;
 		axi4if.rvalid = gpuif.rvalid;
 		axi4if.rlast = gpuif.rlast;
+	end else begin //if (validraddr_button) begin
+		axi4if.arready = buttonif.arready;
+		axi4if.rdata = buttonif.rdata;
+		axi4if.rresp = buttonif.rresp;
+		axi4if.rvalid = buttonif.rvalid;
+		axi4if.rlast = buttonif.rlast;
 	end
 end
 
