@@ -58,15 +58,15 @@ wire [31:0] fpufifodout;
 wire fpufifofull, fpufifoempty, fpufifovalid;
 
 fpufifo fpuresultfifo (
-  .clk(axi4if.aclk),
-  .srst(~axi4if.aresetn),
-  .din(fpufifodin),
-  .wr_en(fpufifowe),
-  .rd_en(fpufifore),
-  .dout(fpufifodout),
-  .full(fpufifofull),
-  .empty(fpufifoempty),
-  .valid(fpufifovalid) );
+	.clk(axi4if.aclk),
+	.rst(~axi4if.aresetn),
+	.din(fpufifodin),
+	.wr_en(fpufifowe),
+	.rd_en(fpufifore),
+	.dout(fpufifodout),
+	.full(fpufifofull),
+	.empty(fpufifoempty),
+	.valid(fpufifovalid) );
 
 always @(posedge axi4if.aclk) begin
 	fpufifowe <= 1'b0;

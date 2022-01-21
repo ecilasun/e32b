@@ -23,10 +23,7 @@ buttonfifo buttoninputfifo(
 	.rd_en(fifore),
 	.valid(fifovalid),
 
-	.rst(~axi4if.aresetn),
-	
-	.wr_rst_busy(),
-	.rd_rst_busy() );
+	.rst(~axi4if.aresetn) );
 
 // State tracking in wall clock domain
 logic [4:0] oldbuttons = 5'd0;
