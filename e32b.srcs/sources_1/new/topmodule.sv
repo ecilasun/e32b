@@ -34,8 +34,8 @@ module topmodule(
     inout wire [1:0] ddr3_dqs_n,
     inout wire [15:0] ddr3_dq,
     // hid
-    input wire ps2_clk,
-    input wire ps2_data,
+    /*input wire ps2_clk,
+    input wire ps2_data,*/
     // buttons
     input wire [4:0] buttons );
 
@@ -73,8 +73,8 @@ fpgadevicewires wires(
     .ddr3_dqs_n(ddr3_dqs_n),
     .ddr3_dq(ddr3_dq),
     // hid
-    .ps2_clk(ps2_clk),
-    .ps2_data(ps2_data),
+    /*.ps2_clk(ps2_clk),
+    .ps2_data(ps2_data),*/
     // buttons
     .buttons(buttons) );
 

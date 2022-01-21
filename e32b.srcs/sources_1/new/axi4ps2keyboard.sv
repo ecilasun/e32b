@@ -9,8 +9,8 @@ wire flag;
 wire [15:0] keycode;
 ps2receiver uut (
 	.clk(clocks.clk50mhz),
-	.kclk(wires.ps2_clk),
-	.kdata(wires.ps2_data),
+	.ps2_clk(wires.ps2_clk),
+	.ps2_data(wires.ps2_data),
 	.keycode(keycode),
 	.oflag(flag) );
 

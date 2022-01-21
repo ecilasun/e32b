@@ -22,50 +22,30 @@
 
 module ps2receiver(
     input clk,
-    input kclk,
-    input kdata,
+    input ps2_clk,
+    input ps2_data,
     output reg [15:0] keycode = 16'd0,
     output reg oflag = 1'b0
     );
 
-wire kclkf, kdataf;
-reg [7:0] datacur = 0;
+reg [7:0] datashift = 0;
 reg [7:0] dataprev = 0;
 reg [3:0] cnt = 0;
-reg flag = 0;
-
-debouncer #(
-    .count_max(19),
-    .count_width(5)
-) db_clk(
-    .clk(clk),
-    .i(kclk),
-    .o(kclkf)
-);
-
-debouncer #(
-   .count_max(19),
-   .count_width(5)
-) db_data(
-    .clk(clk),
-    .i(kdata),
-    .o(kdataf)
-);
+reg rdy = 0;
     
-always@(negedge(kclkf))begin
+always@(negedge(ps2_clk))begin
     case(cnt)
 		0:;//start bit
-		1:datacur[0]<=kdataf;
-		2:datacur[1]<=kdataf;
-		3:datacur[2]<=kdataf;
-		4:datacur[3]<=kdataf;
-		5:datacur[4]<=kdataf;
-		6:datacur[5]<=kdataf;
-		7:datacur[6]<=kdataf;
-		8:datacur[7]<=kdataf;
-		9:flag<=1'b1;
-		10:flag<=1'b0;
-
+		1:datashift[0]<=ps2_data;
+		2:datashift[1]<=ps2_data;
+		3:datashift[2]<=ps2_data;
+		4:datashift[3]<=ps2_data;
+		5:datashift[4]<=ps2_data;
+		6:datashift[5]<=ps2_data;
+		7:datashift[6]<=ps2_data;
+		8:datashift[7]<=ps2_data;
+		9:rdy<=1'b1; // stop bit
+		10:rdy<=1'b0;
     endcase
 	if(cnt<=9)
 		cnt<=cnt+1;
@@ -75,13 +55,13 @@ end
 
 reg pflag;
 always@(posedge clk) begin
-    if (flag == 1'b1 && pflag == 1'b0) begin
-        keycode <= {dataprev, datacur};
+    if (rdy == 1'b1 && pflag == 1'b0) begin
+        keycode <= {dataprev, datashift};
         oflag <= 1'b1;
-        dataprev <= datacur;
+        dataprev <= datashift;
     end else
         oflag <= 'b0;
-    pflag <= flag;
+    pflag <= rdy;
 end
 
 endmodule

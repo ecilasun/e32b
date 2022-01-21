@@ -22,8 +22,8 @@ interface fpgadevicewires (
 		inout [1:0] ddr3_dqs_n,
 		inout [15:0] ddr3_dq,
 		// hid
-		input ps2_clk,
-		input ps2_data,
+		/*input ps2_clk,
+		input ps2_data,*/
 		// buttons
 		input [4:0] buttons);
 
@@ -50,8 +50,8 @@ interface fpgadevicewires (
 		inout ddr3_dqs_n,
 		inout ddr3_dq,
 		// hid
-		input ps2_clk,
-		input ps2_data,
+		/*input ps2_clk,
+		input ps2_data,*/
 		// buttons
 		input buttons );
 
