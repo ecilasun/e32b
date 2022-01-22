@@ -1,5 +1,5 @@
 // ------------------------------------------
-// integer uncompressed instructions (2'b11)
+// uncompressed instructions (2'b11)
 // ------------------------------------------
 
 `define opcode_op		    7'b0110011

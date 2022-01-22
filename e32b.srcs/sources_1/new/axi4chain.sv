@@ -69,22 +69,22 @@ axi4spi spimaster(
 	.wires(wires) );
 
 // ps2 keyboard @20002000
-/*wire validwaddr_ps2 = axi4if.awaddr>=32'h20002000 && axi4if.awaddr<32'h20003000;
+wire validwaddr_ps2 = axi4if.awaddr>=32'h20002000 && axi4if.awaddr<32'h20003000;
 wire validraddr_ps2 = axi4if.araddr>=32'h20002000 && axi4if.araddr<32'h20003000;
 axi4 ps2if(axi4if.aclk, axi4if.aresetn);
 axi4ps2keyboard ps2keyboard(
 	.axi4if(ps2if),
 	.clocks(clocks),
-	.wires(wires) );*/
+	.wires(wires) );
 
 // fpu @20003000
-wire validwaddr_fpu = axi4if.awaddr>=32'h20003000 && axi4if.awaddr<32'h20004000;
+/*wire validwaddr_fpu = axi4if.awaddr>=32'h20003000 && axi4if.awaddr<32'h20004000;
 wire validraddr_fpu = axi4if.araddr>=32'h20003000 && axi4if.araddr<32'h20004000;
 axi4 fpuif(axi4if.aclk, axi4if.aresetn);
 axi4fpu floatingpointunit(
 	.axi4if(fpuif),
 	.clocks(clocks),
-	.wires(wires) );
+	.wires(wires) );*/
 
 // buttons @20004000
 wire validwaddr_button = axi4if.awaddr>=32'h20004000 && axi4if.awaddr<32'h20005000;
@@ -148,21 +148,21 @@ always_comb begin
 	spiif.bready = validwaddr_spi ? axi4if.bready : 1'b0;
 	spiif.wlast = validwaddr_spi ? axi4if.wlast : 1'b0;
 
-	/*ps2if.awaddr = validwaddr_ps2 ? waddr : 32'dz;
+	ps2if.awaddr = validwaddr_ps2 ? waddr : 32'dz;
 	ps2if.awvalid = validwaddr_ps2 ? axi4if.awvalid : 1'b0;
 	ps2if.wdata = validwaddr_ps2 ? axi4if.wdata : 32'dz;
 	ps2if.wstrb = validwaddr_ps2 ? axi4if.wstrb : 4'h0;
 	ps2if.wvalid = validwaddr_ps2 ? axi4if.wvalid : 1'b0;
 	ps2if.bready = validwaddr_ps2 ? axi4if.bready : 1'b0;
-	ps2if.wlast = validwaddr_ps2 ? axi4if.wlast : 1'b0;*/
+	ps2if.wlast = validwaddr_ps2 ? axi4if.wlast : 1'b0;
 
-	fpuif.awaddr = validwaddr_fpu ? waddr : 32'dz;
+	/*fpuif.awaddr = validwaddr_fpu ? waddr : 32'dz;
 	fpuif.awvalid = validwaddr_fpu ? axi4if.awvalid : 1'b0;
 	fpuif.wdata = validwaddr_fpu ? axi4if.wdata : 32'dz;
 	fpuif.wstrb = validwaddr_fpu ? axi4if.wstrb : 4'h0;
 	fpuif.wvalid = validwaddr_fpu ? axi4if.wvalid : 1'b0;
 	fpuif.bready = validwaddr_fpu ? axi4if.bready : 1'b0;
-	fpuif.wlast = validwaddr_fpu ? axi4if.wlast : 1'b0;
+	fpuif.wlast = validwaddr_fpu ? axi4if.wlast : 1'b0;*/
 
 	bramif.awaddr = validwaddr_bram ? waddr : 32'dz;
 	bramif.awvalid = validwaddr_bram ? axi4if.awvalid : 1'b0;
@@ -211,16 +211,16 @@ always_comb begin
 		axi4if.bresp = spiif.bresp;
 		axi4if.bvalid = spiif.bvalid;
 		axi4if.wready = spiif.wready;
-	/*end else if (validwaddr_ps2) begin
+	end else if (validwaddr_ps2) begin
 		axi4if.awready = ps2if.awready;
 		axi4if.bresp = ps2if.bresp;
 		axi4if.bvalid = ps2if.bvalid;
-		axi4if.wready = ps2if.wready;*/
-	end else if (validwaddr_fpu) begin
+		axi4if.wready = ps2if.wready;
+	/*end else if (validwaddr_fpu) begin
 		axi4if.awready = fpuif.awready;
 		axi4if.bresp = fpuif.bresp;
 		axi4if.bvalid = fpuif.bvalid;
-		axi4if.wready = fpuif.wready;
+		axi4if.wready = fpuif.wready;*/
 	end else if (validwaddr_bram) begin
 		axi4if.awready = bramif.awready;
 		axi4if.bresp = bramif.bresp;
@@ -264,13 +264,13 @@ always_comb begin
 	spiif.arvalid = validraddr_spi ? axi4if.arvalid : 1'b0;
 	spiif.rready = validraddr_spi ? axi4if.rready : 1'b0;
 
-	/*ps2if.araddr = validraddr_ps2 ? raddr : 32'dz;
+	ps2if.araddr = validraddr_ps2 ? raddr : 32'dz;
 	ps2if.arvalid = validraddr_ps2 ? axi4if.arvalid : 1'b0;
-	ps2if.rready = validraddr_ps2 ? axi4if.rready : 1'b0;*/
+	ps2if.rready = validraddr_ps2 ? axi4if.rready : 1'b0;
 
-	fpuif.araddr = validraddr_fpu ? raddr : 32'dz;
+	/*fpuif.araddr = validraddr_fpu ? raddr : 32'dz;
 	fpuif.arvalid = validraddr_fpu ? axi4if.arvalid : 1'b0;
-	fpuif.rready = validraddr_fpu ? axi4if.rready : 1'b0;
+	fpuif.rready = validraddr_fpu ? axi4if.rready : 1'b0;*/
 
 	bramif.araddr = validraddr_bram ? raddr : 32'dz;
 	bramif.arvalid = validraddr_bram ? axi4if.arvalid : 1'b0;
@@ -306,18 +306,18 @@ always_comb begin
 		axi4if.rresp = spiif.rresp;
 		axi4if.rvalid = spiif.rvalid;
 		axi4if.rlast = spiif.rlast;
-	/*end else if (validraddr_ps2) begin
+	end else if (validraddr_ps2) begin
 		axi4if.arready = ps2if.arready;
 		axi4if.rdata = ps2if.rdata;
 		axi4if.rresp = ps2if.rresp;
 		axi4if.rvalid = ps2if.rvalid;
-		axi4if.rlast = ps2if.rlast;*/
-	end else if (validraddr_fpu) begin
+		axi4if.rlast = ps2if.rlast;
+	/*end else if (validraddr_fpu) begin
 		axi4if.arready = fpuif.arready;
 		axi4if.rdata = fpuif.rdata;
 		axi4if.rresp = fpuif.rresp;
 		axi4if.rvalid = fpuif.rvalid;
-		axi4if.rlast = fpuif.rlast;
+		axi4if.rlast = fpuif.rlast;*/
 	end else if (validraddr_bram) begin
 		axi4if.arready = bramif.arready;
 		axi4if.rdata = bramif.rdata;

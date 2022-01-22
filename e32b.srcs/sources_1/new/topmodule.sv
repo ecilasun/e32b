@@ -34,8 +34,8 @@ module topmodule(
     inout wire [1:0] ddr3_dqs_n,
     inout wire [15:0] ddr3_dq,
     // hid
-    /*input wire ps2_clk,
-    input wire ps2_data,*/
+    input wire ps2_clk,
+    input wire ps2_data,
     // buttons
     input wire [4:0] buttons );
 
@@ -46,8 +46,6 @@ module topmodule(
 // keep sdcard powered on
 // todo: tie to axi4-lite control
 assign sd_poweron_n = 1'b0;
-
-wire ui_clk;
 
 fpgadevicewires wires(
 	.uart_txd_in(uart_txd_in),
@@ -73,8 +71,8 @@ fpgadevicewires wires(
     .ddr3_dqs_n(ddr3_dqs_n),
     .ddr3_dq(ddr3_dq),
     // hid
-    /*.ps2_clk(ps2_clk),
-    .ps2_data(ps2_data),*/
+    .ps2_clk(ps2_clk),
+    .ps2_data(ps2_data),
     // buttons
     .buttons(buttons) );
 
@@ -108,7 +106,6 @@ clockandresetgen clockandresetgenerator(
 
 fpgadeviceclocks clocks(
 	.calib_done(calib_done),
-	.cpuclock(ui_clk), // bus/cpu clock taken over by ddr3 generated clock
 	.wallclock(wallclock),
 	.uartbaseclock(uartbaseclock),
 	.spibaseclock(spibaseclock),
@@ -126,13 +123,14 @@ fpgadeviceclocks clocks(
 
 wire [3:0] irq;
 wire ifetch;
+wire ui_clk;
 
 axi4 axi4busa(
-	.aclk(ui_clk),
+	.aclk(ui_clk), // Bus clock == ui_clk (temp)
 	.aresetn(~devicereset) );
 
 /*axi4 axi4busb(
-	.aclk(ui_clk),
+	.aclk(ui_clk), // Bus clock == ui_clk (temp)
 	.aresetn(~devicereset) );*/
 
 axi4chain axichain(

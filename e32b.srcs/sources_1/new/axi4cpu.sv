@@ -20,14 +20,13 @@ localparam cpuexecute = 16;
 localparam cpuloadwait = 32;
 localparam cpustorewait = 64;
 localparam cpuimathwait = 128;
-localparam cpufpuop = 256;
-localparam cpuwback = 512;
-localparam cpuwfi = 1024;
-localparam cpufpuwritewait = 2048;
-localparam cpufpuread = 4096;
-localparam cpufpureadwait = 8192;
+localparam cpufmstall = 256;
+localparam cpufpuop = 512;
+localparam cpufstall = 1024;
+localparam cpuwback = 2048;
+localparam cpuwfi = 4096;
 
-logic [13:0] cpustate = cpuinit;
+logic [12:0] cpustate = cpuinit;
 logic [31:0] pc = resetvector;
 logic [31:0] adjacentpc = resetvector + 32'd4;
 logic [31:0] csrval = 32'd0;
@@ -142,8 +141,6 @@ logic [31:0] rdin = 32'd0;
 logic [31:0] frdin = 32'd0;
 wire [31:0] rval1, rval2;
 wire [31:0] frval1, frval2, frval3;
-logic [15:0] fpustrobe; // Floating point unit command strobe
-logic [3:0] fpuwritecount = 4'd0;
 
 registerfile integerregisters(
 	.clock(axi4if.aclk),
@@ -252,6 +249,61 @@ wire imathstart = divstart | mulstart;
 wire imathbusy = divbusy | divbusyu | mulbusy;
 
 // ------------------------------------------------------------------------------------
+// fpu
+// ------------------------------------------------------------------------------------
+
+logic fmaddstrobe = 1'b0;
+logic fmsubstrobe = 1'b0;
+logic fnmsubstrobe = 1'b0;
+logic fnmaddstrobe = 1'b0;
+logic faddstrobe = 1'b0;
+logic fsubstrobe = 1'b0;
+logic fmulstrobe = 1'b0;
+logic fdivstrobe = 1'b0;
+logic fi2fstrobe = 1'b0;
+logic fui2fstrobe = 1'b0;
+logic ff2istrobe = 1'b0;
+logic ff2uistrobe = 1'b0;
+logic fsqrtstrobe = 1'b0;
+logic feqstrobe = 1'b0;
+logic fltstrobe = 1'b0;
+logic flestrobe = 1'b0;
+
+wire fpuresultvalid;
+wire [31:0] fpuresult;
+
+floatingpointunit fpudevice(
+	.clock(axi4if.aclk),
+
+	// inputs
+	.frval1(frval1),
+	.frval2(frval2),
+	.frval3(frval3),
+	.rval1(rval1), // i2f input
+
+	// operation select strobe
+	.fmaddstrobe(fmaddstrobe),
+	.fmsubstrobe(fmsubstrobe),
+	.fnmsubstrobe(fnmsubstrobe),
+	.fnmaddstrobe(fnmaddstrobe),
+	.faddstrobe(faddstrobe),
+	.fsubstrobe(fsubstrobe),
+	.fmulstrobe(fmulstrobe),
+	.fdivstrobe(fdivstrobe),
+	.fi2fstrobe(fi2fstrobe),
+	.fui2fstrobe(fui2fstrobe),
+	.ff2istrobe(ff2istrobe),
+	.ff2uistrobe(ff2uistrobe),
+	.fsqrtstrobe(fsqrtstrobe),
+	.feqstrobe(feqstrobe),
+	.fltstrobe(fltstrobe),
+	.flestrobe(flestrobe),
+
+	// output
+	.resultvalid(fpuresultvalid),
+	.result(fpuresult) );
+
+// ------------------------------------------------------------------------------------
 // cpu
 // ------------------------------------------------------------------------------------
 
@@ -264,6 +316,23 @@ always @(posedge axi4if.aclk) begin
 	csrwe <= 1'b0;
 	mwrite <= 1'd0;
 	frwe <= 1'b0;
+	
+	fmaddstrobe <= 1'b0;
+	fmsubstrobe <= 1'b0;
+	fnmsubstrobe <= 1'b0;
+	fnmaddstrobe <= 1'b0;
+	faddstrobe <= 1'b0;
+	fsubstrobe <= 1'b0;
+	fmulstrobe <= 1'b0;
+	fdivstrobe <= 1'b0;
+	fi2fstrobe <= 1'b0;
+	fui2fstrobe <= 1'b0;
+	ff2istrobe <= 1'b0;
+	ff2uistrobe <= 1'b0;
+	fsqrtstrobe <= 1'b0;
+	feqstrobe <= 1'b0;
+	fltstrobe <= 1'b0;
+	flestrobe <= 1'b0;
 
 	case (cpustate)
 		cpuinit: begin
@@ -389,44 +458,14 @@ always @(posedge axi4if.aclk) begin
 			mret <= 1'b0;
 
 			// load
-			if (instronehot[`o_h_float_madd] || instronehot[`o_h_float_msub] || instronehot[`o_h_float_nmsub] || instronehot[`o_h_float_nmadd] || instronehot[`o_h_float_op]) begin
-				// TODO: After setting up the command strobe here,
-				// write these values to successive 4 byte aligned FPU addresses:
-				// frval1, frval2, frval3, rval1, strobe
-				// Once strobe is written, result can be read back from any 4 byte aligned FPU mapped address.
+			if (instronehot[`o_h_float_madd] || instronehot[`o_h_float_msub] || instronehot[`o_h_float_nmsub] || instronehot[`o_h_float_nmadd]) begin
+				fmaddstrobe <= instronehot[`o_h_float_madd];
+				fmsubstrobe <= instronehot[`o_h_float_msub];
+				fnmsubstrobe <= instronehot[`o_h_float_nmsub];
+				fnmaddstrobe <= instronehot[`o_h_float_nmadd];
+				cpustate <= cpufmstall;
+			end else if (instronehot[`o_h_float_op]) begin
 				cpustate <= cpufpuop;
-				case (1'b1)
-					instronehot[`o_h_float_madd]:	fpustrobe <=		16'b1000_0000_0000_0000;
-					instronehot[`o_h_float_msub]:	fpustrobe <=		16'b0100_0000_0000_0000;
-					instronehot[`o_h_float_nmsub]:	fpustrobe <=		16'b0010_0000_0000_0000;
-					instronehot[`o_h_float_nmadd]:	fpustrobe <=		16'b0001_0000_0000_0000;
-					instronehot[`o_h_float_op] : begin
-						case (func7)
-							`f7_fadd:	fpustrobe <=					16'b0000_1000_0000_0000;
-							`f7_fsub:	fpustrobe <=					16'b0000_0100_0000_0000;
-							`f7_fmul:	fpustrobe <=					16'b0000_0010_0000_0000;
-							`f7_fdiv:	fpustrobe <=					16'b0000_0001_0000_0000;
-							`f7_fcvtsw:	fpustrobe <= (rs2==5'b00000) ?	16'b0000_0000_1000_0000:	// signed
-																		16'b0000_0000_0100_0000;	// unsigned
-							`f7_fcvtws:	fpustrobe <= (rs2==5'b00000) ?	16'b0000_0000_0010_0000:	// signed
-																		16'b0000_0000_0001_0000;	// unsigned
-							`f7_fsqrt:	fpustrobe <=					16'b0000_0000_0000_1000;
-							`f7_feq: begin
-								case (func3)
-									3'b010: fpustrobe <=				16'b0000_0000_0000_0100; // feq
-									3'b001: fpustrobe <=				16'b0000_0000_0000_0010; // flt
-									3'b000: fpustrobe <=				16'b0000_0000_0000_0001; // fle
-								endcase
-							end
-							`f7_fmax: fpustrobe <=						16'b0000_0000_0000_0010; // min/max (same as flt)
-						endcase
-					end
-					default: begin
-						cpustate <= cpuwback;
-						fpustrobe <=									16'b0000_0000_0000_0000; // none
-					end
-				endcase
-				fpuwritecount <= 5;
 			end else if (instronehot[`o_h_load] | instronehot[`o_h_float_ldw]) begin
 				// set up address for load
 				axi4if.araddr <= loadstoreaddress;
@@ -534,9 +573,9 @@ always @(posedge axi4if.aclk) begin
 					3'b010: begin // dword
 						if (instronehot[`o_h_float_ldw]) begin
 							frwe <= 1'b1;
-							frdin <= axi4if.rdata[31:0];
+							frdin <= axi4if.rdata;
 						end else begin
-							rdin <= axi4if.rdata[31:0];
+							rdin <= axi4if.rdata;
 						end
 					end
 					3'b100: begin // byte with zero extension
@@ -604,131 +643,92 @@ always @(posedge axi4if.aclk) begin
 			end
 		end
 
+		cpufmstall: begin
+			if (fpuresultvalid) begin
+				frwe <= 1'b1;
+				frdin <= fpuresult;
+				cpustate <= cpuwback;
+			end else begin
+				cpustate <= cpufmstall; // Stall further for fused float
+			end
+		end
+
 		cpufpuop: begin
-			// Some operations do not require the FPU
-			cpustate <= cpuwback;
+			cpustate <= cpufstall;
 			case (func7)
 				`f7_fsgnj: begin
 					frwe <= 1'b1;
 					case(func3)
-						3'b000: begin // fsgnj
-							frdin <= {frval2[31], frval1[30:0]}; 
-						end
-						3'b001: begin  // fsgnjn
-							frdin <= {~frval2[31], frval1[30:0]};
-						end
-						3'b010: begin  // fsgnjx
-							frdin <= {frval1[31]^frval2[31], frval1[30:0]};
-						end
+						3'b000: frdin <= {frval2[31], frval1[30:0]}; // fsgnj
+						3'b001: frdin <= {~frval2[31], frval1[30:0]}; // fsgnjn
+						3'b010: frdin <= {frval1[31]^frval2[31], frval1[30:0]}; // fsgnjx
 					endcase
+					cpustate <= cpuwback;
 				end
 				`f7_fmvxw: begin
 					rwren <= 1'b1;
-					if (func3 == 3'b000) // fmvxw
-						rdin <= frval1;
-					else // fclass
-						rdin <= 32'd0; // todo: classify the float
+					if (func3 == 3'b000) rdin <= frval1; // fmvxw
+					else rdin <= 32'd0; // fclass todo: classify the float
+					cpustate <= cpuwback;
 				end
 				`f7_fmvwx: begin
 					frwe <= 1'b1;
 					frdin <= rval1;
+					cpustate <= cpuwback;
 				end
-				default: begin
-					if (fpuwritecount == 0) begin
-						// Done, go to read result
-						cpustate <= cpufpuread;
-					end else begin
-						// Not done yet, set up write request for next word
-						axi4if.wstrb <= 4'hf;
-						axi4if.awvalid <= 1'b1;
-						axi4if.wvalid <= 1'b1;
-						axi4if.bready <= 1'b1;
-						cpustate <= cpufpuwritewait;
-					end
-
-					// Inputs for the FPU
-					case (fpuwritecount)
-						5: begin
-							axi4if.awaddr <= 32'h20003000;
-							axi4if.wdata <= frval1;
-						end
-						4: begin
-							axi4if.awaddr <= 32'h20003004;
-							axi4if.wdata <= frval2;
-						end
-						3: begin
-							axi4if.awaddr <= 32'h20003008;
-							axi4if.wdata <= frval3;
-						end
-						2: begin
-							axi4if.awaddr <= 32'h2000300C;
-							axi4if.wdata <= rval1;
-						end
-						1: begin
-							axi4if.awaddr <= 32'h20003010;
-							axi4if.wdata <= {16'd0, fpustrobe};
-						end
-						default/*0*/: begin
-							// done, we're going to read state now
-						end
+				`f7_fadd:	faddstrobe <= 1'b1;
+				`f7_fsub:	fsubstrobe <= 1'b1;
+				`f7_fmul:	fmulstrobe <= 1'b1;
+				`f7_fdiv:	fdivstrobe <= 1'b1;
+				`f7_fcvtsw:	begin
+					fi2fstrobe <= (rs2==5'b00000) ? 1'b1:1'b0; // Signed
+					fui2fstrobe <= (rs2==5'b00001) ? 1'b1:1'b0; // Unsigned
+				end
+				`f7_fcvtws:	begin
+					ff2istrobe <= (rs2==5'b00000) ? 1'b1:1'b0; // Signed
+					ff2uistrobe <= (rs2==5'b00001) ? 1'b1:1'b0; // Unsigned
+				end
+				`f7_fsqrt:	fsqrtstrobe <= 1'b1;
+				`f7_feq: begin
+					case (func3)
+						3'b010: feqstrobe <= 1'b1;	// feq
+						3'b001: fltstrobe <= 1'b1;	// flt
+						3'b000: flestrobe <= 1'b1;	// fle
 					endcase
-					fpuwritecount <= fpuwritecount - 1;
+				end
+				`f7_fmax: fltstrobe <= 1'b1; // min/max (same as flt)
+				default: begin
+					cpustate <= cpuwback;
 				end
 			endcase
 		end
 
-		cpufpuwritewait: begin
-			if (axi4if.awready) begin
-				axi4if.awvalid <= 1'b0;
-			end
-			if (axi4if.wready) begin
-				axi4if.wvalid <= 1'b0;
-				axi4if.wstrb <= 4'h0;
-			end
-			if (axi4if.bvalid) begin
-				axi4if.bready <= 1'b0;
-				cpustate <= cpufpuop;
-			end else begin
-				cpustate <= cpufpuwritewait;
-			end
-		end
-
-		cpufpuread: begin
-			axi4if.araddr <= 32'h20003000; // Any FPU address will do
-			axi4if.arvalid <= 1'b1;
-			axi4if.rready <= 1'b1;
-			cpustate <= cpufpureadwait;
-		end
-
-		cpufpureadwait: begin
-			if (axi4if.arready) begin
-				axi4if.arvalid <= 1'b0;
-			end
-			if (axi4if.rvalid) begin
-				axi4if.rready <= 1'b0;
-				// Write FPU result back to destination register
+		cpufstall: begin
+			if (fpuresultvalid) begin
 				case (func7)
-					default: begin
+					default /*add/sub/mul/div/sqrt/cvtsw*/: begin
 						frwe <= 1'b1;
-						frdin <= axi4if.rdata;
+						frdin <= fpuresult;
 					end
 					`f7_fcvtws: begin
 						rwren <= 1'b1;
-						rdin <= axi4if.rdata;
+						rdin <= fpuresult;
 					end
 					`f7_feq: begin
 						rwren <= 1'b1;
-						rdin <= {31'd0, axi4if.rdata[0]};
+						rdin <= {31'd0, fpuresult[0]};
 					end
 					`f7_fmin: begin
 						frwe <= 1'b1;
 						if (func3==3'b000) // fmin
-							frdin <= axi4if.rdata[0] ? frval1 : frval2;
+							frdin <= fpuresult[0] ? frval1 : frval2;
 						else // fmax
-							frdin <= axi4if.rdata[0] ? frval2 : frval1;
+							frdin <= fpuresult[0] ? frval2 : frval1;
 					end
 				endcase
 				cpustate <= cpuwback;
+			end else begin
+				cpustate <= cpufstall;
 			end
 		end
 

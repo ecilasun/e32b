@@ -22,8 +22,8 @@ interface fpgadevicewires (
 		inout [1:0] ddr3_dqs_n,
 		inout [15:0] ddr3_dq,
 		// hid
-		/*input ps2_clk,
-		input ps2_data,*/
+		input ps2_clk,
+		input ps2_data,
 		// buttons
 		input [4:0] buttons);
 
@@ -50,8 +50,8 @@ interface fpgadevicewires (
 		inout ddr3_dqs_n,
 		inout ddr3_dq,
 		// hid
-		/*input ps2_clk,
-		input ps2_data,*/
+		input ps2_clk,
+		input ps2_data,
 		// buttons
 		input buttons );
 
@@ -60,7 +60,6 @@ endinterface
 
 interface fpgadeviceclocks (
 		input calib_done,
-		input cpuclock,
 		input wallclock,
 		input uartbaseclock,
 		input spibaseclock,
@@ -74,7 +73,6 @@ interface fpgadeviceclocks (
 
 	modport def (
 		input calib_done,
-		input cpuclock,
 		input wallclock,
 		input uartbaseclock,
 		input spibaseclock,

@@ -5,14 +5,18 @@ module axi4ps2keyboard(
 	fpgadevicewires.def wires,
 	fpgadeviceclocks.def clocks );
 
-wire flag;
-wire [15:0] keycode;
-ps2receiver uut (
+wire [7:0] scan_code;
+wire scan_code_ready;
+wire letter_case_out;
+
+ps2receiver ps2receiverinstance(
 	.clk(clocks.clk50mhz),
-	.ps2_clk(wires.ps2_clk),
-	.ps2_data(wires.ps2_data),
-	.keycode(keycode),
-	.oflag(flag) );
+	.reset(~axi4if.aresetn),
+	.ps2d(wires.ps2_data),
+	.ps2c(wires.ps2_clk),
+	.scan_code(scan_code),
+	.scan_code_ready(scan_code_ready),
+	.letter_case_out(letter_case_out) );
 
 logic [1:0] waddrstate = 2'b00;
 logic [1:0] writestate = 2'b00;
@@ -20,8 +24,8 @@ logic [1:0] raddrstate = 2'b00;
 
 wire fifofull, fifoempty, fifovalid;
 logic fifowe = 1'b0, fifore = 1'b0;
-logic [15:0] fifodin = 16'd0;
-wire [15:0] fifodout;
+logic [7:0] fifodin = 16'd0;
+wire [7:0] fifodout;
 
 ps2infifo ps2inputfifo(
 	.wr_clk(clocks.clk50mhz),
@@ -42,10 +46,10 @@ ps2infifo ps2inputfifo(
 always @(posedge clocks.clk50mhz) begin
 	fifowe <= 1'b0;
 
-	if (flag & (~fifofull)) begin // make sure to drain the fifo!
+	if (scan_code_ready & (~fifofull)) begin // make sure to drain the fifo!
 		// stash incoming byte in fifo
 		fifowe <= 1'b1;
-		fifodin <= keycode;
+		fifodin <= scan_code;
 	end
 end
 
@@ -136,7 +140,7 @@ always @(posedge axi4if.aclk) begin
 			end
 			2'b10: begin
 				if (fifovalid) begin
-					axi4if.rdata <= {16'd0, fifodout}; // key scan code
+					axi4if.rdata <= {24'd0, fifodout}; // key scan code
 					axi4if.rvalid <= 1'b1;
 					raddrstate <= 2'b11; // delay one clock for master to pull down arvalid
 				end

@@ -12,15 +12,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="303,560.000000 ns"></ZoomStartTime>
-      <ZoomEndTime time="308,006.000001 ns"></ZoomEndTime>
-      <Cursor1Time time="305,390.000000 ns"></Cursor1Time>
+      <ZoomStartTime time="495.660000000 us"></ZoomStartTime>
+      <ZoomEndTime time="517.950000001 us"></ZoomEndTime>
+      <Cursor1Time time="503.620000000 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="225"></NameColumnWidth>
+      <NameColumnWidth column_width="219"></NameColumnWidth>
       <ValueColumnWidth column_width="88"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="93" />
+   <WVObjectSize size="91" />
    <wvobject fp_name="/simtop/sys_clock" type="logic">
       <obj_property name="ElementShortName">sys_clock</obj_property>
       <obj_property name="ObjectShortName">sys_clock</obj_property>
@@ -72,14 +72,6 @@
    <wvobject fp_name="/simtop/topmoduleinstance/axichain/validraddr_spi" type="logic">
       <obj_property name="ElementShortName">validraddr_spi</obj_property>
       <obj_property name="ObjectShortName">validraddr_spi</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/validwaddr_ps2" type="logic">
-      <obj_property name="ElementShortName">validwaddr_ps2</obj_property>
-      <obj_property name="ObjectShortName">validwaddr_ps2</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/validraddr_ps2" type="logic">
-      <obj_property name="ElementShortName">validraddr_ps2</obj_property>
-      <obj_property name="ObjectShortName">validraddr_ps2</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/axichain/validwaddr_fpu" type="logic">
       <obj_property name="ElementShortName">validwaddr_fpu</obj_property>
@@ -205,14 +197,26 @@
    <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/frval1" type="array">
       <obj_property name="ElementShortName">frval1[31:0]</obj_property>
       <obj_property name="ObjectShortName">frval1[31:0]</obj_property>
+      <obj_property name="Radix">REALRADIX</obj_property>
+      <obj_property name="radix_realType">FLOATINGPOINTRADIX</obj_property>
+      <obj_property name="radix_fractionWidth">24</obj_property>
+      <obj_property name="radix_otherWidth">8</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/frval2" type="array">
       <obj_property name="ElementShortName">frval2[31:0]</obj_property>
       <obj_property name="ObjectShortName">frval2[31:0]</obj_property>
+      <obj_property name="Radix">REALRADIX</obj_property>
+      <obj_property name="radix_realType">FLOATINGPOINTRADIX</obj_property>
+      <obj_property name="radix_fractionWidth">24</obj_property>
+      <obj_property name="radix_otherWidth">8</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/frval3" type="array">
       <obj_property name="ElementShortName">frval3[31:0]</obj_property>
       <obj_property name="ObjectShortName">frval3[31:0]</obj_property>
+      <obj_property name="Radix">REALRADIX</obj_property>
+      <obj_property name="radix_realType">FLOATINGPOINTRADIX</obj_property>
+      <obj_property name="radix_fractionWidth">24</obj_property>
+      <obj_property name="radix_otherWidth">8</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/rval1" type="array">
       <obj_property name="ElementShortName">rval1[31:0]</obj_property>
