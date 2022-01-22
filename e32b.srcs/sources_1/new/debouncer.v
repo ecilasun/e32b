@@ -1,42 +1,42 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// company: 
-// engineer: 
+// Company: 
+// Engineer: 
 // 
-// create date: 07/27/2016 02:04:22 pm
-// design name: 
-// module name: debouncer
-// project name: 
-// target devices: 
-// tool versions: 
-// description: 
+// Create Date: 07/27/2016 02:04:22 PM
+// Design Name: 
+// Module Name: debouncer
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
 // 
-// dependencies: 
+// Dependencies: 
 // 
-// revision:
-// revision 0.01 - file created
-// additional comments:
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
 
 module debouncer(
     input clk,
-    input i,
-    output reg o
+    input I,
+    output reg O
     );
-    parameter count_max=255, count_width=8;
-    reg [count_width-1:0] count;
-    reg iv=0;
+    parameter COUNT_MAX=255, COUNT_WIDTH=8;
+    reg [COUNT_WIDTH-1:0] count;
+    reg Iv=0;
     always@(posedge clk)
-        if (i == iv) begin
-            if (count == count_max)
-                o <= i;
+        if (I == Iv) begin
+            if (count == COUNT_MAX)
+                O <= I;
             else
                 count <= count + 1'b1;
         end else begin
             count <= 'b0;
-            iv <= i;
+            Iv <= I;
         end
     
 endmodule
