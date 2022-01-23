@@ -12,6 +12,7 @@ E32B is a small scale 32 bit RISC-V SoC implementation which contains:
 - HDMI output using the on-board HDMI port
 - DDR3 memory mapped to top of address space
 - A very simple graphics module with memory mapped palette and a single frame buffer
+- PS/2 keyboard input via onboard HID
 
 The project is built using a Nexsys Video board from Digilent, but should fit onto other boards as well.
 
@@ -26,9 +27,12 @@ General flow is to cycle through Retire->Fetch->Decode->Execute->WBack stages, b
 
 After the board is programmed with this SoC's bin or bit file, you can connect to the Arty board using a terminal program such as PuTTY. By default, the Arty board serial device comes up on the device list as COM4 (on USB). Set your terminal program to use 115200 baud / 1 stop bit / no parity and you should be able to see messages displayed by the board.
 
-The default ROM image that ships with this SoC will display startup message when the reset button is pressed (if the SoC image is in the persistent memory), or when programmed in dynamic mode. The ROM code will then sit at a WFI instruction, waiting for any external interrupts to be triggered. The interrupt handler, upon receiving a UART input or a timer interrupt, will execute the proper action (trap and echo back any character sent to it or show the one-time timer test message).
+The default ROM image that ships with this SoC will display startup message when the reset button is pressed (if the SoC image is in the persistent memory), or when programmed in dynamic mode. The ROM code will then sit at a WFI instruction, waiting for any external interrupts to be triggered. The interrupt handler, upon receiving hardware input or a timer interrupt, will execute the proper action (trap and echo back any character sent to it or show the one-time timer test message).
 
 Initially, there's a 2 second timer that will trigger a reminder message on the UART port for the user to type 'help' upon which the available commands will be listed.
+
+All input is accepted through the onboard HID and the UART port will only echo back the input, and nothing else. In the future the UART port will only talk to
+the debugger and should not be considered a valid I/O device for regular use.
 
 # Changing the ROM image
 
@@ -38,21 +42,21 @@ Once you have a working RISC-V toolchain, you can then go to e32/ROMs/ directory
 
 The memory addresses for the ROM (which is also your RAM) start from 0x10000000 and reach up to 0x1000FFFF, which are hard-coded. You could expand the address range by using more block ram and increasing the bit counts fed to the block ram (S-RAM) device in the design. This would also require changes to the linker script to adjust the 'max size' of your programs, and a few more changes to the rvcrt0.h file in the ROMs directory to move the stack pointer accordingly.
 
-The default stack address is set to 0x1000FFF0 by the startup code in rvcrt0.h file in the ROMs directory, and the default heap_start/heap_end are set to 0x0000A000 and 0x0000F000 respectively, which live in the core.cpp file in the SDK directory. This is quite a tight space to work with, but addition of access to on-board DDR3 will fix this in the future.
+The default stack address is set to 0x8002F000 by the startup code in rvcrt0.h file in the ROMs directory, and the default heap_start/heap_end are set to 0x08000000 and 0x0FFF0000 (in DDR3 memory) respectively. The heap setup can be found in the core.c file in the SDK directory, under the names heap_start and heap_end.
 
 # About the UART / UART FIFO
 
-The SoC uses the built-in USB/UART pins to communicate with the outside world. The problem here is that there are only two pins exposed to the FPGA (TX/RX) and no flow control pins are taken into account. Therefore, the device will currently simply drop the incoming data if the input FIFO is full, as it doesn't have any means to stop the data flow from sender. However, future ROM versions will implement XON/XOFF flow control so that the software layer might tell the remote device to stop before the FIFO is filled up.
+The SoC uses the built-in USB/UART pins to communicate with the outside world. The problem here is that there are only two pins exposed to the FPGA (TX/RX) and no flow control pins are taken into account. Therefore, the device will currently simply drop the incoming data if the input FIFO is full, as it doesn't have any means to stop the data flow from sender. However, future ROM can implement XON(0x11)/XOFF(0x13) flow control so that the software layer might tell the remote device to stop before the FIFO is filled up.
 
 # SPI Master device
 
-There's an SPI master attached onto the bus at address 0x90000000. This device is controlled by software to read SDCard data attached to the built in SDCard slot on the under side of the Nexsys Video board. Since it's software controlled, the SPI device can be utilized in other ways if needed, and no hardcoded SDCard specific optimizations / modifications are made to the device. The SPI master device is based on MTI licensed code found at https://github.com/nandland/spi-master
+There's an SPI master attached onto the bus at address 20001000. This device is controlled by software to read SDCard data attached to the built in SDCard slot on the under side of the Nexsys Video board. Since it's software controlled, the SPI device can be utilized in other ways if needed, and no hardcoded SDCard specific optimizations / modifications are made to the device. The SPI master device is based on MTI licensed code found at https://github.com/nandland/spi-master
 
 Each write to this address _must_ be accompanied by a tightly coupled read to ensure correct operation. This means one needs to use SPI access as a pair operation, as shown in the following example:
 
 ```
 // SPI read/write port
-volatile uint8_t *IO_SPIRXTX = (volatile uint8_t* )0x90000000;
+volatile uint8_t *IO_SPIRXTX = (volatile uint8_t* )20001000;
 
 // Transmit+receive function
 uint8_t SPITxRx(const uint8_t outbyte)
@@ -85,6 +89,28 @@ TIMELO / TIMEHI : Wall clock timer
 TIMECMPLO / TIMECMPHI : Time compare value against wall clock timer (custom CSR register)
 ```
 
+# System bus
+
+E32 uses an AXI4 Lite bus, and there are several devices mapped to different memory addresses on the bus. Here's a small list for reference. You can check the axi4chain.sv file for more detail on these devices.
+
+```
+DDR3 0x00000000-0x20000000 - Main user program memory and heap
+B-RAM 0x80000000-0x8000ffff - Boot ROM and RAM
+S-RAM 0x80010000-0x8002ffff - Scratchpad/Shared RAM
+UART 0x20000000 - UART
+SPIMaster 0x20001000 - SPI Master
+PS2 keyboard 0x20002000 - HID interface
+FPU 0x20003000 - unused
+BUTTONS 0x20004000 - 5 hardware buttons on the device
+FB0 0x40000000 - first frame buffer
+FB1 0x40020000 - unused
+PAL 0x40040000 - color palette (256 word (XRGB) entries)
+CTL 0x40080000 - unused
+```
+
 # TODO
 
-- Expose FPGA pins connected to the GPIO / PMOD / LED / BUTTON peripherals as memory mapped devices
+- Expose the PMOD / LED pins as a GPIO device
+- Audio output
+- PWM fan control
+- Onboard LCD
