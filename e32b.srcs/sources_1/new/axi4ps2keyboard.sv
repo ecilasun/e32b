@@ -16,8 +16,6 @@ PS2Receiver ps2receiverinstance(
     .keycode(scan_code),
     .oflag(scan_code_ready) );
 
-logic [1:0] waddrstate = 2'b00;
-logic [1:0] writestate = 2'b00;
 logic [1:0] raddrstate = 2'b00;
 
 wire fifofull, fifovalid;
@@ -42,12 +40,16 @@ ps2infifo ps2inputfifo(
 	.rd_rst_busy() );
 
 always @(posedge clocks.clk50mhz) begin
-	fifowe <= 1'b0;
-
-	if (scan_code_ready & (~fifofull)) begin // make sure to drain the fifo!
-		// stash incoming byte in fifo
-		fifowe <= 1'b1;
-		fifodin <= scan_code;
+	if (~axi4if.aresetn) begin
+		//
+	end else begin
+		fifowe <= 1'b0;
+	
+		if (scan_code_ready & (~fifofull)) begin // make sure to drain the fifo!
+			// stash incoming byte in fifo
+			fifowe <= 1'b1;
+			fifodin <= scan_code;
+		end
 	end
 end
 
@@ -59,50 +61,12 @@ always @(posedge axi4if.aclk) begin
 	if (~axi4if.aresetn) begin
 		axi4if.awready <= 1'b1;
 	end else begin
-		// write address
-		case (waddrstate)
-			2'b00: begin
-				if (axi4if.awvalid /*& cansend*/) begin
-					//writeaddress <= axi4if.awaddr;
-					axi4if.awready <= 1'b0;
-					waddrstate <= 2'b01;
-				end
-			end
-			default/*2'b01*/: begin
-				axi4if.awready <= 1'b1;
-				waddrstate <= 2'b00;
-			end
-		endcase
+		// Completely ignore writes and always return success
+		axi4if.awready <= 1'b1;
+		axi4if.wready <= 1'b1;
+		axi4if.bvalid <= 1'b1;
+		axi4if.bresp = 2'b00; // okay
 	end
-end
-
-always @(posedge axi4if.aclk) begin
-	// write data
-	//we <= 4'h0;
-	case (writestate)
-		2'b00: begin
-			if (axi4if.wvalid /*& cansend*/) begin
-				// latch the data and byte select
-				//writedata <= axi4if.wdata[15:0]; // keyboard control etc? unused for now.
-				//we <= axi4if.wstrb;
-				//wires.ps2_clk <= 1'b0; // hold low for send?
-				axi4if.wready <= 1'b1;
-				writestate <= 2'b01;
-			end
-		end
-		2'b01: begin
-			axi4if.wready <= 1'b0;
-			if(axi4if.bready) begin
-				axi4if.bvalid <= 1'b1;
-				axi4if.bresp = 2'b00; // okay
-				writestate <= 2'b10;
-			end
-		end
-		default/*2'b10*/: begin
-			axi4if.bvalid <= 1'b0;
-			writestate <= 2'b00;
-		end
-	endcase
 end
 
 always @(posedge axi4if.aclk) begin
@@ -110,7 +74,6 @@ always @(posedge axi4if.aclk) begin
 		axi4if.arready <= 1'b1;
 		axi4if.rvalid <= 1'b0;
 		axi4if.rresp <= 2'b00;
-		axi4if.rdata <= 32'd0;
 	end else begin
 
 		fifore <= 1'b0;

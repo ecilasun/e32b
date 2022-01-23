@@ -66,12 +66,15 @@ spimasterinfifo spiinputfifo(
 	.rd_rst_busy() );
 
 always @(posedge clocks.spibaseclock) begin
-	infifowe <= 1'b0;
-
-	if (hasvaliddata & (~infifofull)) begin // make sure to drain the fifo!
-		// stash incoming byte in fifo
-		infifowe <= 1'b1;
-		infifodin <= spiincomingdata;
+	if (~axi4if.aresetn) begin
+		//
+	end else begin
+		infifowe <= 1'b0;
+		if (hasvaliddata & (~infifofull)) begin // make sure to drain the fifo!
+			// stash incoming byte in fifo
+			infifowe <= 1'b1;
+			infifodin <= spiincomingdata;
+		end
 	end
 end
 
@@ -97,16 +100,20 @@ spimasterinfifo spioutputfifo(
 	.rd_rst_busy() );
 
 always @(posedge clocks.spibaseclock) begin
-	outfifore <= 1'b0;
-	we <= 1'b0;
-
-	if ((~outfifoempty) & cansend) begin
-		outfifore <= 1'b1;
-	end
-
-	if (outfifovalid) begin
-		writedata <= outfifodout;
-		we <= 1'b1;
+	if (~axi4if.aresetn) begin
+		//
+	end else begin
+		outfifore <= 1'b0;
+		we <= 1'b0;
+	
+		if ((~outfifoempty) & cansend) begin
+			outfifore <= 1'b1;
+		end
+	
+		if (outfifovalid) begin
+			writedata <= outfifodout;
+			we <= 1'b1;
+		end
 	end
 end
 
@@ -136,30 +143,34 @@ always @(posedge axi4if.aclk) begin
 end
 
 always @(posedge axi4if.aclk) begin
-	// write data
-	outfifowe <= 1'b0;
-	case (writestate)
-		2'b00: begin
-			if (axi4if.wvalid & (~outfifofull)) begin
-				outfifodin <= axi4if.wdata[7:0];
-				outfifowe <= 1'b1; // (|axi4if.wstrb)
-				axi4if.wready <= 1'b1;
-				writestate <= 2'b01;
+	if (~axi4if.aresetn) begin
+		//
+	end else begin
+		// write data
+		outfifowe <= 1'b0;
+		case (writestate)
+			2'b00: begin
+				if (axi4if.wvalid & (~outfifofull)) begin
+					outfifodin <= axi4if.wdata[7:0];
+					outfifowe <= 1'b1; // (|axi4if.wstrb)
+					axi4if.wready <= 1'b1;
+					writestate <= 2'b01;
+				end
 			end
-		end
-		2'b01: begin
-			axi4if.wready <= 1'b0;
-			if(axi4if.bready) begin
-				axi4if.bvalid <= 1'b1;
-				axi4if.bresp = 2'b00; // okay
-				writestate <= 2'b10;
+			2'b01: begin
+				axi4if.wready <= 1'b0;
+				if(axi4if.bready) begin
+					axi4if.bvalid <= 1'b1;
+					axi4if.bresp = 2'b00; // okay
+					writestate <= 2'b10;
+				end
 			end
-		end
-		default/*2'b10*/: begin
-			axi4if.bvalid <= 1'b0;
-			writestate <= 2'b00;
-		end
-	endcase
+			default/*2'b10*/: begin
+				axi4if.bvalid <= 1'b0;
+				writestate <= 2'b00;
+			end
+		endcase
+	end
 end
 
 always @(posedge axi4if.aclk) begin
