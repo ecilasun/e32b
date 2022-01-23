@@ -3,7 +3,8 @@
 module axi4ps2keyboard(
 	axi4.slave axi4if,
 	fpgadevicewires.def wires,
-	fpgadeviceclocks.def clocks );
+	fpgadeviceclocks.def clocks,
+	output wire ps2fifoempty );
 
 wire [15:0] scan_code;
 wire scan_code_ready;
@@ -19,7 +20,7 @@ logic [1:0] waddrstate = 2'b00;
 logic [1:0] writestate = 2'b00;
 logic [1:0] raddrstate = 2'b00;
 
-wire fifofull, fifoempty, fifovalid;
+wire fifofull, fifovalid;
 logic fifowe = 1'b0, fifore = 1'b0;
 logic [15:0] fifodin = 16'd0;
 wire [15:0] fifodout;
@@ -31,7 +32,7 @@ ps2infifo ps2inputfifo(
 	.wr_en(fifowe),
 
 	.rd_clk(axi4if.aclk),
-	.empty(fifoempty),
+	.empty(ps2fifoempty),
 	.dout(fifodout),
 	.rd_en(fifore),
 	.valid(fifovalid),
@@ -126,10 +127,10 @@ always @(posedge axi4if.aclk) begin
 				// master ready to accept and fifo has incoming data
 				if (axi4if.rready) begin
 					if (axi4if.araddr[3:0] == 4'h8) begin // incoming data available?
-						axi4if.rdata <= {31'd0, ~fifoempty};
+						axi4if.rdata <= {31'd0, ~ps2fifoempty};
 						axi4if.rvalid <= 1'b1;
 						raddrstate <= 2'b11; // delay one clock for master to pull down arvalid
-					end else if (~fifoempty) begin
+					end else if (~ps2fifoempty) begin
 						fifore <= 1'b1;
 						raddrstate <= 2'b10;
 					end

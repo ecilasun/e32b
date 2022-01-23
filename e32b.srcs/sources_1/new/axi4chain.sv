@@ -72,10 +72,12 @@ axi4spi spimaster(
 wire validwaddr_ps2 = axi4if.awaddr>=32'h20002000 && axi4if.awaddr<32'h20003000;
 wire validraddr_ps2 = axi4if.araddr>=32'h20002000 && axi4if.araddr<32'h20003000;
 axi4 ps2if(axi4if.aclk, axi4if.aresetn);
+wire ps2fifoempty;
 axi4ps2keyboard ps2keyboard(
 	.axi4if(ps2if),
 	.clocks(clocks),
-	.wires(wires) );
+	.wires(wires),
+	.ps2fifoempty(ps2fifoempty) );
 
 // fpu @20003000
 /*wire validwaddr_fpu = axi4if.awaddr>=32'h20003000 && axi4if.awaddr<32'h20004000;
@@ -115,7 +117,7 @@ axi4gpu gpu(
 // ------------------------------------------------------------------------------------
 
 // todo: add wires.spi_cd != oldcd as an interrupt trigger here, preferably debounced
-assign irq = {2'b00, ~buttonfifoempty, ~uartrcvempty};
+assign irq = {1'b0, ~ps2fifoempty, ~buttonfifoempty, ~uartrcvempty};
 
 // ------------------------------------------------------------------------------------
 // write router
