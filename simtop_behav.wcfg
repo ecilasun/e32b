@@ -12,15 +12,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="495.660000000 us"></ZoomStartTime>
-      <ZoomEndTime time="517.950000001 us"></ZoomEndTime>
-      <Cursor1Time time="503.620000000 us"></Cursor1Time>
+      <ZoomStartTime time="341.991666666 us"></ZoomStartTime>
+      <ZoomEndTime time="357.781666667 us"></ZoomEndTime>
+      <Cursor1Time time="355.150000000 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="219"></NameColumnWidth>
+      <NameColumnWidth column_width="213"></NameColumnWidth>
       <ValueColumnWidth column_width="88"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="91" />
+   <WVObjectSize size="31" />
    <wvobject fp_name="/simtop/sys_clock" type="logic">
       <obj_property name="ElementShortName">sys_clock</obj_property>
       <obj_property name="ObjectShortName">sys_clock</obj_property>
@@ -73,361 +73,77 @@
       <obj_property name="ElementShortName">validraddr_spi</obj_property>
       <obj_property name="ObjectShortName">validraddr_spi</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/validwaddr_fpu" type="logic">
-      <obj_property name="ElementShortName">validwaddr_fpu</obj_property>
-      <obj_property name="ObjectShortName">validwaddr_fpu</obj_property>
+   <wvobject type="divider" fp_name="divider116">
+      <obj_property name="label">internals</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
    </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/validraddr_fpu" type="logic">
-      <obj_property name="ElementShortName">validraddr_fpu</obj_property>
-      <obj_property name="ObjectShortName">validraddr_fpu</obj_property>
+   <wvobject fp_name="/simtop/topmoduleinstance/hart0/hwinterrupt" type="logic">
+      <obj_property name="ElementShortName">hwinterrupt</obj_property>
+      <obj_property name="ObjectShortName">hwinterrupt</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/hart0/illegalinstruction" type="logic">
+      <obj_property name="ElementShortName">illegalinstruction</obj_property>
+      <obj_property name="ObjectShortName">illegalinstruction</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/hart0/timerinterrupt" type="logic">
+      <obj_property name="ElementShortName">timerinterrupt</obj_property>
+      <obj_property name="ObjectShortName">timerinterrupt</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/hart0/miena" type="logic">
+      <obj_property name="ElementShortName">miena</obj_property>
+      <obj_property name="ObjectShortName">miena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/hart0/msena" type="logic">
+      <obj_property name="ElementShortName">msena</obj_property>
+      <obj_property name="ObjectShortName">msena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/hart0/mtena" type="logic">
+      <obj_property name="ElementShortName">mtena</obj_property>
+      <obj_property name="ObjectShortName">mtena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/hart0/ecall" type="logic">
+      <obj_property name="ElementShortName">ecall</obj_property>
+      <obj_property name="ObjectShortName">ecall</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/hart0/ebreak" type="logic">
+      <obj_property name="ElementShortName">ebreak</obj_property>
+      <obj_property name="ObjectShortName">ebreak</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/hart0/wfi" type="logic">
+      <obj_property name="ElementShortName">wfi</obj_property>
+      <obj_property name="ObjectShortName">wfi</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/hart0/mret" type="logic">
+      <obj_property name="ElementShortName">mret</obj_property>
+      <obj_property name="ObjectShortName">mret</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/hart0/trq" type="logic">
+      <obj_property name="ElementShortName">trq</obj_property>
+      <obj_property name="ObjectShortName">trq</obj_property>
    </wvobject>
    <wvobject type="divider" fp_name="divider1556">
       <obj_property name="label">hart0</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/hart0/cpustate" type="array">
-      <obj_property name="ElementShortName">cpustate[13:0]</obj_property>
-      <obj_property name="ObjectShortName">cpustate[13:0]</obj_property>
+      <obj_property name="ElementShortName">cpustate[12:0]</obj_property>
+      <obj_property name="ObjectShortName">cpustate[12:0]</obj_property>
       <obj_property name="isExpanded"></obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/hart0/pc" type="array">
       <obj_property name="ElementShortName">pc[31:0]</obj_property>
       <obj_property name="ObjectShortName">pc[31:0]</obj_property>
    </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/hart0/csrreg" type="array">
+      <obj_property name="ElementShortName">csrreg[0:15][31:0]</obj_property>
+      <obj_property name="ObjectShortName">csrreg[0:15][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/hart0/integerregisters/registers" type="array">
+      <obj_property name="ElementShortName">registers[0:31][31:0]</obj_property>
+      <obj_property name="ObjectShortName">registers[0:31][31:0]</obj_property>
+   </wvobject>
    <wvobject type="divider" fp_name="divider1650">
       <obj_property name="label">fpu</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/frval1" type="array">
-      <obj_property name="ElementShortName">frval1[31:0]</obj_property>
-      <obj_property name="ObjectShortName">frval1[31:0]</obj_property>
-      <obj_property name="Radix">REALRADIX</obj_property>
-      <obj_property name="radix_realType">FLOATINGPOINTRADIX</obj_property>
-      <obj_property name="radix_fractionWidth">24</obj_property>
-      <obj_property name="radix_otherWidth">8</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/frval2" type="array">
-      <obj_property name="ElementShortName">frval2[31:0]</obj_property>
-      <obj_property name="ObjectShortName">frval2[31:0]</obj_property>
-      <obj_property name="Radix">REALRADIX</obj_property>
-      <obj_property name="radix_realType">FLOATINGPOINTRADIX</obj_property>
-      <obj_property name="radix_fractionWidth">24</obj_property>
-      <obj_property name="radix_otherWidth">8</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/frval3" type="array">
-      <obj_property name="ElementShortName">frval3[31:0]</obj_property>
-      <obj_property name="ObjectShortName">frval3[31:0]</obj_property>
-      <obj_property name="Radix">REALRADIX</obj_property>
-      <obj_property name="radix_realType">FLOATINGPOINTRADIX</obj_property>
-      <obj_property name="radix_fractionWidth">24</obj_property>
-      <obj_property name="radix_otherWidth">8</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/rval1" type="array">
-      <obj_property name="ElementShortName">rval1[31:0]</obj_property>
-      <obj_property name="ObjectShortName">rval1[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/strobe" type="array">
-      <obj_property name="ElementShortName">strobe[15:0]</obj_property>
-      <obj_property name="ObjectShortName">strobe[15:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/fpuresultvalid" type="logic">
-      <obj_property name="ElementShortName">fpuresultvalid</obj_property>
-      <obj_property name="ObjectShortName">fpuresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/fpuresult" type="array">
-      <obj_property name="ElementShortName">fpuresult[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fpuresult[31:0]</obj_property>
-      <obj_property name="Radix">REALRADIX</obj_property>
-      <obj_property name="radix_realType">FLOATINGPOINTRADIX</obj_property>
-      <obj_property name="radix_fractionWidth">24</obj_property>
-      <obj_property name="radix_otherWidth">8</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/fpufifodin" type="array">
-      <obj_property name="ElementShortName">fpufifodin[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fpufifodin[31:0]</obj_property>
-      <obj_property name="Radix">REALRADIX</obj_property>
-      <obj_property name="radix_realType">FLOATINGPOINTRADIX</obj_property>
-      <obj_property name="radix_fractionWidth">24</obj_property>
-      <obj_property name="radix_otherWidth">8</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/fpufifowe" type="logic">
-      <obj_property name="ElementShortName">fpufifowe</obj_property>
-      <obj_property name="ObjectShortName">fpufifowe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/fpufifore" type="logic">
-      <obj_property name="ElementShortName">fpufifore</obj_property>
-      <obj_property name="ObjectShortName">fpufifore</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/fpufifodout" type="array">
-      <obj_property name="ElementShortName">fpufifodout[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fpufifodout[31:0]</obj_property>
-      <obj_property name="Radix">REALRADIX</obj_property>
-      <obj_property name="radix_realType">FLOATINGPOINTRADIX</obj_property>
-      <obj_property name="radix_fractionWidth">24</obj_property>
-      <obj_property name="radix_otherWidth">8</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/fpufifofull" type="logic">
-      <obj_property name="ElementShortName">fpufifofull</obj_property>
-      <obj_property name="ObjectShortName">fpufifofull</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/fpufifoempty" type="logic">
-      <obj_property name="ElementShortName">fpufifoempty</obj_property>
-      <obj_property name="ObjectShortName">fpufifoempty</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/fpufifovalid" type="logic">
-      <obj_property name="ElementShortName">fpufifovalid</obj_property>
-      <obj_property name="ObjectShortName">fpufifovalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/waddrstate" type="array">
-      <obj_property name="ElementShortName">waddrstate[1:0]</obj_property>
-      <obj_property name="ObjectShortName">waddrstate[1:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/writestate" type="array">
-      <obj_property name="ElementShortName">writestate[1:0]</obj_property>
-      <obj_property name="ObjectShortName">writestate[1:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/raddrstate" type="array">
-      <obj_property name="ElementShortName">raddrstate[1:0]</obj_property>
-      <obj_property name="ObjectShortName">raddrstate[1:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/clock" type="logic">
-      <obj_property name="ElementShortName">clock</obj_property>
-      <obj_property name="ObjectShortName">clock</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/frval1" type="array">
-      <obj_property name="ElementShortName">frval1[31:0]</obj_property>
-      <obj_property name="ObjectShortName">frval1[31:0]</obj_property>
-      <obj_property name="Radix">REALRADIX</obj_property>
-      <obj_property name="radix_realType">FLOATINGPOINTRADIX</obj_property>
-      <obj_property name="radix_fractionWidth">24</obj_property>
-      <obj_property name="radix_otherWidth">8</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/frval2" type="array">
-      <obj_property name="ElementShortName">frval2[31:0]</obj_property>
-      <obj_property name="ObjectShortName">frval2[31:0]</obj_property>
-      <obj_property name="Radix">REALRADIX</obj_property>
-      <obj_property name="radix_realType">FLOATINGPOINTRADIX</obj_property>
-      <obj_property name="radix_fractionWidth">24</obj_property>
-      <obj_property name="radix_otherWidth">8</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/frval3" type="array">
-      <obj_property name="ElementShortName">frval3[31:0]</obj_property>
-      <obj_property name="ObjectShortName">frval3[31:0]</obj_property>
-      <obj_property name="Radix">REALRADIX</obj_property>
-      <obj_property name="radix_realType">FLOATINGPOINTRADIX</obj_property>
-      <obj_property name="radix_fractionWidth">24</obj_property>
-      <obj_property name="radix_otherWidth">8</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/rval1" type="array">
-      <obj_property name="ElementShortName">rval1[31:0]</obj_property>
-      <obj_property name="ObjectShortName">rval1[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fmaddstrobe" type="logic">
-      <obj_property name="ElementShortName">fmaddstrobe</obj_property>
-      <obj_property name="ObjectShortName">fmaddstrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fmsubstrobe" type="logic">
-      <obj_property name="ElementShortName">fmsubstrobe</obj_property>
-      <obj_property name="ObjectShortName">fmsubstrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fnmsubstrobe" type="logic">
-      <obj_property name="ElementShortName">fnmsubstrobe</obj_property>
-      <obj_property name="ObjectShortName">fnmsubstrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fnmaddstrobe" type="logic">
-      <obj_property name="ElementShortName">fnmaddstrobe</obj_property>
-      <obj_property name="ObjectShortName">fnmaddstrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/faddstrobe" type="logic">
-      <obj_property name="ElementShortName">faddstrobe</obj_property>
-      <obj_property name="ObjectShortName">faddstrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fsubstrobe" type="logic">
-      <obj_property name="ElementShortName">fsubstrobe</obj_property>
-      <obj_property name="ObjectShortName">fsubstrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fmulstrobe" type="logic">
-      <obj_property name="ElementShortName">fmulstrobe</obj_property>
-      <obj_property name="ObjectShortName">fmulstrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fdivstrobe" type="logic">
-      <obj_property name="ElementShortName">fdivstrobe</obj_property>
-      <obj_property name="ObjectShortName">fdivstrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fi2fstrobe" type="logic">
-      <obj_property name="ElementShortName">fi2fstrobe</obj_property>
-      <obj_property name="ObjectShortName">fi2fstrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fui2fstrobe" type="logic">
-      <obj_property name="ElementShortName">fui2fstrobe</obj_property>
-      <obj_property name="ObjectShortName">fui2fstrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/ff2istrobe" type="logic">
-      <obj_property name="ElementShortName">ff2istrobe</obj_property>
-      <obj_property name="ObjectShortName">ff2istrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/ff2uistrobe" type="logic">
-      <obj_property name="ElementShortName">ff2uistrobe</obj_property>
-      <obj_property name="ObjectShortName">ff2uistrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fsqrtstrobe" type="logic">
-      <obj_property name="ElementShortName">fsqrtstrobe</obj_property>
-      <obj_property name="ObjectShortName">fsqrtstrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/feqstrobe" type="logic">
-      <obj_property name="ElementShortName">feqstrobe</obj_property>
-      <obj_property name="ObjectShortName">feqstrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fltstrobe" type="logic">
-      <obj_property name="ElementShortName">fltstrobe</obj_property>
-      <obj_property name="ObjectShortName">fltstrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/flestrobe" type="logic">
-      <obj_property name="ElementShortName">flestrobe</obj_property>
-      <obj_property name="ObjectShortName">flestrobe</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/resultvalid" type="logic">
-      <obj_property name="ElementShortName">resultvalid</obj_property>
-      <obj_property name="ObjectShortName">resultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/result" type="array">
-      <obj_property name="ElementShortName">result[31:0]</obj_property>
-      <obj_property name="ObjectShortName">result[31:0]</obj_property>
-      <obj_property name="Radix">REALRADIX</obj_property>
-      <obj_property name="radix_realType">FLOATINGPOINTRADIX</obj_property>
-      <obj_property name="radix_fractionWidth">24</obj_property>
-      <obj_property name="radix_otherWidth">8</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fmaddresultvalid" type="logic">
-      <obj_property name="ElementShortName">fmaddresultvalid</obj_property>
-      <obj_property name="ObjectShortName">fmaddresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fmsubresultvalid" type="logic">
-      <obj_property name="ElementShortName">fmsubresultvalid</obj_property>
-      <obj_property name="ObjectShortName">fmsubresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fnmsubresultvalid" type="logic">
-      <obj_property name="ElementShortName">fnmsubresultvalid</obj_property>
-      <obj_property name="ObjectShortName">fnmsubresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fnmaddresultvalid" type="logic">
-      <obj_property name="ElementShortName">fnmaddresultvalid</obj_property>
-      <obj_property name="ObjectShortName">fnmaddresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/faddresultvalid" type="logic">
-      <obj_property name="ElementShortName">faddresultvalid</obj_property>
-      <obj_property name="ObjectShortName">faddresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fsubresultvalid" type="logic">
-      <obj_property name="ElementShortName">fsubresultvalid</obj_property>
-      <obj_property name="ObjectShortName">fsubresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fmulresultvalid" type="logic">
-      <obj_property name="ElementShortName">fmulresultvalid</obj_property>
-      <obj_property name="ObjectShortName">fmulresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fdivresultvalid" type="logic">
-      <obj_property name="ElementShortName">fdivresultvalid</obj_property>
-      <obj_property name="ObjectShortName">fdivresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fi2fresultvalid" type="logic">
-      <obj_property name="ElementShortName">fi2fresultvalid</obj_property>
-      <obj_property name="ObjectShortName">fi2fresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fui2fresultvalid" type="logic">
-      <obj_property name="ElementShortName">fui2fresultvalid</obj_property>
-      <obj_property name="ObjectShortName">fui2fresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/ff2iresultvalid" type="logic">
-      <obj_property name="ElementShortName">ff2iresultvalid</obj_property>
-      <obj_property name="ObjectShortName">ff2iresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/ff2uiresultvalid" type="logic">
-      <obj_property name="ElementShortName">ff2uiresultvalid</obj_property>
-      <obj_property name="ObjectShortName">ff2uiresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fsqrtresultvalid" type="logic">
-      <obj_property name="ElementShortName">fsqrtresultvalid</obj_property>
-      <obj_property name="ObjectShortName">fsqrtresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/feqresultvalid" type="logic">
-      <obj_property name="ElementShortName">feqresultvalid</obj_property>
-      <obj_property name="ObjectShortName">feqresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fltresultvalid" type="logic">
-      <obj_property name="ElementShortName">fltresultvalid</obj_property>
-      <obj_property name="ObjectShortName">fltresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fleresultvalid" type="logic">
-      <obj_property name="ElementShortName">fleresultvalid</obj_property>
-      <obj_property name="ObjectShortName">fleresultvalid</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fmaddresult" type="array">
-      <obj_property name="ElementShortName">fmaddresult[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fmaddresult[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fmsubresult" type="array">
-      <obj_property name="ElementShortName">fmsubresult[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fmsubresult[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fnmsubresult" type="array">
-      <obj_property name="ElementShortName">fnmsubresult[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fnmsubresult[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fnmaddresult" type="array">
-      <obj_property name="ElementShortName">fnmaddresult[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fnmaddresult[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/faddresult" type="array">
-      <obj_property name="ElementShortName">faddresult[31:0]</obj_property>
-      <obj_property name="ObjectShortName">faddresult[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fsubresult" type="array">
-      <obj_property name="ElementShortName">fsubresult[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fsubresult[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fmulresult" type="array">
-      <obj_property name="ElementShortName">fmulresult[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fmulresult[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fdivresult" type="array">
-      <obj_property name="ElementShortName">fdivresult[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fdivresult[31:0]</obj_property>
-      <obj_property name="Radix">REALRADIX</obj_property>
-      <obj_property name="radix_realType">FLOATINGPOINTRADIX</obj_property>
-      <obj_property name="radix_fractionWidth">24</obj_property>
-      <obj_property name="radix_otherWidth">8</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fi2fresult" type="array">
-      <obj_property name="ElementShortName">fi2fresult[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fi2fresult[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fui2fresult" type="array">
-      <obj_property name="ElementShortName">fui2fresult[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fui2fresult[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/ff2iresult" type="array">
-      <obj_property name="ElementShortName">ff2iresult[31:0]</obj_property>
-      <obj_property name="ObjectShortName">ff2iresult[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/ff2uiresult" type="array">
-      <obj_property name="ElementShortName">ff2uiresult[31:0]</obj_property>
-      <obj_property name="ObjectShortName">ff2uiresult[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fsqrtresult" type="array">
-      <obj_property name="ElementShortName">fsqrtresult[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fsqrtresult[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/feqresult" type="array">
-      <obj_property name="ElementShortName">feqresult[7:0]</obj_property>
-      <obj_property name="ObjectShortName">feqresult[7:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fltresult" type="array">
-      <obj_property name="ElementShortName">fltresult[7:0]</obj_property>
-      <obj_property name="ObjectShortName">fltresult[7:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/simtop/topmoduleinstance/axichain/floatingpointunit/axi4fpudevice/fleresult" type="array">
-      <obj_property name="ElementShortName">fleresult[7:0]</obj_property>
-      <obj_property name="ObjectShortName">fleresult[7:0]</obj_property>
    </wvobject>
 </wave_config>

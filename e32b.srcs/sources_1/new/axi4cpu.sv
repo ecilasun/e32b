@@ -367,18 +367,18 @@ always @(posedge axi4if.aclk) begin
 			if (hwinterrupt) begin // mei, external hardware interrupt
 				// using non-vectored interrupt handlers (last 2 bits are 2'b00)
 				csrreg[`csr_mip][11] <= 1'b1;
-				csrreg[`csr_mepc] <= adjacentpc;
+				csrreg[`csr_mepc] <= pc; // return to this instruction which won't be executed to handle the interrupt request
 				csrreg[`csr_mtval] <= {28'd0, irq}; // interrupting hardware selector
 				csrreg[`csr_mcause] <= 32'h8000000b; // [31]=1'b1(interrupt), 11->h/w
 			end else if (illegalinstruction | ecall) begin // msi, exception
 				// using non-vectored interrupt handlers (last 2 bits are 2'b00)
 				csrreg[`csr_mip][3] <= 1'b1;
-				csrreg[`csr_mepc] <= adjacentpc;
+				csrreg[`csr_mepc] <= pc;
 				csrreg[`csr_mtval] <= instruction;
 				csrreg[`csr_mcause] <= ecall ? 32'h0000000b : 32'h00000002; // [31]=1'b0(exception), 0xb->ecall, 0x2->illegal instruction
 			end else if (timerinterrupt) begin // mti, timer interrupt
 				csrreg[`csr_mip][7] <= 1'b1;
-				csrreg[`csr_mepc] <= adjacentpc;
+				csrreg[`csr_mepc] <= pc;
 				csrreg[`csr_mtval] <= 32'd0;
 				csrreg[`csr_mcause] <= 32'h80000007; // [31]=1'b1(interrupt), 7->timer
 			end

@@ -126,11 +126,11 @@ wire ifetch;
 wire ui_clk;
 
 axi4 axi4busa(
-	.aclk(ui_clk), // Bus clock == ui_clk (temp)
+	.aclk(/*busclock*/ui_clk), // Bus clock == ui_clk (temporarily)
 	.aresetn(~devicereset) );
 
 /*axi4 axi4busb(
-	.aclk(ui_clk), // Bus clock == ui_clk (temp)
+	.aclk(ui_clk), // Bus clock == ui_clk (temporarily)
 	.aresetn(~devicereset) );*/
 
 axi4chain axichain(
