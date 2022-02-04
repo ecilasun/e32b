@@ -18,11 +18,11 @@ logic [3:0] n = 4'd0;
 wire [65:0] dspproduct;
 
 mul_SS mulsignedsigned(
-	.clk(clk),
-	.a(a),
-	.b(b),
-	.p(dspproduct),
-	.ce(~reset & (start | busy)) );
+	.CLK(clk),
+	.A(a),
+	.B(b),
+	.P(dspproduct),
+	.CE(~reset & (start | busy)) );
 
 always_ff @(posedge clk) begin
 	if (reset) begin
