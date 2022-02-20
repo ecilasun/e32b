@@ -5,12 +5,12 @@ module ddr3frontend(
 	axi4.slave axi4if,		// from bus
 	input wire ifetch );
 
-logic [15:0] ptag;				// previous cache tag (16 bits)
-logic [15:0] ctag;				// current cache tag (16 bits)
-logic [8:0] cline;				// current cache line 0..512 (there are 512 cache lines)
-logic [2:0] coffset;			// current word offset 0..7 (each cache line is 8xwords (256bits))
-logic [31:0] cwidemask;			// wide write mask
-logic [31:0] wdata;				// input data to write from bus side
+logic [15:0] ptag = 16'd0;		// previous cache tag (16 bits)
+logic [15:0] ctag = 16'd0;		// current cache tag (16 bits)
+logic [8:0] cline = 9'd0;		// current cache line 0..512 (there are 512 cache lines)
+logic [2:0] coffset = 3'd0;		// current word offset 0..7 (each cache line is 8xwords (256bits))
+logic [31:0] cwidemask = 32'd0;	// wide write mask
+logic [31:0] wdata = 32'd0;		// input data to write from bus side
 logic [3:0] burstindex = 4'b1;	// index of current burst
 
 logic ddr3valid [0:511];			// cache line valid bits
@@ -28,8 +28,8 @@ initial begin
 end
 
 typedef enum logic [2 : 0] {IDLE, WRITECHK, READCHK, RACCEPT, READ, WACCEPT, WRITE, WCOMPLETE} ddr3_state_type;
-ddr3_state_type ddr3axi4state;
-ddr3_state_type returnstate;
+ddr3_state_type ddr3axi4state = IDLE;
+ddr3_state_type returnstate = WRITECHK;
 
 always @(posedge axi4if.aclk) begin
 	if (~axi4if.aresetn) begin

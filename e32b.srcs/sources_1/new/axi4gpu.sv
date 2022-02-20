@@ -133,61 +133,69 @@ logic [1:0] writestate = 2'b00;
 logic [1:0] raddrstate = 2'b00;
 
 always @(posedge axi4if.aclk) begin
-	// write address
-	case (waddrstate)
-		2'b00: begin
-			if (axi4if.awvalid) begin
-				fbwa <= axi4if.awaddr[16:2];
-				axi4if.awready <= 1'b1;
-				waddrstate <= 2'b01;
+	if (~axi4if.aresetn) begin
+		axi4if.awready <= 1'b1;
+	end else begin
+		// write address
+		case (waddrstate)
+			2'b00: begin
+				if (axi4if.awvalid) begin
+					fbwa <= axi4if.awaddr[16:2];
+					axi4if.awready <= 1'b0;
+					waddrstate <= 2'b01;
+				end
 			end
-		end
-		default/*2'b01*/: begin
-			axi4if.awready <= 1'b0;
-			waddrstate <= 2'b00;
-		end
-	endcase
+			default/*2'b01*/: begin
+				axi4if.awready <= 1'b1;
+				waddrstate <= 2'b00;
+			end
+		endcase
+	end
 end
 
 always @(posedge axi4if.aclk) begin
-	// write data
-	fbwe <= 4'h0;
-	palettewe <= 1'b0;
-	case (writestate)
-		2'b00: begin
-			if (axi4if.wvalid) begin
-				// fb0: @40000000 // axi4if.awaddr[19:16] == 0 +
-				// fb1: @40020000 // axi4if.awaddr[19:16] == 2
-				// pal: @40040000 // axi4if.awaddr[19:16] == 4 +
-				// ctl: @40080000 // axi4if.awaddr[19:16] == 8
-				case (axi4if.awaddr[19:16])
-					default/*4'h0*/: begin // fb0
-						fbdin <= axi4if.wdata;
-						fbwe <= axi4if.wstrb;
-					end
-					4'h4: begin // pal
-						palettewa <= axi4if.awaddr[9:2]; // word aligned
-						palettedin <= axi4if.wdata[23:0];
-						palettewe <= 1'b1;
-					end
-				endcase
-				axi4if.wready <= 1'b1;
-				writestate <= 2'b01;
+	if (~axi4if.aresetn) begin
+		//
+	end else begin
+		// write data
+		fbwe <= 4'h0;
+		palettewe <= 1'b0;
+		case (writestate)
+			2'b00: begin
+				if (axi4if.wvalid) begin
+					// fb0: @40000000 // axi4if.awaddr[19:16] == 0 +
+					// fb1: @40020000 // axi4if.awaddr[19:16] == 2
+					// pal: @40040000 // axi4if.awaddr[19:16] == 4 +
+					// ctl: @40080000 // axi4if.awaddr[19:16] == 8
+					case (axi4if.awaddr[19:16])
+						default/*4'h0*/: begin // fb0
+							fbdin <= axi4if.wdata;
+							fbwe <= axi4if.wstrb;
+						end
+						4'h4: begin // pal
+							palettewa <= axi4if.awaddr[9:2]; // word aligned
+							palettedin <= axi4if.wdata[23:0];
+							palettewe <= 1'b1;
+						end
+					endcase
+					axi4if.wready <= 1'b1;
+					writestate <= 2'b01;
+				end
 			end
-		end
-		2'b01: begin
-			axi4if.wready <= 1'b0;
-			if(axi4if.bready) begin
-				axi4if.bvalid <= 1'b1;
-				axi4if.bresp = 2'b00; // okay
-				writestate <= 2'b10;
+			2'b01: begin
+				axi4if.wready <= 1'b0;
+				if(axi4if.bready) begin
+					axi4if.bvalid <= 1'b1;
+					axi4if.bresp = 2'b00; // okay
+					writestate <= 2'b10;
+				end
 			end
-		end
-		default/*2'b10*/: begin
-			axi4if.bvalid <= 1'b0;
-			writestate <= 2'b00;
-		end
-	endcase
+			default/*2'b10*/: begin
+				axi4if.bvalid <= 1'b0;
+				writestate <= 2'b00;
+			end
+		endcase
+	end
 end
 
 always @(posedge axi4if.aclk) begin

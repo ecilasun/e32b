@@ -12,15 +12,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="341.991666666 us"></ZoomStartTime>
-      <ZoomEndTime time="357.781666667 us"></ZoomEndTime>
-      <Cursor1Time time="355.150000000 us"></Cursor1Time>
+      <ZoomStartTime time="217,539.000000 ns"></ZoomStartTime>
+      <ZoomEndTime time="219,780.000001 ns"></ZoomEndTime>
+      <Cursor1Time time="218,150.000000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="213"></NameColumnWidth>
+      <NameColumnWidth column_width="207"></NameColumnWidth>
       <ValueColumnWidth column_width="88"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="31" />
+   <WVObjectSize size="69" />
    <wvobject fp_name="/simtop/sys_clock" type="logic">
       <obj_property name="ElementShortName">sys_clock</obj_property>
       <obj_property name="ObjectShortName">sys_clock</obj_property>
@@ -128,11 +128,14 @@
    <wvobject fp_name="/simtop/topmoduleinstance/hart0/cpustate" type="array">
       <obj_property name="ElementShortName">cpustate[12:0]</obj_property>
       <obj_property name="ObjectShortName">cpustate[12:0]</obj_property>
-      <obj_property name="isExpanded"></obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/hart0/pc" type="array">
       <obj_property name="ElementShortName">pc[31:0]</obj_property>
       <obj_property name="ObjectShortName">pc[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/hart0/instruction" type="array">
+      <obj_property name="ElementShortName">instruction[31:0]</obj_property>
+      <obj_property name="ObjectShortName">instruction[31:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/simtop/topmoduleinstance/hart0/csrreg" type="array">
       <obj_property name="ElementShortName">csrreg[0:15][31:0]</obj_property>
@@ -143,7 +146,155 @@
       <obj_property name="ObjectShortName">registers[0:31][31:0]</obj_property>
    </wvobject>
    <wvobject type="divider" fp_name="divider1650">
-      <obj_property name="label">fpu</obj_property>
+      <obj_property name="label">ddr3</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ifetch" type="logic">
+      <obj_property name="ElementShortName">ifetch</obj_property>
+      <obj_property name="ObjectShortName">ifetch</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/calib_done" type="logic">
+      <obj_property name="ElementShortName">calib_done</obj_property>
+      <obj_property name="ObjectShortName">calib_done</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ui_clk" type="logic">
+      <obj_property name="ElementShortName">ui_clk</obj_property>
+      <obj_property name="ObjectShortName">ui_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/aclk" type="logic">
+      <obj_property name="ElementShortName">aclk</obj_property>
+      <obj_property name="ObjectShortName">aclk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/aresetn" type="logic">
+      <obj_property name="ElementShortName">aresetn</obj_property>
+      <obj_property name="ObjectShortName">aresetn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/awaddr" type="array">
+      <obj_property name="ElementShortName">awaddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">awaddr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/awvalid" type="logic">
+      <obj_property name="ElementShortName">awvalid</obj_property>
+      <obj_property name="ObjectShortName">awvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/awready" type="logic">
+      <obj_property name="ElementShortName">awready</obj_property>
+      <obj_property name="ObjectShortName">awready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/wdata" type="array">
+      <obj_property name="ElementShortName">wdata[127:0]</obj_property>
+      <obj_property name="ObjectShortName">wdata[127:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/wstrb" type="array">
+      <obj_property name="ElementShortName">wstrb[7:0]</obj_property>
+      <obj_property name="ObjectShortName">wstrb[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/wlast" type="logic">
+      <obj_property name="ElementShortName">wlast</obj_property>
+      <obj_property name="ObjectShortName">wlast</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/wvalid" type="logic">
+      <obj_property name="ElementShortName">wvalid</obj_property>
+      <obj_property name="ObjectShortName">wvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/wready" type="logic">
+      <obj_property name="ElementShortName">wready</obj_property>
+      <obj_property name="ObjectShortName">wready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/bresp" type="array">
+      <obj_property name="ElementShortName">bresp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">bresp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/bvalid" type="logic">
+      <obj_property name="ElementShortName">bvalid</obj_property>
+      <obj_property name="ObjectShortName">bvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/bready" type="logic">
+      <obj_property name="ElementShortName">bready</obj_property>
+      <obj_property name="ObjectShortName">bready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/araddr" type="array">
+      <obj_property name="ElementShortName">araddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">araddr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/arvalid" type="logic">
+      <obj_property name="ElementShortName">arvalid</obj_property>
+      <obj_property name="ObjectShortName">arvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/arready" type="logic">
+      <obj_property name="ElementShortName">arready</obj_property>
+      <obj_property name="ObjectShortName">arready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/rdata" type="array">
+      <obj_property name="ElementShortName">rdata[127:0]</obj_property>
+      <obj_property name="ObjectShortName">rdata[127:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/rresp" type="array">
+      <obj_property name="ElementShortName">rresp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">rresp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/rlast" type="logic">
+      <obj_property name="ElementShortName">rlast</obj_property>
+      <obj_property name="ObjectShortName">rlast</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/rvalid" type="logic">
+      <obj_property name="ElementShortName">rvalid</obj_property>
+      <obj_property name="ObjectShortName">rvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3if/rready" type="logic">
+      <obj_property name="ElementShortName">rready</obj_property>
+      <obj_property name="ObjectShortName">rready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3frontend/ifetch" type="logic">
+      <obj_property name="ElementShortName">ifetch</obj_property>
+      <obj_property name="ObjectShortName">ifetch</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3frontend/ptag" type="array">
+      <obj_property name="ElementShortName">ptag[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ptag[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3frontend/ctag" type="array">
+      <obj_property name="ElementShortName">ctag[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ctag[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3frontend/cline" type="array">
+      <obj_property name="ElementShortName">cline[8:0]</obj_property>
+      <obj_property name="ObjectShortName">cline[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3frontend/coffset" type="array">
+      <obj_property name="ElementShortName">coffset[2:0]</obj_property>
+      <obj_property name="ObjectShortName">coffset[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3frontend/cwidemask" type="array">
+      <obj_property name="ElementShortName">cwidemask[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cwidemask[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3frontend/wdata" type="array">
+      <obj_property name="ElementShortName">wdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">wdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3frontend/burstindex" type="array">
+      <obj_property name="ElementShortName">burstindex[1:0]</obj_property>
+      <obj_property name="ObjectShortName">burstindex[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3frontend/ddr3valid" type="array">
+      <obj_property name="ElementShortName">ddr3valid[0:511]</obj_property>
+      <obj_property name="ObjectShortName">ddr3valid[0:511]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3frontend/ddr3tags" type="array">
+      <obj_property name="ElementShortName">ddr3tags[0:511][15:0]</obj_property>
+      <obj_property name="ObjectShortName">ddr3tags[0:511][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3frontend/ddr3axi4state" type="array">
+      <obj_property name="ElementShortName">ddr3axi4state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ddr3axi4state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3frontend/returnstate" type="array">
+      <obj_property name="ElementShortName">returnstate[2:0]</obj_property>
+      <obj_property name="ObjectShortName">returnstate[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/simtop/topmoduleinstance/axichain/ddr3/ddr3frontend/ddr3tags" type="array">
+      <obj_property name="ElementShortName">ddr3tags[0:511][15:0]</obj_property>
+      <obj_property name="ObjectShortName">ddr3tags[0:511][15:0]</obj_property>
    </wvobject>
 </wave_config>
